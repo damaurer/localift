@@ -14,6 +14,11 @@ function formatDuration(seconds: number): string {
 export default function Dashboard() {
   const { plans, sessions, activeWorkout, navigate, startWorkout } = useApp();
 
+  const lastSession = useMemo(
+    () => sessions.find(s => !!s.completedAt),
+    [sessions]
+  );
+
   const todayStats = useMemo(() => {
     const today = new Date().toDateString();
     const todaySessions = sessions.filter(s => new Date(s.startedAt).toDateString() === today && s.completedAt);
@@ -147,8 +152,36 @@ export default function Dashboard() {
 
         {/* Quick Start */}
         {!activeWorkout ? (
-          <section>
-            {plans.length > 0 ? (
+          <section className="space-y-3">
+            {lastSession && plans.find(p => p.id === lastSession.planId) ? (
+              <>
+                <button
+                  onClick={() => startWorkout(lastSession.planId, lastSession)}
+                  className="w-full kinetic-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
+                  style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
+                >
+                  <span
+                    className="material-symbols-outlined text-3xl flex-shrink-0"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >play_arrow</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold tracking-widest uppercase opacity-70">Training Starten</p>
+                    <p className="text-xl font-black tracking-tight truncate" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                      {lastSession.planName.toUpperCase()}
+                    </p>
+                    <p className="text-xs opacity-60 mt-0.5">
+                      {lastSession.exercises.length} Übungen · letzte Gewichte vorgeladen
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate({ screen: 'plans' })}
+                  className="w-full text-primary text-xs font-bold tracking-widest uppercase text-center py-1 hover:opacity-70 transition-opacity"
+                >
+                  Anderen Plan starten →
+                </button>
+              </>
+            ) : plans.length > 0 ? (
               <button
                 onClick={() => navigate({ screen: 'plans' })}
                 className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"

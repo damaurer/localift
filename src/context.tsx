@@ -49,7 +49,7 @@ interface AppContextValue {
   reorderPlanExercises: (planId: string, from: number, to: number) => void;
 
   // Active workout
-  startWorkout: (planId: string) => void;
+  startWorkout: (planId: string, prevSession?: WorkoutSession) => void;
   updateActiveSet: (exerciseIndex: number, field: 'weight' | 'reps', value: number) => void;
   completeSet: (exerciseIndex: number) => void;
   setExpandedExercise: (index: number) => void;
@@ -121,7 +121,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Plans
   const savePlan = useCallback((plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
     const now = new Date().toISOString();
-    let id = plan.id ?? generateId();
+    const id = plan.id ?? generateId();
     setPlans(prev => {
       const existing = prev.find(p => p.id === id);
       let next: WorkoutPlan[];
@@ -233,7 +233,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Active workout
-  const startWorkout = useCallback((planId: string) => {
+  const startWorkout = useCallback((planId: string, prevSession?: WorkoutSession) => {
     const plan = plans.find(p => p.id === planId);
     if (!plan) return;
 
@@ -242,14 +242,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .map(pe => {
         const ex = exercises.find(e => e.id === pe.exerciseId);
         const firstSet = pe.sets[0];
+
+        // Pre-fill with the last achieved values from the previous session
+        const prevEx = prevSession?.exercises.find(e => e.exerciseId === pe.exerciseId);
+        const lastLogged = prevEx?.loggedSets[prevEx.loggedSets.length - 1];
+
         return {
           planExerciseId: pe.id,
           exerciseId: pe.exerciseId,
           exerciseName: ex?.name ?? 'Übung',
           targetSets: pe.sets,
           loggedSets: [],
-          currentWeight: firstSet?.weight ?? 60,
-          currentReps: firstSet?.reps ?? 8,
+          currentWeight: lastLogged?.weight ?? firstSet?.weight ?? 60,
+          currentReps: lastLogged?.reps ?? firstSet?.reps ?? 8,
         };
       });
 
@@ -402,6 +407,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('useApp must be used within AppProvider');

@@ -262,13 +262,6 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
           <div className="space-y-2">
             <button
               onClick={() => {
-                if (!name.trim()) {
-                  setNameShake(true);
-                  setTimeout(() => setNameShake(false), 400);
-                  nameInputRef.current?.focus();
-                  nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  return;
-                }
                 handleSaveMeta();
                 setShowExercisePicker(true);
               }}
@@ -277,35 +270,44 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
                   ? 'group hover:border-primary cursor-pointer'
                   : 'opacity-40 cursor-not-allowed'
               }`}
-              style={{ border: `2px dashed ${name.trim() ? 'rgba(72, 72, 71, 0.3)' : 'rgba(72, 72, 71, 0.15)'}` }}
+              style={{ border: `2px dashed rgba(72, 72, 71, 0.15)` }}
             >
-              <span className={`material-symbols-outlined transition-colors ${name.trim() ? 'text-on-surface-variant group-hover:text-primary' : 'text-on-surface-variant'}`}>
+              <span className={`material-symbols-outlined transition-colors 'text-on-surface-variant group-hover:text-primary' `}>
                 add_circle
               </span>
               <span
-                className={`text-sm font-bold tracking-widest uppercase transition-colors ${name.trim() ? 'text-on-surface-variant group-hover:text-primary' : 'text-on-surface-variant'}`}
+                className={`text-sm font-bold tracking-widest uppercase transition-colors text-on-surface-variant group-hover:text-primary`}
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
                 Übung hinzufügen
               </span>
             </button>
-            {!name.trim() && (
-              <p className="text-center text-xs text-primary font-bold tracking-widest uppercase" style={{ opacity: 0.7 }}>
-                Zuerst Planname eingeben
-              </p>
-            )}
           </div>
         </section>
 
         {/* Save button */}
         <div>
           <button
-            onClick={handleSaveMeta}
-            className="w-full py-5 rounded-xl text-on-primary font-black text-lg tracking-widest uppercase active:scale-95 transition-all"
+            onClick={() => {
+              if (!name.trim()) {
+                setNameShake(true);
+                setTimeout(() => setNameShake(false), 400);
+                nameInputRef.current?.focus();
+                nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+              }
+              handleSaveMeta()
+            }}
+            className={`w-full py-5 rounded-xl text-on-primary font-black text-lg tracking-widest uppercase active:scale-95 transition-all ${name.trim() ? '' : 'opacity-40 cursor-not-allowed'}`}
             style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)', boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
           >
             {saved ? '✓ GESPEICHERT' : 'PLAN SPEICHERN'}
           </button>
+          {!name.trim() && (
+            <p className="text-center text-xs text-primary font-bold tracking-widest uppercase" style={{ opacity: 0.7 }}>
+              Zuerst Planname eingeben
+            </p>
+        )}
         </div>
       </main>
 
