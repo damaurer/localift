@@ -4,6 +4,9 @@ export interface Exercise {
   equipment: 'barbell' | 'dumbbell' | 'machine' | 'bodyweight' | 'cable' | 'other';
   muscleGroups: string[];
   category: string;
+  tags?: string[];
+  description?: string;
+  imageUrl?: string | null;
 }
 
 export interface SetTemplate {

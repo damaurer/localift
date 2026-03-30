@@ -1,0 +1,935 @@
+{
+  "version": "2025-03-30",
+  "exercises": [
+    {
+      "id": "ex-bench",
+      "name": "Bench Press",
+      "category": "Drücken",
+      "equipment": "barbell",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Kraft", "Hypertrophie", "Grundübung", "Oberkörper", "Push"],
+      "description": "Lege dich flach auf die Bank und greife die Stange etwas schulterbreiter als Schulterbreite. Senke die Stange kontrolliert zur Mitte der Brust ab, während die Ellbogen 45–75° vom Körper abstehen. Drücke explosiv zurück in die Ausgangsposition, ohne die Hüfte von der Bank abzuheben.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-incline",
+      "name": "Schrägbankdrücken",
+      "category": "Drücken",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Obere Brust", "Schultern", "Trizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Push"],
+      "description": "Stelle die Bank auf 30–45° ein und halte je eine Kurzhantel auf Schultherhöhe. Drücke beide Kurzhanteln gleichzeitig nach oben und innen, bis die Arme gestreckt sind. Senke kontrolliert ab und spüre die Dehnung in der oberen Brust.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-incline-bar",
+      "name": "Schrägbankdrücken mit Langhantel",
+      "category": "Drücken",
+      "equipment": "barbell",
+      "muscleGroups": ["Obere Brust", "Schultern", "Trizeps"],
+      "tags": ["Kraft", "Hypertrophie", "Grundübung", "Oberkörper", "Push"],
+      "description": "Bank auf 30–45° einstellen, Stange schulterbreit greifen. Stange zur oberen Brust senken und dabei die Schulterblätter zusammenziehen. Explosiv zurückdrücken – der Fokus liegt auf der oberen Brust.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-bench",
+      "name": "Kurzhantel-Bankdrücken",
+      "category": "Drücken",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Hypertrophie", "Oberkörper", "Push"],
+      "description": "Lege dich flach auf die Bank und halte je eine Kurzhantel neben der Brust. Drücke beide Kurzhanteln nach oben, bis die Arme gestreckt sind, und führe sie am höchsten Punkt leicht zusammen. Der größere Bewegungsradius gegenüber dem Langhantel-Bankdrücken fördert die Muskelentwicklung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-fly",
+      "name": "Kurzhantel-Fliegende",
+      "category": "Drücken",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Brust"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Lege dich flach auf die Bank, Kurzhanteln über der Brust mit leicht gebeugten Ellbogen. Öffne die Arme in einem weiten Bogen nach außen und unten, bis du eine tiefe Dehnung der Brust spürst. Führe die Arme wieder zusammen, als würdest du einen großen Baum umarmen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cable-crossover",
+      "name": "Kabelzug Crossover",
+      "category": "Drücken",
+      "equipment": "cable",
+      "muscleGroups": ["Brust"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stelle beide Kabelzüge auf Schulterhöhe ein und greife je einen Griff. Trete mit einem Fuß nach vorne, leicht gebeugte Ellbogen, und führe beide Griffe nach vorne und innen zusammen. Halte die Kontraktion der Brust kurz und kehre kontrolliert zurück.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-dips",
+      "name": "Dips",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Kraft", "Hypertrophie", "Calisthenics", "Oberkörper", "Push"],
+      "description": "Stütze dich auf zwei parallelen Stangen, Arme gestreckt. Senke den Körper kontrolliert ab, indem du die Ellbogen beugst – leichtes Vorneigen betont die Brust, aufrechte Haltung den Trizeps. Drücke explosiv zurück in die Ausgangsposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pushup",
+      "name": "Liegestütz",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern", "Core"],
+      "tags": ["Kraft", "Calisthenics", "Anfänger", "Oberkörper", "Push"],
+      "description": "Ausgangsposition: Körper gerade, Hände etwas schulterbreit aufgestellt. Senke die Brust zur Bodenfläche ab, indem du die Ellbogen kontrolliert beugst. Drücke zurück in die Startposition und halte den Körper dabei wie ein Brett gespannt.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cgbench",
+      "name": "Enggripf-Bankdrücken",
+      "category": "Drücken",
+      "equipment": "barbell",
+      "muscleGroups": ["Trizeps", "Brust", "Schultern"],
+      "tags": ["Kraft", "Hypertrophie", "Oberkörper", "Push", "Arme"],
+      "description": "Lege dich flach auf die Bank und greife die Stange schulterbreit oder etwas enger. Senke die Stange zur unteren Brust ab und halte die Ellbogen nah am Körper. Drücke zurück – die enge Griffweite verlagert den Fokus auf den Trizeps.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-ohp",
+      "name": "Schulterdrücken",
+      "category": "Drücken",
+      "equipment": "barbell",
+      "muscleGroups": ["Schultern", "Trizeps", "Core"],
+      "tags": ["Kraft", "Hypertrophie", "Grundübung", "Oberkörper", "Push"],
+      "description": "Stehe aufrecht, greife die Stange schulterbreit und positioniere sie vor den Schultern. Drücke die Stange vertikal nach oben, bis die Arme gestreckt sind, und schiebe den Kopf leicht nach vorne wenn die Stange vorbei ist. Senke kontrolliert zurück auf die Schultern.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-ohp",
+      "name": "Kurzhantel Schulterdrücken",
+      "category": "Drücken",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Schultern", "Trizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Push"],
+      "description": "Sitze aufrecht auf einer Bank und halte je eine Kurzhantel auf Schultherhöhe neben dem Kopf. Drücke beide Kurzhanteln gleichzeitig nach oben, bis die Arme gestreckt sind. Senke kontrolliert ab und behalte die Schulterblätter zusammengezogen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-arnold",
+      "name": "Arnold Press",
+      "category": "Drücken",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Schultern", "Trizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Push"],
+      "description": "Beginne mit den Kurzhanteln vor dem Gesicht, Handflächen zum Körper zeigend. Während du nach oben drückst, rotiere die Handflächen nach außen, bis sie am Ende nach vorne zeigen. Kehre beim Absenken in umgekehrter Reihenfolge zurück – die Rotation beansprucht alle Schulterköpfe.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pushpress",
+      "name": "Push Press",
+      "category": "Drücken",
+      "equipment": "barbell",
+      "muscleGroups": ["Schultern", "Trizeps", "Oberschenkel", "Core"],
+      "tags": ["Kraft", "Olympisch", "Ganzkörper", "Functional"],
+      "description": "Stange auf den Schultern, leichte Knie- und Hüftbeugung als Dip-Phase. Nutze den Schwung der Streckbewegung, um die Stange explosiv nach oben zu drücken. Diese Übung trainiert explosive Kraft und das Zusammenspiel von Unter- und Oberkörper.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pike-pushup",
+      "name": "Pike Liegestütz",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Schultern", "Trizeps"],
+      "tags": ["Calisthenics", "Fortgeschritten", "Oberkörper", "Push"],
+      "description": "Gehe in die Ausgangsposition eines nach oben geöffneten V – Gesäß hoch, Hände schulterbreit. Senke den Kopf kontrolliert zwischen die Hände ab, indem du die Ellbogen beugst. Drücke zurück in die V-Position – diese Übung bereitet auf den Handstand-Liegestütz vor.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hspu",
+      "name": "Handstand-Liegestütz",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Schultern", "Trizeps", "Core"],
+      "tags": ["Calisthenics", "Experte", "Oberkörper", "Push"],
+      "description": "Gehe in den Handstand an der Wand, Hände schulterbreit. Beuge die Ellbogen und senke den Kopf kontrolliert zur Matte ab. Drücke explosiv zurück in den Handstand – eine der anspruchsvollsten Schulterübungen im Calisthenics.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pullup",
+      "name": "Klimmzüge",
+      "category": "Ziehen",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Rücken", "Bizeps", "Core"],
+      "tags": ["Kraft", "Hypertrophie", "Calisthenics", "Grundübung", "Oberkörper", "Pull"],
+      "description": "Hänge an der Stange mit Obergriff, Hände etwas schulterbreit. Ziehe dich nach oben, bis das Kinn über die Stange kommt – initiiere die Bewegung durch das Zusammenziehen der Schulterblätter. Senke dich kontrolliert in die volle Armstreckung zurück.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-chinup",
+      "name": "Untergriff-Klimmzüge",
+      "category": "Ziehen",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Bizeps", "Rücken"],
+      "tags": ["Kraft", "Hypertrophie", "Calisthenics", "Oberkörper", "Pull"],
+      "description": "Hänge an der Stange mit Untergriff (Handflächen zum Körper), Hände schulterbreit. Ziehe dich nach oben, bis das Kinn über die Stange kommt. Durch den Untergriff wird der Bizeps stärker beansprucht als beim klassischen Klimmzug.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-latpull",
+      "name": "Lat-Pulldown",
+      "category": "Ziehen",
+      "equipment": "cable",
+      "muscleGroups": ["Rücken", "Bizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Sitze am Lat-Zug-Gerät und greife die Stange weiter als Schulterbreite mit Obergriff. Ziehe die Stange kontrolliert zur Brust, während du die Schulterblätter zusammenziehst und nach unten drückst. Strecke die Arme langsam zurück zur Ausgangsposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-row",
+      "name": "Rudern mit Langhantel",
+      "category": "Ziehen",
+      "equipment": "barbell",
+      "muscleGroups": ["Rücken", "Bizeps", "Trapez"],
+      "tags": ["Kraft", "Hypertrophie", "Grundübung", "Oberkörper", "Pull"],
+      "description": "Beuge den Oberkörper auf etwa 45°, Stange in den Händen, Rücken neutral. Ziehe die Stange explosiv zum Bauchnabel, während die Schulterblätter zusammengezogen werden. Senke die Stange kontrolliert ab und strecke die Arme vollständig.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-tbar-row",
+      "name": "T-Hantel Rudern",
+      "category": "Ziehen",
+      "equipment": "barbell",
+      "muscleGroups": ["Rücken", "Bizeps", "Trapez"],
+      "tags": ["Kraft", "Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Stehe über der T-Hantel, beuge den Oberkörper vor und greife den Griff mit beiden Händen. Ziehe das Gewicht explosiv zur Brust, indem du die Schulterblätter zusammenziehst. Senke kontrolliert ab und wiederhole.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-row",
+      "name": "Einarmiges Kurzhantel-Rudern",
+      "category": "Ziehen",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Rücken", "Bizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Stütze dich mit einer Hand auf einer Bank ab, der Oberkörper ist parallel zum Boden. Halte die Kurzhantel in der anderen Hand und ziehe sie zur Hüfte, wobei die Schulterblatt-Seite nach oben dreht. Senke kontrolliert ab und wiederhole.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cablerow",
+      "name": "Kabelzug Rudern",
+      "category": "Ziehen",
+      "equipment": "cable",
+      "muscleGroups": ["Rücken", "Bizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Sitze am Kabelzug-Gerät, greife den Griff mit beiden Händen und sitze aufrecht. Ziehe den Griff zum Bauch, halte die Brust nach vorne gerichtet und drücke die Schulterblätter zusammen. Strecke die Arme kontrolliert zurück und lasse den Rücken leicht runden, bevor du erneut ziehst.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-facepull",
+      "name": "Face Pulls",
+      "category": "Ziehen",
+      "equipment": "cable",
+      "muscleGroups": ["Hintere Schultern", "Rotatorenmanschette", "Trapez"],
+      "tags": ["Hypertrophie", "Rehabilitation", "Oberkörper", "Pull"],
+      "description": "Stelle den Kabelzug auf Augehöhe ein, greife das Seil mit beiden Händen. Ziehe das Seil direkt zum Gesicht, wobei die Ellbogen nach außen und leicht nach oben zeigen. Diese Übung stärkt die Rotatorenmanschette und ist essenziell für die Schultergesundheit.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-inverted-row",
+      "name": "Horizontaler Klimmzug",
+      "category": "Ziehen",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Rücken", "Bizeps"],
+      "tags": ["Calisthenics", "Anfänger", "Oberkörper", "Pull"],
+      "description": "Lege eine Stange in die Squat Rack auf Hüfthöhe. Lege dich darunter und greife die Stange mit gestreckten Armen, der Körper ist gerade. Ziehe die Brust zur Stange und senke dich kontrolliert ab – die Intensität lässt sich durch den Winkel regulieren.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pullover",
+      "name": "Pullover",
+      "category": "Ziehen",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Rücken", "Brust", "Trizeps"],
+      "tags": ["Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Lege dich quer auf eine Bank, nur die Schultern aufgestützt. Halte eine Kurzhantel mit beiden Händen über der Brust und senke sie mit leicht gebeugten Armen bogenförmig hinter den Kopf. Führe das Gewicht zurück über die Brust – der weite Bewegungsradius dehnt Rücken und Brust intensiv.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-straightarm",
+      "name": "Gestreckter Lat-Pulldown",
+      "category": "Ziehen",
+      "equipment": "cable",
+      "muscleGroups": ["Rücken", "Trizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper", "Pull"],
+      "description": "Stehe am Kabelzug mit einem Seil auf oberster Position. Greife das Seil mit gestreckten Armen und drücke es mit Schulterblatt-Kontrolle bogenförmig nach unten bis zur Hüfte. Zurück langsam und gestreckt – isoliert den Latissimus hervorragend.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-deadlift",
+      "name": "Kreuzheben",
+      "category": "Hinge",
+      "equipment": "barbell",
+      "muscleGroups": ["Rücken", "Gesäß", "Hamstrings", "Core"],
+      "tags": ["Kraft", "Powerlifting", "Grundübung", "Ganzkörper"],
+      "description": "Stehe schulterbreit vor der Stange, Zehen leicht nach außen. Beuge Hüfte und Knie bis du die Stange greifen kannst, der Rücken bleibt neutral und die Brust ist gehoben. Hebe die Stange durch gleichzeitiges Strecken von Knie und Hüfte – der Rücken darf sich nicht runden.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-rdl",
+      "name": "Rumänisches Kreuzheben",
+      "category": "Hinge",
+      "equipment": "barbell",
+      "muscleGroups": ["Hamstrings", "Gesäß", "Unterer Rücken"],
+      "tags": ["Hypertrophie", "Grundübung", "Unterkörper"],
+      "description": "Stehe aufrecht mit der Stange vor dem Körper, leicht gebeugte Knie. Kippe die Hüfte nach hinten und senke die Stange an den Beinen entlang ab, bis du eine intensive Dehnung der Hamstrings spürst. Drücke durch die Fersen zurück in die Ausgangsposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-sumo",
+      "name": "Sumo Kreuzheben",
+      "category": "Hinge",
+      "equipment": "barbell",
+      "muscleGroups": ["Innenoberschenkel", "Gesäß", "Rücken"],
+      "tags": ["Kraft", "Powerlifting", "Unterkörper"],
+      "description": "Breite Standposition mit den Zehen stark nach außen, Hände greifen die Stange schulterbreit zwischen den Beinen. Brust hochhalten, Hüfte nach unten senken und Stange durch Hüft- und Kniestreckung heben. Der weite Stand beansprucht Innenoberschenkel und Gesäß besonders.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-goodmorning",
+      "name": "Good Morning",
+      "category": "Hinge",
+      "equipment": "barbell",
+      "muscleGroups": ["Hamstrings", "Gesäß", "Unterer Rücken"],
+      "tags": ["Kraft", "Unterkörper"],
+      "description": "Stange auf den oberen Rücken legen, Füße schulterbreit. Beuge die Hüfte mit leicht gebeugten Knien nach vorne, bis der Oberkörper fast parallel zum Boden ist. Kehre durch Hüftstreckung in die aufrechte Position zurück – der Rücken bleibt durchgehend neutral.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hipthrust",
+      "name": "Hip Thrust",
+      "category": "Hinge",
+      "equipment": "barbell",
+      "muscleGroups": ["Gesäß", "Hamstrings"],
+      "tags": ["Hypertrophie", "Unterkörper"],
+      "description": "Lehne mit dem Oberkörper gegen eine Bank, Stange über den Hüften mit Polster. Drücke die Hüfte explosiv nach oben, bis Oberkörper und Oberschenkel eine Linie bilden. Halte die Kontraktion kurz und senke langsam ab – die effektivste Übung für den Gesäßmuskel.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-glutebridge",
+      "name": "Glute Bridge",
+      "category": "Hinge",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Gesäß", "Hamstrings"],
+      "tags": ["Anfänger", "Unterkörper", "Rehabilitation"],
+      "description": "Lege dich auf den Rücken, Knie gebeugt, Füße flach auf dem Boden. Drücke die Hüfte nach oben, bis Schultern, Hüfte und Knie eine Linie bilden. Halte die Gesäßkontraktion oben kurz und senke kontrolliert ab.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-nordiccurl",
+      "name": "Nordic Curl",
+      "category": "Hinge",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Hamstrings"],
+      "tags": ["Kraft", "Fortgeschritten", "Unterkörper", "Rehabilitation"],
+      "description": "Knie auf weicher Matte, Füße werden von einem Partner oder einer Halterung fixiert. Lasse den Körper mit angespanntem Rumpf so langsam wie möglich nach vorne fallen. Drücke mit den Händen vom Boden ab, um zurückzukehren – eine der effektivsten Hamstring-Übungen zur Verletzungsprävention.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-backext",
+      "name": "Rückenstrecker (45°)",
+      "category": "Hinge",
+      "equipment": "machine",
+      "muscleGroups": ["Unterer Rücken", "Gesäß", "Hamstrings"],
+      "tags": ["Hypertrophie", "Rehabilitation", "Unterkörper"],
+      "description": "Lege dich in das Rückenstrecker-Gerät auf 45°, Hüfte an der Polsterung, Arme verschränkt. Beuge den Oberkörper nach unten bis fast 90° und strecke dann durch Hüfte und Rücken zurück in die Ausgangsposition. Gewicht kann als Progression vor die Brust gehalten werden.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-squat",
+      "name": "Kniebeuge",
+      "category": "Beine",
+      "equipment": "barbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Kraft", "Powerlifting", "Grundübung", "Unterkörper"],
+      "description": "Stange auf dem oberen Rücken, Füße schulterbreit oder leicht weiter, Zehen leicht nach außen. Beuge Knie und Hüfte gleichzeitig und senke dich ab, bis die Oberschenkel mindestens parallel zum Boden sind. Drücke durch die Fersen zurück in die Ausgangsposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-frontsq",
+      "name": "Frontkniebeuge",
+      "category": "Beine",
+      "equipment": "barbell",
+      "muscleGroups": ["Oberschenkel", "Core", "Schultern"],
+      "tags": ["Kraft", "Olympisch", "Unterkörper"],
+      "description": "Stange vor dem Körper auf den Schultern ablegen, entweder mit überkreuzten Armen oder olympischem Frontgriff. Kniebeuge mit aufrechtem Oberkörper ausführen – die Stange erzwingt eine aufrechte Position. Besonders gut für die Quadrizeps-Entwicklung und als Vorbereitung auf olympische Übungen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-goblet",
+      "name": "Goblet-Kniebeuge",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Anfänger", "Kettlebell", "Unterkörper", "Functional"],
+      "description": "Halte eine Kurzhantel oder Kettlebell vertikal vor der Brust. Füße etwas schulterbreit, Zehen nach außen. Kniebeuge mit aufrechtem Oberkörper ausführen – die Gewichtsposition vor dem Körper hilft, die Technik zu verbessern.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-bulgariansplit",
+      "name": "Bulgarische Kniebeuge",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Hypertrophie", "Fortgeschritten", "Unterkörper"],
+      "description": "Hinteres Bein auf einer Bank abgelegt, vorderes Bein einen großen Schritt nach vorne. Senke das hintere Knie kontrolliert zur Matte ab, während der Oberkörper aufrecht bleibt. Diese Einbeinübung entwickelt Stärke, Balance und deckt Asymmetrien auf.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-legpress",
+      "name": "Beinpresse",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Hypertrophie", "Unterkörper"],
+      "description": "Sitze in der Beinpresse, Füße schulterbreit auf der Platte. Drücke die Platte nach vorne durch Kniestreckung – die Knie schieben sich dabei nicht nach innen. Senke die Platte kontrolliert zurück, ohne die Knie über die Zehen zu führen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hacksquat",
+      "name": "Hack Squat",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Hypertrophie", "Unterkörper"],
+      "description": "Stelle die Schulterpolster ein und positioniere die Füße schulterbreit oder enger auf der Platte. Beuge die Knie und senke dich ab, bis die Oberschenkel parallel sind. Drücke durch die Fersen zurück – der Maschinenführung ermöglicht schwere Lasten sicher.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-lunge",
+      "name": "Ausfallschritt",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Hypertrophie", "Anfänger", "Unterkörper", "Functional"],
+      "description": "Stehe aufrecht mit Kurzhanteln in beiden Händen. Mache einen großen Schritt nach vorne und senke das hintere Knie zur Matte ab. Drücke dich zurück in die Startposition und wechsle das Bein – abwechselnde oder gehende Variante sind möglich.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-stepup",
+      "name": "Step-Up",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Hypertrophie", "Functional", "Unterkörper"],
+      "description": "Stehe vor einer erhöhten Fläche (Kasten, Bank), Kurzhanteln in den Händen. Trete mit einem Fuß auf die Erhöhung und bringe den anderen Fuß nach. Senke dich kontrolliert zurück und wechsle das Führungsbein.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pistolsq",
+      "name": "Pistol Squat",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Calisthenics", "Experte", "Unterkörper"],
+      "description": "Stehe einbeinig, das andere Bein gestreckt nach vorne. Senke dich mit dem Standbein bis zum tiefsten Punkt der Kniebeuge ab. Drücke zurück in die Ausgangsposition – diese Übung erfordert hohe Kraft, Balance und Mobilität.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-legcurl",
+      "name": "Beinbeuger",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Hamstrings"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Lege dich auf das Gerät, die Polsterung befindet sich knapp oberhalb der Fersen. Beuge die Knie und ziehe die Fersen kontrolliert zur Gesäßseite. Strecke langsam zurück – konzentriere dich auf die Kontraktion der Hamstrings.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-legext",
+      "name": "Beinstrecker",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Oberschenkel"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Unterkörper", "Rehabilitation"],
+      "description": "Sitze im Gerät mit der Polsterung knapp oberhalb der Füße. Strecke die Knie vollständig aus, halte die Kontraktion kurz oben. Senke langsam zurück bis knapp vor den Ausgangspunkt – beachte, dass diese Übung die Knie bei Verletzungen belasten kann.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-calfrise",
+      "name": "Wadenheben",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Waden"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Stehe auf dem Gerät mit den Zehenballen auf der Plattform, Gewicht auf den Schultern. Hebe die Fersen so weit wie möglich nach oben und halte die Kontraktion kurz. Senke langsam bis unter die Plattformhöhe für vollständige Dehnung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-lateral",
+      "name": "Seitheben",
+      "category": "Schultern",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Seitliche Schultern"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht mit je einer Kurzhantel in beiden Händen, Arme locker an der Seite. Hebe beide Arme seitlich bis auf Schulterhöhe, mit leicht gebeugten Ellbogen und dem kleinen Finger leicht höher als den Daumen. Senke kontrolliert und widerstehe dem Schwung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-frontrise",
+      "name": "Vorwärtsheben",
+      "category": "Schultern",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Vordere Schultern"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht mit je einer Kurzhantel, Arme vor dem Körper. Hebe einen oder beide Arme gestreckt auf Schulterhöhe nach vorne. Senke kontrolliert ab – trainiert den vorderen Schultermuskel.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-rearfly",
+      "name": "Hintere Schulter Fliegende",
+      "category": "Schultern",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Hintere Schultern", "Trapez"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Beuge den Oberkörper vor (oder nutze eine Schrägbank), Kurzhanteln hängen nach unten. Hebe beide Arme seitlich bis auf Schulterhöhe, mit leicht gebeugten Ellbogen. Konzentriere dich auf das Zusammenziehen der hinteren Schultern und des Trapez.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-uprightrow",
+      "name": "Hochzug",
+      "category": "Schultern",
+      "equipment": "barbell",
+      "muscleGroups": ["Schultern", "Trapez"],
+      "tags": ["Hypertrophie", "Oberkörper"],
+      "description": "Stehe aufrecht, Stange mit engem Obergriff vor dem Körper. Ziehe die Stange eng am Körper entlang nach oben, bis die Ellbogen Schulterhöhe erreichen. Senke kontrolliert ab – der enge Griff betont die Schultern, ein weiterer Griff eher das Trapez.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-shrug",
+      "name": "Schulterzucken",
+      "category": "Schultern",
+      "equipment": "barbell",
+      "muscleGroups": ["Trapez"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht, Stange oder Kurzhanteln in beiden Händen vor dem Körper. Hebe die Schultern so hoch wie möglich in Richtung der Ohren und halte kurz. Senke kontrolliert ab – kreisende Bewegungen sind nicht empfehlenswert.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-curl",
+      "name": "Bizepscurl",
+      "category": "Arme",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Bizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht mit je einer Kurzhantel, Ellbogen nah am Körper. Beuge die Ellbogen und hebe die Kurzhanteln zur Schulter, mit Supination der Handflächen. Senke langsam und vollständig zurück – die Ellbogen bleiben throughout am Körper.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-barbellcurl",
+      "name": "Langhantelcurl",
+      "category": "Arme",
+      "equipment": "barbell",
+      "muscleGroups": ["Bizeps"],
+      "tags": ["Kraft", "Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht, Stange mit Untergriff schulterbreit. Beuge die Ellbogen und hebe die Stange zu den Schultern, ohne den Oberkörper zu schwingen. Senke kontrolliert und vollständig ab.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hammercurl",
+      "name": "Hammer Curl",
+      "category": "Arme",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Bizeps", "Brachialis"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe aufrecht mit neutralem Griff (Daumen zeigen nach oben). Beuge die Ellbogen und hebe die Kurzhanteln zur Schulter, ohne die Handgelenke zu rotieren. Der neutrale Griff beansprucht den Brachialis und den langen Bizepskopf stärker.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-preachercurl",
+      "name": "Preacher Curl",
+      "category": "Arme",
+      "equipment": "barbell",
+      "muscleGroups": ["Bizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Lege die Oberarme auf die geneigte Preacher-Bank ab. Beuge die Ellbogen vollständig und halte kurz in der Kontraktion. Senke langsam bis fast zur vollen Streckung – die Schrägbank verhindert Schwung und isoliert den unteren Bizeps.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-tri",
+      "name": "Trizeps-Pushdown",
+      "category": "Arme",
+      "equipment": "cable",
+      "muscleGroups": ["Trizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe am Kabelzug, Oberarme fixiert am Körper, Griff auf Brusthöhe. Drücke den Griff mit Trizepskraft nach unten bis zur vollen Armstreckung. Hebe kontrolliert zurück – die Ellbogen zeigen immer nach unten.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-skullcrusher",
+      "name": "Skull Crusher",
+      "category": "Arme",
+      "equipment": "barbell",
+      "muscleGroups": ["Trizeps"],
+      "tags": ["Kraft", "Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Lege dich flach auf die Bank, Stange oder EZ-Bar mit engem Griff über der Brust. Senke die Stange in einem Bogen zur Stirn ab, indem nur die Ellbogen beugen. Strecke zurück – die Oberarme bleiben senkrecht zum Boden.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-trioverhead",
+      "name": "Trizeps-Überkopfstrecken",
+      "category": "Arme",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Trizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Halte eine Kurzhantel mit beiden Händen über dem Kopf. Beuge die Ellbogen und senke das Gewicht hinter den Kopf ab. Strecke zurück und spüre die Dehnung des langen Trizepskopfes.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-plank",
+      "name": "Unterarmstütz",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Schultern", "Gesäß"],
+      "tags": ["Kraft", "Anfänger", "Functional", "Core"],
+      "description": "Stütze dich auf die Unterarme und Zehenballen, der Körper bildet eine gerade Linie. Spanne Bauch, Gesäß und Beine an und halte die Position. Vermeide das Einsinken der Hüfte oder ein zu hohes Gesäß.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-sideplank",
+      "name": "Seitlicher Unterarmstütz",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Seitenrumpf", "Core"],
+      "tags": ["Kraft", "Anfänger", "Functional", "Core"],
+      "description": "Stütze dich seitlich auf einem Unterarm ab, der Körper bildet eine gerade Linie von Kopf bis Fuß. Drücke die Hüfte nach oben und halte die Position. Trainiert die schrägen Bauchmuskeln und die seitliche Rumpfstabilität.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hanginglegraise",
+      "name": "Hängendes Beinheben",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Untere Bauchmuskulatur", "Hüftbeuger"],
+      "tags": ["Kraft", "Fortgeschritten", "Core"],
+      "description": "Hänge an der Klimmzugstange mit schulterbreit geöffneten Armen. Hebe die Beine gestreckt oder gebeugt bis auf Hüfthöhe oder darüber. Senke kontrolliert ab, ohne zu schwingen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-abwheel",
+      "name": "Bauchrad Rollout",
+      "category": "Core",
+      "equipment": "other",
+      "muscleGroups": ["Core", "Schultern", "Trizeps"],
+      "tags": ["Kraft", "Fortgeschritten", "Core"],
+      "description": "Knie auf weicher Matte, Bauchrad in beiden Händen. Rolle das Rad nach vorne, so weit du kannst ohne einzusacken – der gesamte Rumpf ist angespannt. Ziehe das Rad mit der Kraft des Bauchs zurück in die Ausgangsposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cablecrunch",
+      "name": "Kabelzug-Crunch",
+      "category": "Core",
+      "equipment": "cable",
+      "muscleGroups": ["Bauchmuskulatur"],
+      "tags": ["Hypertrophie", "Core"],
+      "description": "Knie vor dem Kabelzug, Seil hinter dem Kopf. Beuge den Oberkörper nach vorne und unten, als würdest du die Rippen zu den Hüften ziehen. Strecke langsam zurück – diese Übung erlaubt progressiven Widerstand für den Bauch.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-russiantwist",
+      "name": "Russian Twist",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Seitenrumpf", "Bauchmuskulatur"],
+      "tags": ["Hypertrophie", "Core"],
+      "description": "Sitze auf dem Boden, Knie gebeugt, Oberkörper leicht nach hinten geneigt. Hebe die Füße an und rotiere den Oberkörper abwechselnd von Seite zu Seite. Gewicht oder Medizinball erhöht die Intensität.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-deadbug",
+      "name": "Dead Bug",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Hüftbeuger"],
+      "tags": ["Anfänger", "Rehabilitation", "Functional", "Core"],
+      "description": "Lege dich auf den Rücken, Arme gestreckt nach oben, Knie 90° gebeugt in der Luft. Strecke gleichzeitig den gegenüberliegenden Arm und das Bein aus, ohne den Rücken vom Boden abzuheben. Kehre zurück und wechsle die Seite – ideal für Rückengesundheit.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-lsit",
+      "name": "L-Sit",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Hüftbeuger", "Trizeps"],
+      "tags": ["Calisthenics", "Fortgeschritten", "Core"],
+      "description": "Stütze dich auf parallelen Stangen oder dem Boden, Arme gestreckt. Hebe die Beine gestreckt auf Hüfthöhe und halte die Position. Trainiert isometrisch Core und Hüftbeuger – ein Fundament im Calisthenics.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-dragonflag",
+      "name": "Dragon Flag",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Bauchmuskulatur"],
+      "tags": ["Calisthenics", "Experte", "Core"],
+      "description": "Lege dich auf eine Bank und halte dich hinter dem Kopf fest. Hebe den gesamten Körper mit gestreckten Beinen senkrecht nach oben und senke ihn dann kontrolliert so tief ab, dass nur die Schultern noch die Bank berühren. Drücke mit dem Core zurück nach oben.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-powclean",
+      "name": "Power Clean",
+      "category": "Olympisch",
+      "equipment": "barbell",
+      "muscleGroups": ["Ganzkörper", "Rücken", "Gesäß", "Schultern"],
+      "tags": ["Olympisch", "Kraft", "Ganzkörper", "Experte"],
+      "description": "Hebe die Stange vom Boden mit explosiver Hüftstreckung (Erster Zug). Erzeuge durch einen schnellen Zug des oberen Körpers und Ellbogenrotation die Stange in den 'Rack'-Fang-Position (Zweiter Zug). Fange die Stange auf den Schultern in leichter Kniebeugeposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cleanjerk",
+      "name": "Stoßen",
+      "category": "Olympisch",
+      "equipment": "barbell",
+      "muscleGroups": ["Ganzkörper"],
+      "tags": ["Olympisch", "Kraft", "Ganzkörper", "Experte"],
+      "description": "Hebe die Stange mit Power Clean in die Frontposition. Nutze eine Dip-und-Drive-Bewegung, um die Stange explosiv nach oben zu bringen und gehe dabei in eine kurze Ausfallschritt-Position. Drücke durch bis zur Armstreckung und führe die Beine zusammen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-snatch",
+      "name": "Reißen",
+      "category": "Olympisch",
+      "equipment": "barbell",
+      "muscleGroups": ["Ganzkörper"],
+      "tags": ["Olympisch", "Kraft", "Ganzkörper", "Experte"],
+      "description": "Hebe die Stange in einer einzigen Explosivbewegung vom Boden bis über den Kopf, mit breitem Griff. Die Stange bleibt nahe am Körper und passiert in einem Bogen die Hüfte. Fange die Stange mit gestreckten Armen über dem Kopf in einer Kniebeugeposition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hangclean",
+      "name": "Hang Clean",
+      "category": "Olympisch",
+      "equipment": "barbell",
+      "muscleGroups": ["Ganzkörper", "Rücken", "Schultern"],
+      "tags": ["Olympisch", "Kraft", "Ganzkörper", "Fortgeschritten"],
+      "description": "Starte mit der Stange in Hüfthöhe, leicht vorgebeugt mit neutralem Rücken. Führe die Hüftexplosion durch und reißt die Stange in die Rack-Position auf die Schultern. Eine gute Einstiegsübung für olympisches Gewichtheben.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-powersnatch",
+      "name": "Power Snatch",
+      "category": "Olympisch",
+      "equipment": "barbell",
+      "muscleGroups": ["Ganzkörper"],
+      "tags": ["Olympisch", "Kraft", "Ganzkörper", "Experte"],
+      "description": "Wie das Reißen, aber du fängst die Stange im Stehen oder in einer kleinen Kniebeuge statt in der tiefen Kniebeuge. Breiter Griff, explosive Hüftstreckung, direkter Zug der Stange nach oben. Gute Technikübung für das vollständige Reißen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-kb-swing",
+      "name": "Kettlebell Swing",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Gesäß", "Hamstrings", "Rücken", "Core"],
+      "tags": ["Kettlebell", "Cardio", "Functional", "Kraft"],
+      "description": "Greife die Kettlebell mit beiden Händen, Füße schulterbreit. Führe die Kettlebell zwischen die Beine zurück mit einer Hinge-Bewegung und swing sie durch explosive Hüftstreckung auf Schulterhöhe. Die Kraft kommt aus der Hüfte, nicht aus den Armen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-tgu",
+      "name": "Turkish Get-Up",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Ganzkörper", "Schultern", "Core"],
+      "tags": ["Kettlebell", "Functional", "Fortgeschritten", "Mobilität"],
+      "description": "Lege dich auf den Rücken und halte eine Kettlebell mit gestrecktem Arm senkrecht über dir. Stehe schrittweise auf – rollend, kniend, stehend – ohne den Arm abzusenken. Führe den umgekehrten Weg zurück in die Liegeposition. Trainiert Mobilität, Stabilität und Kraft.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-kb-goblet",
+      "name": "Kettlebell Goblet-Kniebeuge",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Kettlebell", "Anfänger", "Unterkörper"],
+      "description": "Halte die Kettlebell vertikal vor der Brust mit beiden Händen. Füße etwas schulterbreit, Zehen nach außen, tiefe Kniebeuge mit aufrechtem Oberkörper. Die Kettlebell hilft beim Halten der Balance und ermöglicht eine tiefere Kniebeuge.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-kb-press",
+      "name": "Kettlebell Press",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Schultern", "Trizeps", "Core"],
+      "tags": ["Kettlebell", "Kraft", "Oberkörper"],
+      "description": "Halte eine Kettlebell in der 'Rack'-Position auf der Schulter (Faust neben dem Kinn, Kettlebell liegt am Unterarm). Drücke die Kettlebell vertikal nach oben bis die Arm gestreckt ist. Senke kontrolliert zurück in die Rack-Position.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-kb-windmill",
+      "name": "Kettlebell Windmill",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Core", "Schultern", "Hüfte"],
+      "tags": ["Kettlebell", "Mobilität", "Fortgeschritten"],
+      "description": "Halte eine Kettlebell mit gestrecktem Arm über dem Kopf. Neige den Oberkörper zur anderen Seite, bis du die Ferse mit der freien Hand berührst – der Blick folgt der Kettlebell. Kehre aufrecht zurück, der Arm bleibt gestreckt. Trainiert Mobilität und Schulterstabilität.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-kb-clean",
+      "name": "Kettlebell Clean",
+      "category": "Kettlebell",
+      "equipment": "other",
+      "muscleGroups": ["Rücken", "Gesäß", "Schultern"],
+      "tags": ["Kettlebell", "Functional", "Fortgeschritten"],
+      "description": "Hinge nach vorne und greife die Kettlebell zwischen den Beinen. Swing sie durch explosive Hüftstreckung nach oben und rotiere den Arm, sodass die Kettlebell sanft in der Rack-Position landet. Die Kettlebell wickelt sich um den Unterarm, ohne gegen die Hand zu schlagen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-muscleup",
+      "name": "Muscle-Up",
+      "category": "Calisthenics",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Rücken", "Brust", "Trizeps", "Core"],
+      "tags": ["Calisthenics", "Experte", "Ganzkörper"],
+      "description": "Hänge an der Stange und initiiere den Zug mit explosiver Kraft, um den Schwung zu nutzen. Ziehe dich so hoch, dass du die Schultern über die Stange bringen kannst (Transition). Drücke dich dann mit dem Trizeps nach oben wie bei einem Dip.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-frontlever",
+      "name": "Front Lever",
+      "category": "Calisthenics",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Rücken", "Core", "Schultern"],
+      "tags": ["Calisthenics", "Experte", "Core"],
+      "description": "Hänge an der Stange und bringe den Körper in eine horizontale Position, parallel zum Boden, mit dem Gesicht nach oben. Der Körper ist vollständig angespannt, Arme gestreckt. Beginne mit Progressionen: Tucked → Einbeinig → Gestreckt.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-ringdips",
+      "name": "Ring Dips",
+      "category": "Calisthenics",
+      "equipment": "other",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Calisthenics", "Fortgeschritten", "Oberkörper"],
+      "description": "Stütze dich auf die Ringe, Arme gestreckt. Senke den Körper durch Ellbogenbeugen ab, bis die Schultern auf Ringehöhe sind. Drücke zurück und stabilisiere die Ringe am Ende, sodass sie sich nicht nach außen drehen. Die instabile Fläche erhöht die Anforderung stark.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-burpee",
+      "name": "Burpee",
+      "category": "Cardio",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Ganzkörper"],
+      "tags": ["Cardio", "HIIT", "Functional", "Anfänger", "Ganzkörper"],
+      "description": "Stehe aufrecht und springe in den Liegestütz, führe einen Liegestütz aus. Springe zurück in die Hockposition und dann explosiv nach oben mit den Armen über dem Kopf. Eine der effektivsten Ganzkörper-Konditionsübungen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-boxjump",
+      "name": "Box Jump",
+      "category": "Cardio",
+      "equipment": "other",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Waden"],
+      "tags": ["HIIT", "Cardio", "Plyometrie", "Functional"],
+      "description": "Stehe vor einem stabilen Kasten, leicht in den Knien gebeugt. Springe mit beiden Füßen gleichzeitig auf den Kasten und lande weich in der Kniebeugeposition. Steige kontrolliert herunter und wiederhole.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-battleropes",
+      "name": "Battle Ropes",
+      "category": "Cardio",
+      "equipment": "other",
+      "muscleGroups": ["Schultern", "Core", "Ganzkörper"],
+      "tags": ["HIIT", "Cardio", "Functional"],
+      "description": "Halte je ein Ende der Seile und stehe in leichter Kniebeuge. Erzeuge abwechselnde oder gleichzeitige Wellenbewegungen mit den Seilen so schnell und intensiv wie möglich. Trainiert Kondition, Schultern und Core in Hochintervallform.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-farmerswalk",
+      "name": "Farmer's Walk",
+      "category": "Cardio",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Unterarme", "Schultern", "Core", "Trapez"],
+      "tags": ["Functional", "Kraft", "Ganzkörper"],
+      "description": "Greife schwere Kurzhanteln oder Kettlebells in beiden Händen. Laufe aufrecht eine bestimmte Distanz – die Schultern werden zurückgezogen, der Rumpf ist angespannt. Trainiert Griffkraft, Core-Stabilität und allgemeine Kondition.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-sled",
+      "name": "Schlitten schieben",
+      "category": "Cardio",
+      "equipment": "other",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Schultern", "Core"],
+      "tags": ["HIIT", "Cardio", "Functional", "Kraft"],
+      "description": "Greife die Griffe des Schlittens und schiebe ihn mit aktiviertem Rumpf vorwärts – Schritte sind kurz und schnell. Lehn dich nach vorne und erzeuge Kraft durch die Beine. Trainiert konditionell wie kein anderes Gerät, ohne Exzentrik.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-jumprope",
+      "name": "Seilspringen",
+      "category": "Cardio",
+      "equipment": "other",
+      "muscleGroups": ["Waden", "Schultern", "Core"],
+      "tags": ["Cardio", "HIIT", "Anfänger"],
+      "description": "Halte je ein Seilende in beiden Händen, springe mit beiden Füßen gleichzeitig. Die Rotation kommt aus dem Handgelenk, nicht dem ganzen Arm. Variationen: normales Springen, Double Unders, Alternate Feet.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-sprint",
+      "name": "Sprint",
+      "category": "Cardio",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Waden"],
+      "tags": ["Cardio", "HIIT", "Plyometrie"],
+      "description": "Laufe auf einer geraden Strecke so schnell wie möglich – Arme schwingen aktiv mit, der Oberkörper ist leicht vorgebeugt. Maximale Sprints von 10–40 Meter oder 5–15 Sekunden trainieren explosive Kraft und Kondition gleichzeitig.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hipflex",
+      "name": "Hüftbeuger-Dehnung",
+      "category": "Mobilität",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Hüftbeuger", "Vorderseite Oberschenkel"],
+      "tags": ["Mobilität", "Dehnen", "Anfänger", "Rehabilitation"],
+      "description": "Knie auf einem Knie nieder (Ausfallschritt-Position) und schiebe die Hüfte nach vorne, bis du Dehnung im vorderen Hüftbeuger des hinteren Beines spürst. Halte die Position für 30–60 Sekunden pro Seite. Besonders wichtig für Menschen, die viel sitzen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-thoracic",
+      "name": "Brustwirbelsäulen-Rotation",
+      "category": "Mobilität",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Wirbelsäule", "Core"],
+      "tags": ["Mobilität", "Dehnen", "Rehabilitation"],
+      "description": "Knie auf allen Vieren, eine Hand hinter dem Kopf. Rotiere den Oberkörper nach oben und öffne die Schulter zur Decke. Kehre zurück und wiederhole – trainiert die oft vernachlässigte Rotationsfähigkeit der Brustwirbelsäule.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-worldgreatest",
+      "name": "World's Greatest Stretch",
+      "category": "Mobilität",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Hüfte", "Brustwirbelsäule", "Hüftbeuger", "Innenoberschenkel"],
+      "tags": ["Mobilität", "Dehnen", "Functional", "Anfänger"],
+      "description": "Starte in einer Ausfallschrittposition mit dem vorderen Fuß neben der Hand. Rotiere den Oberkörper und strecke die Hand zur Decke. Verschiedene Variationen mobilisieren Hüfte, Brustwirbelsäule und Oberschenkel gleichzeitig – ideal als Aufwärmübung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-catcow",
+      "name": "Cat-Cow",
+      "category": "Mobilität",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Wirbelsäule", "Core"],
+      "tags": ["Mobilität", "Dehnen", "Anfänger", "Rehabilitation"],
+      "description": "Knie auf allen Vieren, Hände unter den Schultern, Knie unter der Hüfte. Wechsle zwischen Hohlkreuz (Brust hebt sich, Gesäß nach oben) und Rundrücken (Rücken wölbt sich nach oben). Langsam und rhythmisch – ein klassisches Mobilitäts- und Aufwärmprotokoll.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pigeonpose",
+      "name": "Tauben-Pose",
+      "category": "Mobilität",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Gesäß", "Hüfte", "Piriformis"],
+      "tags": ["Mobilität", "Dehnen", "Yoga"],
+      "description": "Aus dem Vierfüßerstand das vordere Knie nach vorne und außen bringen, das hintere Bein gestreckt nach hinten. Lehne dich nach vorne auf die Unterarme oder lege den Oberkörper ganz ab. Dehnt intensiv das Gesäß und den Piriformis – wichtig für Läufer und Kraftsportler.",
+      "imageUrl": null
+    }
+  ]
+}

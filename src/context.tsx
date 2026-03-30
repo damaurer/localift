@@ -3,10 +3,12 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   type ReactNode,
 } from 'react';
 import { storage, generateId, DEFAULT_EXERCISES } from './storage';
 import { notifyWorkoutComplete, scheduleReminder, clearReminders } from './notifications';
+import { syncExercisesIfStale } from './exerciseSync';
 import type {
   Exercise,
   WorkoutPlan,
@@ -72,6 +74,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeWorkout, setActiveWorkout] = useState<ActiveWorkoutState | null>(() => storage.getActiveWorkout());
   const [route, setRoute] = useState<AppRoute>({ screen: 'dashboard' });
   const [, setHistory] = useState<AppRoute[]>([]);
+
+  // Sync remote exercise library in the background on mount
+  useEffect(() => {
+    syncExercisesIfStale().then(updated => {
+      if (updated) setExercises(updated);
+    });
+  }, []);
 
   const navigate = useCallback((newRoute: AppRoute) => {
     setHistory(h => [...h, route]);
@@ -393,7 +402,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useApp() {
+export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('useApp must be used within AppProvider');
   return ctx;

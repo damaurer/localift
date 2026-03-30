@@ -20,6 +20,8 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
   const [tags, setTags] = useState<string[]>(existing?.tags ?? []);
   const [showExercisePicker, setShowExercisePicker] = useState(false);
   const [exSearch, setExSearch] = useState('');
+  const [exCategory, setExCategory] = useState<string | null>(null);
+  const [exEquipment, setExEquipment] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [nameShake, setNameShake] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -61,11 +63,21 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
     }, 0);
   }
 
-  const filteredExercises = exercises.filter(ex =>
-    ex.name.toLowerCase().includes(exSearch.toLowerCase()) ||
-    ex.category.toLowerCase().includes(exSearch.toLowerCase()) ||
-    ex.muscleGroups.some(m => m.toLowerCase().includes(exSearch.toLowerCase()))
-  );
+  const allCategories = [...new Set(exercises.map(e => e.category))].sort();
+  const allEquipment = [...new Set(exercises.map(e => e.equipment))].sort();
+
+  const filteredExercises = exercises.filter(ex => {
+    if (exCategory && ex.category !== exCategory) return false;
+    if (exEquipment && ex.equipment !== exEquipment) return false;
+    if (!exSearch) return true;
+    const q = exSearch.toLowerCase();
+    return (
+      ex.name.toLowerCase().includes(q) ||
+      ex.category.toLowerCase().includes(q) ||
+      ex.muscleGroups.some(m => m.toLowerCase().includes(q)) ||
+      ex.tags?.some(t => t.toLowerCase().includes(q))
+    );
+  });
 
   const handleAddExercise = (exerciseId: string) => {
     if (!currentPlanId) {
@@ -85,6 +97,8 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
     }
     setShowExercisePicker(false);
     setExSearch('');
+    setExCategory(null);
+    setExEquipment(null);
   };
 
   const currentExercises = livePlan?.exercises.sort((a, b) => a.order - b.order) ?? [];
@@ -300,7 +314,7 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center"
           style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setShowExercisePicker(false); }}
+          onClick={e => { if (e.target === e.currentTarget) { setShowExercisePicker(false); setExSearch(''); setExCategory(null); setExEquipment(null); } }}
         >
           <div
             className="w-full max-w-2xl rounded-t-3xl overflow-hidden"
@@ -315,17 +329,65 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
               </button>
             </div>
 
-            <div className="px-6 pb-4">
+            <div className="px-6 pb-3 space-y-3">
+              {/* Search */}
               <div className="bg-surface-container rounded-xl flex items-center gap-3 px-4 py-3">
                 <span className="material-symbols-outlined text-outline">search</span>
                 <input
                   className="bg-transparent text-xs tracking-widest uppercase w-full placeholder:text-outline text-on-surface focus:outline-none"
-                  placeholder="SUCHEN..."
+                  placeholder="NAME, MUSKEL, TAG..."
                   value={exSearch}
                   onChange={e => setExSearch(e.target.value)}
                   autoFocus
                 />
+                {exSearch && (
+                  <button onClick={() => setExSearch('')}>
+                    <span className="material-symbols-outlined text-outline text-base">close</span>
+                  </button>
+                )}
               </div>
+
+              {/* Category filter */}
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                <button
+                  onClick={() => setExCategory(null)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                    !exCategory ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'
+                  }`}
+                >Alle</button>
+                {allCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setExCategory(exCategory === cat ? null : cat)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                      exCategory === cat ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'
+                    }`}
+                  >{cat}</button>
+                ))}
+              </div>
+
+              {/* Equipment filter */}
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                <button
+                  onClick={() => setExEquipment(null)}
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                    !exEquipment ? 'bg-surface-container-high text-on-surface' : 'bg-surface-container text-on-surface-variant'
+                  }`}
+                >Alles</button>
+                {allEquipment.map(eq => (
+                  <button
+                    key={eq}
+                    onClick={() => setExEquipment(exEquipment === eq ? null : eq)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                      exEquipment === eq ? 'bg-surface-container-high text-on-surface' : 'bg-surface-container text-on-surface-variant opacity-60'
+                    }`}
+                  >{eq}</button>
+                ))}
+              </div>
+
+              <p className="text-xs text-on-surface-variant" style={{ opacity: 0.5 }}>
+                {filteredExercises.length} Übungen
+              </p>
             </div>
 
             <div className="overflow-y-auto px-6 pb-8 hide-scrollbar space-y-2">
@@ -333,13 +395,25 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
                 <button
                   key={ex.id}
                   onClick={() => handleAddExercise(ex.id)}
-                  className="w-full p-4 rounded-xl flex items-center justify-between bg-surface-container hover:bg-surface-container-high transition-colors text-left"
+                  className="w-full p-4 rounded-xl flex items-start justify-between bg-surface-container hover:bg-surface-container-high transition-colors text-left"
                 >
-                  <div>
+                  <div className="min-w-0 flex-1 pr-3">
                     <p className="font-bold text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{ex.name}</p>
                     <p className="text-xs text-on-surface-variant mt-0.5">{ex.category} · {ex.muscleGroups.slice(0, 2).join(', ')}</p>
+                    {ex.description && (
+                      <p className="text-xs text-on-surface-variant mt-1.5 line-clamp-2" style={{ opacity: 0.6 }}>{ex.description}</p>
+                    )}
+                    {ex.tags && ex.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {ex.tags.slice(0, 3).map(tag => (
+                          <span key={tag} className="px-1.5 py-0.5 bg-surface-container-high rounded text-xs text-on-surface-variant" style={{ opacity: 0.7 }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <span className="text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container-high rounded-full">
                       {ex.equipment}
                     </span>
@@ -347,6 +421,11 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
                   </div>
                 </button>
               ))}
+              {filteredExercises.length === 0 && (
+                <div className="text-center py-10">
+                  <p className="text-on-surface-variant text-sm">Keine Übungen gefunden</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -64,7 +64,14 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export const storage = {
-  getExercises: () => load<Exercise[]>(KEYS.exercises, DEFAULT_EXERCISES),
+  getExercises: (): Exercise[] => {
+    // Prefer the remotely synced library if available, fall back to local / defaults
+    const remote = localStorage.getItem('localift_remote_exercises');
+    if (remote) {
+      try { return JSON.parse(remote) as Exercise[]; } catch { /* fall through */ }
+    }
+    return load<Exercise[]>(KEYS.exercises, DEFAULT_EXERCISES);
+  },
   saveExercises: (v: Exercise[]) => save(KEYS.exercises, v),
 
   getPlans: () => load<WorkoutPlan[]>(KEYS.plans, []),
