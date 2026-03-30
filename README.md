@@ -1,73 +1,214 @@
-# React + TypeScript + Vite
+# LOCALlift.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**LOCALlift** ist eine vollständig offline-fähige Progressive Web App (PWA) für strukturiertes Krafttraining – ohne Server, ohne Account, ohne Kompromisse bei der Privatsphäre. Alle Daten liegen ausschließlich auf deinem Gerät.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Was ist LOCALlift?
 
-## React Compiler
+LOCALlift ist ein persönlicher Trainingsbegleiter, der direkt im Browser läuft und sich wie eine native App verhält. Die App ist für Menschen konzipiert, die ihr Training ernstnehmen: strukturierte Pläne erstellen, Sätze und Gewichte live erfassen, Fortschritte nachverfolgen – und das alles ohne Registrierung, ohne Cloud-Abhängigkeit und ohne Tracking.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Der Name ist Programm: **LOCAL** steht für lokale Datenhaltung und lokale Ausführung. **lift** steht für das Einzige, das zählt.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Dashboard
+Die Startseite zeigt auf einen Blick alles Wichtige für den aktuellen Tag:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Heutiges Gesamtvolumen** (Summe aus Gewicht × Wiederholungen aller Sätze)
+- **Trainingsdauer** und **Satzanzahl** des heutigen Tages
+- **Streak-Zähler** – wie viele Tage in Folge trainiert wurde
+- **Wochenaktivitäts-Balken** – die letzten 7 Tage auf einen Blick
+- **Schnellstart-Button** – direkt in einen Plan einsteigen oder einen neuen erstellen
+- **Letzte Einheiten** – die 3 zuletzt absolvierten Trainings mit Volumen, Dauer und Satzanzahl
+- **Meine Pläne** – Zugriff auf die eigenen Trainingspläne mit direktem Startbutton
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+### Trainingsplan-Verwaltung (Pläne)
+Erstelle und verwalte beliebig viele Trainingspläne:
+
+- **Planname** und optionale Beschreibung
+- **Tags** zur Kategorisierung: Kraft, Hypertrophie, Ausdauer, Mobilität, Ganzkörper, Oberkörper, Unterkörper, Push, Pull, Beine
+- **Übungsliste** mit Suchfunktion aus einer Bibliothek von 20 vordefinierten Übungen
+- **Geschätzte Trainingsdauer** wird automatisch aus Satzanzahl und Pausenzeiten berechnet
+- Pläne können jederzeit bearbeitet oder gelöscht werden
+
+---
+
+### Übungs-Konfigurator
+Jede Übung in einem Plan kann individuell konfiguriert werden:
+
+- Beliebige Anzahl an **Sätzen** pro Übung
+- Pro Satz: **Zielgewicht** (kg oder lbs), **Zielwiederholungen** und **Pausenzeit in Sekunden**
+- **Kinetic Insight**: Zeigt Verlaufsdaten aus der Trainingshistorie – zuletzt verwendetes Gewicht, Maximalkraft und Volumen-Trend
+
+---
+
+### Aktives Training
+Die Kernfunktion der App – vollständige Trainingsbegleitung in Echtzeit:
+
+- **Akkordeon-Übersicht** aller Übungen im Plan
+- **Satz-für-Satz-Erfassung** mit Gewicht und Wiederholungen
+- Anpassung von Gewicht und Wiederholungen über **+/−-Steuerung** direkt während des Trainings
+- **Automatischer Pause-Timer** startet nach jedem abgeschlossenen Satz
+- **Elapsed-Timer** zeigt die bisherige Trainingsdauer an
+- **Fortschrittsbalken** zeigt den prozentualen Fortschritt über alle Übungen
+- Automatischer Wechsel zur nächsten Übung nach Abschluss aller Sätze
+- Bestätigung vor **Abschluss** oder **Abbruch** des Trainings
+- Nach Abschluss: Weiterleitung zur Trainingshistorie + Push-Notification mit Zusammenfassung
+
+---
+
+### Trainingshistorie
+Vollständige Aufzeichnung aller absolvierten Trainingseinheiten:
+
+- **Chronologische Übersicht** aller Sessions, gruppiert nach Monaten
+- Jede Einheit zeigt: Datum, Planname, Dauer, Gesamtvolumen und Satzanzahl
+- **Detailansicht** pro Session: alle Übungen mit jedem einzelnen protokollierten Satz
+- Volumen- und Satzstatistiken per Übung
+
+---
+
+### Einstellungen
+Zentrale Konfiguration der App:
+
+- **Benachrichtigungen**: Browser-Permission anfordern, tägliche Trainingserinnerungen mit frei wählbarer Uhrzeit und Wochentagen (Mo–So) konfigurieren
+- **Gewichtseinheit**: Umschalten zwischen `kg` und `lbs`
+- **Vibration**: Haptisches Feedback ein- oder ausschalten
+- **Datensicherung**: Alle Pläne, Trainings und Übungen als JSON-Datei exportieren (lokales Backup)
+- **Datenlöschung**: Alle gespeicherten Daten mit Bestätigungsabfrage vollständig zurücksetzen
+- **Speicheranzeige**: Aktuell belegter Gerätespeicher mit Fortschrittsbalken
+- **App-Statistiken**: Gesamtzahl der gespeicherten Einheiten, Pläne und Übungen
+
+---
+
+## Datenschutz & Offline-First
+
+LOCALlift wurde konsequent nach dem **Offline-First**-Prinzip entwickelt:
+
+- **Keine Server** – die App kommuniziert mit keinem Backend
+- **Keine Profile** – es gibt keine Nutzerkonten, keine E-Mail-Adressen, keine Passwörter
+- **Keine Tracker** – kein Analytics, kein Telemetrie-Code, keine externen Dienste
+- **Alle Daten bleiben lokal** – gespeichert im `localStorage` des Browsers auf deinem Gerät
+- **Persistenter Speicher** – beim ersten Start wird `navigator.storage.persist()` angefragt, damit der Browser die Daten nicht automatisch löscht
+- **Vollständig offline nutzbar** – nach dem ersten Laden funktioniert die App auch ohne Internetverbindung
+- **Kein Datenverlust bei App-Updates** – der Service Worker aktualisiert sich im Hintergrund ohne bestehende Daten zu berühren
+
+---
+
+## Benachrichtigungen
+
+LOCALlift nutzt die **Web Notifications API** in Verbindung mit dem Service Worker für zuverlässige Benachrichtigungen:
+
+- **Trainingserinnerungen**: Tägliche Push-Notification zur konfigurierten Uhrzeit und an ausgewählten Wochentagen – kein Push-Server notwendig, die Prüfung erfolgt durch einen Intervall-Timer solange die App im Tab aktiv ist
+- **Trainingsabschluss**: Nach jedem beendeten Training erscheint eine Benachrichtigung mit Planname, Dauer und absolvierter Satzanzahl
+- **Klick auf Notification**: Öffnet oder fokussiert die App und navigiert automatisch zum relevanten Screen
+
+---
+
+## Übungsbibliothek
+
+20 vordefinierte Übungen aus allen Bereichen des Krafttrainings:
+
+| Kategorie   | Übungen                                                                                 |
+|-------------|-----------------------------------------------------------------------------------------|
+| Drücken     | Bench Press, Schulterdrücken, Schrägbankdrücken, Dips                                  |
+| Ziehen      | Klimmzüge, Rudern mit Langhantel, Lat-Pulldown, Face Pulls, Kabelzug Rudern            |
+| Beine       | Kniebeuge, Beinpresse, Rumänisches Kreuzheben, Hip Thrust, Beinbeuger, Beinstrecker, Frontkniebeuge |
+| Arme        | Bizepscurl, Trizepsdrücken                                                              |
+| Olympisch   | Power Clean, Kreuzheben                                                                 |
+
+---
+
+## Technischer Stack
+
+| Technologie           | Version | Zweck                                          |
+|-----------------------|---------|------------------------------------------------|
+| React                 | 19      | UI-Framework                                   |
+| TypeScript            | 5.9     | Typsicherheit                                  |
+| Vite                  | 7       | Build-Tool & Dev-Server                        |
+| Tailwind CSS          | 4       | Utility-First Styling mit Custom Design Tokens |
+| vite-plugin-pwa       | 1.x     | PWA-Manifest, Service Worker Registration      |
+| Workbox               | 7       | Service Worker Caching (Precache + Navigation) |
+| Web Notifications API | nativ   | Push-Benachrichtigungen via Service Worker     |
+| Storage Manager API   | nativ   | Persistenter Speicher (`navigator.storage`)    |
+| localStorage          | nativ   | Datenpersistenz (kein IndexedDB, kein Backend) |
+
+### Architektur
+
+```
+src/
+├── main.tsx                     # App-Einstiegspunkt, requestPersistentStorage()
+├── App.tsx                      # Custom Router (kein react-router-dom)
+├── context.tsx                  # React Context: globaler State + alle Actions
+├── types.ts                     # TypeScript-Interfaces (Exercise, Plan, Session …)
+├── storage.ts                   # localStorage-Wrapper, 20 Default-Übungen
+├── notifications.ts             # Web Notifications API, Reminder-Scheduling, Storage API
+├── sw.ts                        # Workbox Service Worker (Precache, notificationclick)
+├── index.css                    # Tailwind v4 @theme Design-System Tokens
+├── components/
+│   ├── Header.tsx               # Einheitlicher App-Header mit Logo & Back-Navigation
+│   └── BottomNav.tsx            # Glassmorphic Bottom Navigation (4 Tabs)
+└── screens/
+    ├── Dashboard.tsx            # Startseite mit Tages- und Wochenstatistiken
+    ├── Plans.tsx                # Planübersicht mit Suche
+    ├── PlanDetail.tsx           # Plan erstellen / bearbeiten
+    ├── ExerciseConfigurator.tsx # Satz-Konfiguration pro Übung
+    ├── ActiveWorkout.tsx        # Live-Trainingsscreen
+    ├── History.tsx              # Trainingshistorie + Detailansicht
+    └── Settings.tsx             # App-Einstellungen
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Design-System: "The Kinetic Monolith"
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Hintergrund**: Tiefdunkel `#0e0e0e` / `#131313`
+- **Primary**: Elektrisches Blau `#95aaff` / `#3766ff`
+- **Typografie**: Space Grotesk (Headlines) + Manrope (Body)
+- **Ikonographie**: Google Material Symbols (Variable Fonts)
+- **Stil**: High-Contrast Dark UI, kinetic Gradient-Akzente, Glassmorphism-Elemente
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Installation & Entwicklung
+
+```bash
+# Abhängigkeiten installieren
+npm install
+
+# Entwicklungsserver starten
+npm run dev
+
+# Produktions-Build erstellen
+npm run build
+
+# Build-Vorschau
+npm run preview
 ```
+
+Die App ist unter `http://localhost:5173` erreichbar. Für PWA-Features (Service Worker, Installierbarkeit) wird ein Produktions-Build und HTTPS empfohlen.
+
+---
+
+## Daten-Export & Backup
+
+Unter **Einstellungen → Daten exportieren** kann ein vollständiges JSON-Backup heruntergeladen werden:
+
+```json
+{
+  "exportDate": "2025-01-01T12:00:00.000Z",
+  "plans": [...],
+  "sessions": [...],
+  "exercises": [...]
+}
+```
+
+Die Datei enthält alle Trainingspläne, Trainingseinheiten und individuelle Übungen und kann zur Datensicherung lokal gespeichert werden.
+
+---
+
+## Lizenz
+
+Privates Projekt. Alle Rechte vorbehalten.
