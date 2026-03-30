@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:/Users/xTCSx/Downloads/stitch \\(2\\)/\" -type d)",
+      "Bash(find \"C:/Users/xTCSx/Downloads/stitch \\(2\\)/\" -type f)",
+      "Bash(ls -la \"C:/Users/xTCSx/Downloads/stitch \\(2\\)/stitch/\")",
+      "Bash(npm install tailwindcss @tailwindcss/vite)",
+      "Bash(npx tsc --noEmit)"
+    ]
+  }
+}
