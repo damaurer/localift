@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context';
+import type { Exercise } from '../types';
 
 function formatTimer(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -18,12 +19,14 @@ export default function ActiveWorkout() {
     finishWorkout,
     cancelWorkout,
     navigate,
+    getExerciseById,
   } = useApp();
 
   const [elapsed, setElapsed] = useState(0);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [restTimer, setRestTimer] = useState<{ active: boolean; seconds: number; total: number } | null>(null);
+  const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
 
   // Elapsed timer
   useEffect(() => {
@@ -182,12 +185,26 @@ export default function ActiveWorkout() {
                 onClick={() => setExpandedExercise(isExpanded ? -1 : exIdx)}
               >
                 <div className="flex flex-col gap-0.5">
-                  <span
-                    className={`text-base font-bold tracking-tight ${isExpanded ? 'text-on-surface' : allDone ? 'text-primary' : 'text-on-surface opacity-60'}`}
-                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-                  >
-                    {ex.exerciseName}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-base font-bold tracking-tight ${isExpanded ? 'text-on-surface' : allDone ? 'text-primary' : 'text-on-surface opacity-60'}`}
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      {ex.exerciseName}
+                    </span>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        const full = getExerciseById(ex.exerciseId);
+                        if (full) setInfoExercise(full);
+                      }}
+                      className="flex items-center justify-center w-5 h-5 rounded-full shrink-0"
+                      style={{ background: 'rgba(149, 170, 255, 0.15)', color: '#95aaff' }}
+                      aria-label="Übungsbeschreibung"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>info</span>
+                    </button>
+                  </div>
                   <span className="text-xs text-on-surface-variant font-medium" style={{ opacity: 0.6 }}>
                     {ex.loggedSets.length}/{ex.targetSets.length} Sätze
                   </span>
@@ -459,6 +476,85 @@ export default function ActiveWorkout() {
                 Training abbrechen
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Exercise Info Sheet */}
+      {infoExercise && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end justify-center"
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
+          onClick={() => setInfoExercise(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-t-2xl p-6 space-y-4 pb-10"
+            style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.1)', borderBottom: 'none' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <div className="flex justify-center -mt-1 mb-2">
+              <div className="w-10 h-1 rounded-full bg-surface-container-high" />
+            </div>
+
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-xl font-black tracking-tight text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  {infoExercise.name}
+                </h3>
+                <p className="text-xs text-on-surface-variant mt-0.5 font-medium">
+                  {infoExercise.category} · {infoExercise.equipment}
+                </p>
+              </div>
+              <button
+                onClick={() => setInfoExercise(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full shrink-0"
+                style={{ background: 'rgba(72,72,71,0.4)', color: 'var(--color-text-secondary, #aaa)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+              </button>
+            </div>
+
+            {/* Muscle groups */}
+            {infoExercise.muscleGroups.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {infoExercise.muscleGroups.map(mg => (
+                  <span
+                    key={mg}
+                    className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(149,170,255,0.12)', color: '#95aaff' }}
+                  >
+                    {mg}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Description */}
+            {infoExercise.description ? (
+              <p className="text-sm leading-relaxed text-on-surface-variant">
+                {infoExercise.description}
+              </p>
+            ) : (
+              <p className="text-sm text-on-surface-variant opacity-50 italic">
+                Keine Beschreibung verfügbar.
+              </p>
+            )}
+
+            {/* Tags */}
+            {infoExercise.tags && infoExercise.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {infoExercise.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2 py-0.5 rounded-full font-medium"
+                    style={{ background: 'rgba(72,72,71,0.4)', color: '#888' }}
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
