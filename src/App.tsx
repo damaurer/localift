@@ -7,6 +7,7 @@ import ActiveWorkout from './screens/ActiveWorkout';
 import History from './screens/History';
 import Settings from './screens/Settings';
 import PWABadge from './PWABadge.tsx';
+import InstallPrompt from './components/InstallPrompt';
 import './App.css';
 
 function Router() {
@@ -37,6 +38,7 @@ export default function App() {
   return (
     <AppProvider>
       <Router />
+      <InstallPrompt />
       <PWABadge />
     </AppProvider>
   );
