@@ -83,7 +83,34 @@ export interface AppSettings {
   vibration: boolean;
 }
 
-export type NavTab = 'dashboard' | 'plans' | 'history' | 'settings';
+export type MealType = 'fruehstueck' | 'mittagessen' | 'abendessen' | 'snack';
+
+export interface FoodEntry {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  loggedAt: string;
+  mealType: MealType;
+}
+
+export interface NutritionDay {
+  date: string; // YYYY-MM-DD
+  entries: FoodEntry[];
+  waterMl: number;
+}
+
+export interface NutritionGoals {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  waterMl: number;
+}
+
+export type NavTab = 'dashboard' | 'plans' | 'calories' | 'settings';
 
 export type AppRoute =
   | { screen: 'dashboard' }
@@ -93,4 +120,5 @@ export type AppRoute =
   | { screen: 'active-workout' }
   | { screen: 'history' }
   | { screen: 'history-detail'; sessionId: string }
+  | { screen: 'calories' }
   | { screen: 'settings' };

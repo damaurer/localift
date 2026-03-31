@@ -278,9 +278,10 @@ export default function Dashboard() {
               <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>LETZTE EINHEITEN</h3>
               <button
                 onClick={() => navigate({ screen: 'history' })}
-                className="text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
+                className="flex items-center gap-1 text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
               >
-                Alle
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>history</span>
+                Verlauf
               </button>
             </div>
             {sessions.slice(0, 3).map(session => (

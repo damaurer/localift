@@ -5,6 +5,7 @@ import PlanDetail from './screens/PlanDetail';
 import ExerciseConfigurator from './screens/ExerciseConfigurator';
 import ActiveWorkout from './screens/ActiveWorkout';
 import History from './screens/History';
+import Calories from './screens/Calories';
 import Settings from './screens/Settings';
 import PWABadge from './PWABadge.tsx';
 import InstallPrompt from './components/InstallPrompt';
@@ -27,6 +28,8 @@ function Router() {
     case 'history':
     case 'history-detail':
       return <History />;
+    case 'calories':
+      return <Calories />;
     case 'settings':
       return <Settings />;
     default:

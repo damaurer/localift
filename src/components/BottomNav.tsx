@@ -4,7 +4,7 @@ import type { NavTab, AppRoute } from '../types';
 const NAV_ITEMS: { tab: NavTab; icon: string; label: string; route: AppRoute }[] = [
   { tab: 'dashboard', icon: 'grid_view', label: 'Home', route: { screen: 'dashboard' } },
   { tab: 'plans', icon: 'event_note', label: 'Pläne', route: { screen: 'plans' } },
-  { tab: 'history', icon: 'history', label: 'Verlauf', route: { screen: 'history' } },
+  { tab: 'calories', icon: 'restaurant', label: 'Kalorien', route: { screen: 'calories' } },
   { tab: 'settings', icon: 'settings', label: 'Einstellungen', route: { screen: 'settings' } },
 ];
 
@@ -14,8 +14,7 @@ function getActiveTab(route: AppRoute): NavTab | null {
     case 'plans':
     case 'plan-detail':
     case 'exercise-config': return 'plans';
-    case 'history':
-    case 'history-detail': return 'history';
+    case 'calories': return 'calories';
     case 'settings': return 'settings';
     default: return null;
   }

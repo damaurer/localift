@@ -5,6 +5,8 @@ import type {
   ActiveWorkoutState,
   AppSettings,
   LoggedSet,
+  NutritionDay,
+  NutritionGoals,
 } from './types';
 
 const KEYS = {
@@ -13,6 +15,8 @@ const KEYS = {
   sessions: 'localift_sessions',
   activeWorkout: 'localift_active_workout',
   settings: 'localift_settings',
+  nutritionDays: 'localift_nutrition_days',
+  nutritionGoals: 'localift_nutrition_goals',
 } as const;
 
 function load<T>(key: string, fallback: T): T {
@@ -55,6 +59,14 @@ export const DEFAULT_EXERCISES: Exercise[] = [
   { id: 'ex-frontsq', name: 'Frontkniebeuge', equipment: 'barbell', muscleGroups: ['Oberschenkel', 'Core'], category: 'Beine' },
 ];
 
+export const DEFAULT_NUTRITION_GOALS: NutritionGoals = {
+  calories: 2500,
+  protein: 180,
+  carbs: 280,
+  fat: 75,
+  waterMl: 3000,
+};
+
 const DEFAULT_SETTINGS: AppSettings = {
   weightUnit: 'kg',
   reminderEnabled: false,
@@ -91,6 +103,12 @@ export const storage = {
 
   getSettings: () => load<AppSettings>(KEYS.settings, DEFAULT_SETTINGS),
   saveSettings: (v: AppSettings) => save(KEYS.settings, v),
+
+  getNutritionDays: () => load<NutritionDay[]>(KEYS.nutritionDays, []),
+  saveNutritionDays: (v: NutritionDay[]) => save(KEYS.nutritionDays, v),
+
+  getNutritionGoals: () => load<NutritionGoals>(KEYS.nutritionGoals, DEFAULT_NUTRITION_GOALS),
+  saveNutritionGoals: (v: NutritionGoals) => save(KEYS.nutritionGoals, v),
 
   clearAll: () => {
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));

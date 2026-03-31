@@ -19,6 +19,10 @@ import type {
   SetTemplate,
   AppRoute,
   LoggedSet,
+  NutritionDay,
+  NutritionGoals,
+  FoodEntry,
+  MealType,
 } from './types';
 
 interface AppContextValue {
@@ -62,6 +66,15 @@ interface AppContextValue {
   // Settings
   updateSettings: (patch: Partial<AppSettings>) => void;
   clearAllData: () => void;
+
+  // Nutrition
+  nutritionDays: NutritionDay[];
+  nutritionGoals: NutritionGoals;
+  getTodayNutrition: () => NutritionDay;
+  addFoodEntry: (entry: Omit<FoodEntry, 'id' | 'loggedAt'> & { mealType: MealType }) => void;
+  removeFoodEntry: (entryId: string) => void;
+  updateWater: (date: string, waterMl: number) => void;
+  updateNutritionGoals: (goals: NutritionGoals) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -74,6 +87,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeWorkout, setActiveWorkout] = useState<ActiveWorkoutState | null>(() => storage.getActiveWorkout());
   const [route, setRoute] = useState<AppRoute>({ screen: 'dashboard' });
   const [, setHistory] = useState<AppRoute[]>([]);
+  const [nutritionDays, setNutritionDays] = useState<NutritionDay[]>(() => storage.getNutritionDays());
+  const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals>(() => storage.getNutritionGoals());
 
   // Sync remote exercise library in the background on mount
   useEffect(() => {
@@ -380,6 +395,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Nutrition
+  const getTodayNutrition = useCallback((): NutritionDay => {
+    const today = new Date().toISOString().split('T')[0];
+    return nutritionDays.find(d => d.date === today) ?? { date: today, entries: [], waterMl: 0 };
+  }, [nutritionDays]);
+
+  const addFoodEntry = useCallback((entry: Omit<FoodEntry, 'id' | 'loggedAt'> & { mealType: MealType }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newEntry: FoodEntry = { ...entry, id: generateId(), loggedAt: new Date().toISOString() };
+    setNutritionDays(prev => {
+      const idx = prev.findIndex(d => d.date === today);
+      let next: NutritionDay[];
+      if (idx >= 0) {
+        next = prev.map((d, i) => i === idx ? { ...d, entries: [...d.entries, newEntry] } : d);
+      } else {
+        next = [...prev, { date: today, entries: [newEntry], waterMl: 0 }];
+      }
+      storage.saveNutritionDays(next);
+      return next;
+    });
+  }, []);
+
+  const removeFoodEntry = useCallback((entryId: string) => {
+    setNutritionDays(prev => {
+      const next = prev.map(d => ({ ...d, entries: d.entries.filter(e => e.id !== entryId) }));
+      storage.saveNutritionDays(next);
+      return next;
+    });
+  }, []);
+
+  const updateWater = useCallback((date: string, waterMl: number) => {
+    setNutritionDays(prev => {
+      const idx = prev.findIndex(d => d.date === date);
+      let next: NutritionDay[];
+      if (idx >= 0) {
+        next = prev.map((d, i) => i === idx ? { ...d, waterMl } : d);
+      } else {
+        next = [...prev, { date, entries: [], waterMl }];
+      }
+      storage.saveNutritionDays(next);
+      return next;
+    });
+  }, []);
+
+  const updateNutritionGoals = useCallback((goals: NutritionGoals) => {
+    setNutritionGoals(goals);
+    storage.saveNutritionGoals(goals);
+  }, []);
+
   const clearAllData = useCallback(() => {
     storage.clearAll();
     setExercises(DEFAULT_EXERCISES);
@@ -387,6 +451,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSessions([]);
     setActiveWorkout(null);
     setSettings(storage.getSettings());
+    setNutritionDays([]);
+    setNutritionGoals(storage.getNutritionGoals());
     navigate({ screen: 'dashboard' });
   }, [navigate]);
 
@@ -401,6 +467,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       finishWorkout, cancelWorkout,
       getSessionById,
       updateSettings, clearAllData,
+      nutritionDays, nutritionGoals,
+      getTodayNutrition, addFoodEntry, removeFoodEntry, updateWater, updateNutritionGoals,
     }}>
       {children}
     </AppContext.Provider>
