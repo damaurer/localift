@@ -195,7 +195,7 @@ export default function ActiveWorkout() {
                 style={isExpanded ? { borderBottom: '1px solid rgba(149, 170, 255, 0.1)', background: 'rgba(149, 170, 255, 0.05)' } : {}}
                 onClick={() => setExpandedExercise(isExpanded ? -1 : exIdx)}
               >
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-0.5 pr-5 px-5">
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-base font-bold tracking-tight ${isExpanded ? 'text-on-surface' : allDone ? 'text-primary' : 'text-on-surface opacity-60'}`}
@@ -203,18 +203,6 @@ export default function ActiveWorkout() {
                     >
                       {ex.exerciseName}
                     </span>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        const full = getExerciseById(ex.exerciseId);
-                        if (full) setInfoExercise(full);
-                      }}
-                      className="flex items-center justify-center w-5 h-5 rounded-full shrink-0"
-                      style={{ background: 'rgba(149, 170, 255, 0.15)', color: '#95aaff' }}
-                      aria-label="Übungsbeschreibung"
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>info</span>
-                    </button>
                   </div>
                   <span className="text-xs text-on-surface-variant font-medium" style={{ opacity: 0.6 }}>
                     {ex.loggedSets.length}/{ex.targetSets.length} Sätze
@@ -242,6 +230,20 @@ export default function ActiveWorkout() {
               {/* Accordion Content */}
               {isExpanded && (
                 <div className="p-4 space-y-4">
+                  <div className="flex items-center justify-end">
+                    <button
+                        onClick={() => {
+                          const full = getExerciseById(ex.exerciseId);
+                          if (full) setInfoExercise(full);
+                        }}
+                        className="flex items-center justify-center h-5 rounded-full shrink-0"
+                        style={{ background: 'rgba(149, 170, 255, 0.15)', color: '#95aaff', padding: '12px' }}
+                        aria-label="Übungsbeschreibung"
+                    >
+                      <span className="pr-2.5">Info</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>info</span>
+                    </button>
+                  </div>
                   {/* Volume summary */}
                   <div className="flex items-center justify-between">
                     <div className="flex gap-6">
