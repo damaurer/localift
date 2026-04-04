@@ -225,7 +225,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addExerciseToPlan = useCallback((planId: string, exerciseId: string) => {
     const newId = generateId();
-    const defaultSet: SetTemplate = { id: generateId(), weight: 60, reps: 8, restSeconds: 90 };
+    const defaultSet: SetTemplate = { id: generateId(), weight: 60, reps: 8, restSeconds: 90, weightUnit: 'kg' };
     setPlans(prev => {
       const next = prev.map(p => {
         if (p.id !== planId) return p;

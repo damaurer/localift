@@ -198,10 +198,236 @@ Unter **Einstellungen → Daten exportieren** kann ein vollständiges JSON-Backu
 
 ```json
 {
-  "exportDate": "2025-01-01T12:00:00.000Z",
-  "plans": [...],
-  "sessions": [...],
-  "exercises": [...]
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "exportDate": {
+      "type": "string"
+    },
+    "plans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {}
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "exerciseId": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "integer"
+                },
+                "sets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "weight": {
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "type": "integer"
+                      },
+                      "restSeconds": {
+                        "type": "integer"
+                      },
+                      "weightUnit": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "weight",
+                      "reps",
+                      "restSeconds"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "exerciseId",
+                "order",
+                "sets"
+              ]
+            }
+          },
+          "estimatedDuration": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "tags",
+          "exercises",
+          "estimatedDuration",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "planId": {
+            "type": "string"
+          },
+          "planName": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "durationSeconds": {
+            "type": "integer"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exerciseId": {
+                  "type": "string"
+                },
+                "exerciseName": {
+                  "type": "string"
+                },
+                "loggedSets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "weight": {
+                        "type": "number"
+                      },
+                      "reps": {
+                        "type": "integer"
+                      },
+                      "completedAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "weight",
+                      "reps",
+                      "completedAt"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "exerciseId",
+                "exerciseName",
+                "loggedSets"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "planId",
+          "planName",
+          "startedAt",
+          "completedAt",
+          "durationSeconds",
+          "exercises"
+        ]
+      }
+    },
+    "exercises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "equipment": {
+            "type": "string"
+          },
+          "muscleGroups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "equipment",
+          "muscleGroups",
+          "tags",
+          "description",
+          "imageUrl"
+        ]
+      }
+    }
+  },
+  "required": [
+    "exportDate",
+    "plans",
+    "sessions",
+    "exercises"
+  ]
 }
 ```
 
