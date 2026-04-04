@@ -247,7 +247,7 @@ export default function Calories() {
         >
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <span
-              className="material-symbols-outlined text-primary text-2xl flex-shrink-0"
+              className="material-symbols-outlined text-primary text-2xl shrink-0"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               water_drop
@@ -336,7 +336,7 @@ export default function Calories() {
                           <span className="text-xs font-bold text-on-surface truncate flex-1">
                             {entry.name}
                           </span>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <span className="text-xs text-outline font-bold">{entry.calories}</span>
                             <button
                               onClick={() => removeFoodEntry(entry.id)}

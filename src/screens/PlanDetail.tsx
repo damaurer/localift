@@ -318,7 +318,7 @@ export default function PlanDetail() {
       {/* Exercise Picker Modal */}
       {showExercisePicker && (
         <div
-          className="fixed inset-0 z-[100] flex items-end justify-center"
+          className="fixed inset-0 z-100 flex items-end justify-center"
           style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)' }}
           onClick={e => { if (e.target === e.currentTarget) { setShowExercisePicker(false); setExSearch(''); setExCategory(null); setExEquipment(null); } }}
         >
@@ -357,7 +357,7 @@ export default function PlanDetail() {
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                 <button
                   onClick={() => setExCategory(null)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                     !exCategory ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'
                   }`}
                 >Alle</button>
@@ -365,7 +365,7 @@ export default function PlanDetail() {
                   <button
                     key={cat}
                     onClick={() => setExCategory(exCategory === cat ? null : cat)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                       exCategory === cat ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'
                     }`}
                   >{cat}</button>
@@ -376,7 +376,7 @@ export default function PlanDetail() {
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                 <button
                   onClick={() => setExEquipment(null)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                     !exEquipment ? 'bg-surface-container-high text-on-surface' : 'bg-surface-container text-on-surface-variant'
                   }`}
                 >Alles</button>
@@ -384,7 +384,7 @@ export default function PlanDetail() {
                   <button
                     key={eq}
                     onClick={() => setExEquipment(exEquipment === eq ? null : eq)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                       exEquipment === eq ? 'bg-surface-container-high text-on-surface' : 'bg-surface-container text-on-surface-variant opacity-60'
                     }`}
                   >{eq}</button>
@@ -419,7 +419,7 @@ export default function PlanDetail() {
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                  <div className="flex flex-col items-end gap-2 shrink-0">
                     <span className="text-xs font-bold text-on-surface-variant px-2 py-1 bg-surface-container-high rounded-full">
                       {ex.equipment}
                     </span>

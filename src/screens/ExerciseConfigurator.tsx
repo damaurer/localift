@@ -188,7 +188,7 @@ export default function ExerciseConfigurator() {
         {lastBestSet && (
           <section className="mt-10 p-6 rounded-xl" style={{ background: 'rgba(130, 155, 255, 0.1)', border: '1px solid rgba(149, 170, 255, 0.1)' }}>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary-container">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-primary-container">
                 <span className="material-symbols-outlined text-on-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
               </div>
               <div>

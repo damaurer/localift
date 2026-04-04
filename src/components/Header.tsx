@@ -46,7 +46,7 @@ export default function Header({ title, subtitle, showBack = false, rightContent
         {showBack && (
           <button
             onClick={() => navigate(-1)}
-            className="text-on-surface hover:opacity-80 transition-opacity active:scale-95 duration-200 flex-shrink-0"
+            className="text-on-surface hover:opacity-80 transition-opacity active:scale-95 duration-200 shrink-0"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
@@ -70,7 +70,7 @@ export default function Header({ title, subtitle, showBack = false, rightContent
         )}
       </div>
       {rightContent && (
-        <div className="flex items-center gap-2 flex-shrink-0 ml-3">{rightContent}</div>
+        <div className="flex items-center gap-2 shrink-0 ml-3">{rightContent}</div>
       )}
     </header>
   );

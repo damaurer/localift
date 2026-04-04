@@ -403,7 +403,7 @@ export default function Settings() {
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(149,170,255,0.1)' }}>
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(149,170,255,0.1)' }}>
                 <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>bug_report</span>
               </div>
               <div>
@@ -422,7 +422,7 @@ export default function Settings() {
 
             <label className="flex items-center gap-3 cursor-pointer select-none">
               <div
-                className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors"
+                className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-colors"
                 style={{
                   background: feedbackSkipDialog ? 'linear-gradient(135deg, #95aaff, #3766ff)' : 'transparent',
                   border: feedbackSkipDialog ? 'none' : '2px solid rgba(149,170,255,0.35)',

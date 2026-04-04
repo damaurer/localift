@@ -161,7 +161,7 @@ export default function History() {
                   {month.split(' ')[0]}
                 </h2>
                 <span className="text-sm font-bold text-outline ml-3">{month.split(' ')[1]}</span>
-                <div className="h-px flex-grow ml-5 bg-surface-container-high" />
+                <div className="h-px grow ml-5 bg-surface-container-high" />
               </div>
 
               <div className="space-y-4">

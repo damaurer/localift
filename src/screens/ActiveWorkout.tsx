@@ -277,10 +277,10 @@ export default function ActiveWorkout() {
                         className="flex items-center gap-3 p-3 rounded-xl opacity-60"
                         style={{ background: 'rgba(32, 32, 31, 0.4)', borderLeft: '2px solid rgba(149, 170, 255, 0.4)' }}
                       >
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(149, 170, 255, 0.2)' }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(149, 170, 255, 0.2)' }}>
                           <span className="text-xs font-black text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{lsIdx + 1}</span>
                         </div>
-                        <div className="flex-grow flex items-center justify-between">
+                        <div className="grow flex items-center justify-between">
                           <div className="flex items-baseline gap-1">
                             <span className="text-lg font-bold text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{ls.weight}</span>
                             <span className="text-xs text-on-surface-variant font-bold uppercase">kg</span>
@@ -299,7 +299,7 @@ export default function ActiveWorkout() {
                         style={{ background: '#1a1a1a', borderLeft: '4px solid #95aaff', boxShadow: '0 0 0 1px rgba(149, 170, 255, 0.1)' }}
                       >
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
                             <span className="text-xs font-black text-on-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                               {currentSetIdx + 1}
                             </span>
@@ -321,7 +321,7 @@ export default function ActiveWorkout() {
                             >
                               <span className="material-symbols-outlined text-on-surface" style={{ fontSize: '18px' }}>remove</span>
                             </button>
-                            <div className="flex-grow flex flex-col items-center">
+                            <div className="grow flex flex-col items-center">
                               <input
                                 className="w-full bg-transparent text-center text-2xl font-black text-on-surface border-none p-0 focus:outline-none"
                                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
@@ -352,7 +352,7 @@ export default function ActiveWorkout() {
                             >
                               <span className="material-symbols-outlined text-on-surface" style={{ fontSize: '18px' }}>remove</span>
                             </button>
-                            <div className="flex-grow flex flex-col items-center">
+                            <div className="grow flex flex-col items-center">
                               <input
                                 className="w-full bg-transparent text-center text-2xl font-black text-on-surface border-none p-0 focus:outline-none"
                                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
@@ -393,12 +393,12 @@ export default function ActiveWorkout() {
                         className="flex items-center gap-3 p-3 rounded-xl opacity-40"
                         style={{ background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(72, 72, 71, 0.1)' }}
                       >
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-surface-container-high">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-surface-container-high">
                           <span className="text-xs font-black text-on-surface-variant" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                             {currentSetIdx + 2 + i}
                           </span>
                         </div>
-                        <div className="flex-grow grid grid-cols-2 gap-3">
+                        <div className="grow grid grid-cols-2 gap-3">
                           <div className="flex items-center justify-between px-3 py-1.5 bg-surface-container-high rounded-lg">
                             <span className="text-sm font-bold text-on-surface opacity-60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                               {ts.weight}kg
@@ -449,7 +449,7 @@ export default function ActiveWorkout() {
       {/* Finish Confirm Dialog */}
       {showFinishConfirm && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-6"
+          className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
           <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
@@ -494,7 +494,7 @@ export default function ActiveWorkout() {
       {/* Exercise Info Sheet */}
       {infoExercise && (
         <div
-          className="fixed inset-0 z-[100] flex items-end justify-center"
+          className="fixed inset-0 z-100 flex items-end justify-center"
           style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
           onClick={() => setInfoExercise(null)}
         >
@@ -573,7 +573,7 @@ export default function ActiveWorkout() {
       {/* Cancel Confirm Dialog */}
       {showCancelConfirm && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-6"
+          className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
           <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
