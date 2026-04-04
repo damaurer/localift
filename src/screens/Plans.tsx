@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 
 export default function Plans() {
-  const { plans, navigate, startWorkout, deletePlan } = useApp();
+  const navigate = useNavigate();
+  const { plans, startWorkout, deletePlan } = useApp();
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
@@ -95,13 +97,13 @@ export default function Plans() {
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => navigate({ screen: 'plan-detail', planId: plan.id })}
+                    onClick={() => navigate(`/plans/${plan.id}`)}
                     className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
                   >
                     <span className="material-symbols-outlined text-base">edit</span>
                   </button>
                   <button
-                    onClick={() => startWorkout(plan.id)}
+                    onClick={() => { startWorkout(plan.id); navigate('/workout'); }}
                     className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-300"
                   >
                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -150,7 +152,7 @@ export default function Plans() {
       {/* FAB */}
       <div className="fixed bottom-24 right-6 z-50">
         <button
-          onClick={() => navigate({ screen: 'plan-detail', planId: null })}
+          onClick={() => navigate('/plans/new')}
           className="kinetic-gradient w-14 h-14 rounded-xl flex items-center justify-center text-on-primary active:scale-95 transition-transform duration-200"
           style={{ boxShadow: '0 0 32px 0 rgba(149, 170, 255, 0.2)' }}
         >

@@ -1,17 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
-import type { PlanExercise } from '../types';
+import type { PlanExercise } from '../types/workout.types.ts';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 
 const TAGS = ['Kraft', 'Hypertrophie', 'Ausdauer', 'Mobilität', 'Ganzkörper', 'Oberkörper', 'Unterkörper', 'Push', 'Pull', 'Beine'];
 
-interface PlanDetailProps {
-  planId: string | null;
-}
-
-export default function PlanDetail({ planId }: PlanDetailProps) {
-  const { plans, exercises, savePlan, addExerciseToPlan, removeExerciseFromPlan, getExerciseById, navigate, startWorkout } = useApp();
+export default function PlanDetail() {
+  const { planId: urlPlanId } = useParams<{ planId: string }>();
+  const navigate = useNavigate();
+  const planId = urlPlanId === 'new' ? null : urlPlanId;
+  const { plans, exercises, savePlan, addExerciseToPlan, removeExerciseFromPlan, getExerciseById, startWorkout } = useApp();
 
   const existing = planId ? plans.find(p => p.id === planId) : null;
 
@@ -30,7 +30,7 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
   const livePlan = planId ? plans.find(p => p.id === planId) : null;
 
   // currentPlanId: after first save, we have an id
-  const [currentPlanId, setCurrentPlanId] = useState<string | null>(planId);
+  const [currentPlanId, setCurrentPlanId] = useState<string | null>(planId || null);
 
   useEffect(() => {
     if (existing) {
@@ -50,6 +50,9 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
       exercises: livePlan?.exercises ?? [],
       estimatedDuration: estimateDuration(livePlan?.exercises ?? []),
     });
+    if (!currentPlanId) {
+      navigate(`/plans/${id}`, { replace: true });
+    }
     setCurrentPlanId(id);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -92,6 +95,7 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
       });
       setCurrentPlanId(id);
       addExerciseToPlan(id, exerciseId);
+      navigate(`/plans/${id}`, { replace: true });
     } else {
       addExerciseToPlan(currentPlanId, exerciseId);
     }
@@ -220,7 +224,7 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => navigate({ screen: 'exercise-config', planId: currentPlanId!, planExerciseId: pe.id })}
+                      onClick={() => navigate(`/plans/${currentPlanId}/exercise/${pe.id}`)}
                       className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors"
                       title="Konfigurieren"
                     >
@@ -247,7 +251,7 @@ export default function PlanDetail({ planId }: PlanDetailProps) {
                     </div>
                   )}
                   <button
-                    onClick={() => navigate({ screen: 'exercise-config', planId: currentPlanId!, planExerciseId: pe.id })}
+                    onClick={() => navigate(`/plans/${currentPlanId}/exercise/${pe.id}`)}
                     className="px-3 py-1.5 rounded-lg text-xs font-bold text-primary uppercase tracking-wider"
                     style={{ background: 'rgba(149, 170, 255, 0.1)' }}
                   >

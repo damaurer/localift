@@ -3,14 +3,23 @@ import type {
   WorkoutPlan,
   WorkoutSession,
   ActiveWorkoutState,
-  AppSettings,
   LoggedSet,
+} from './types/workout.types.ts';
+import type {
   NutritionDay,
   NutritionGoals,
-} from './types';
+} from './types/nutrition.types.ts';
+import type {
+  AppSettings,
+} from './types/app.types.ts';
 
 const KEYS = {
   exercises: 'localift_exercises',
+  remoteExercises: 'localift_remote_exercises',
+  remoteVersion: 'localift_remote_exercises_version',
+  remoteLastSync: 'localift_remote_exercises_last_sync',
+  lastReminder: 'localift_last_reminder',
+  feedbackSkip: 'localift_feedback_skip',
   plans: 'localift_plans',
   sessions: 'localift_sessions',
   activeWorkout: 'localift_active_workout',
@@ -19,7 +28,7 @@ const KEYS = {
   nutritionGoals: 'localift_nutrition_goals',
 } as const;
 
-function load<T>(key: string, fallback: T): T {
+async function load<T>(key: string, fallback: T): Promise<T> {
   try {
     const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
@@ -28,7 +37,7 @@ function load<T>(key: string, fallback: T): T {
   }
 }
 
-function save<T>(key: string, value: T): void {
+async function save<T>(key: string, value: T): Promise<void> {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
@@ -76,15 +85,14 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export const storage = {
-  getExercises: (): Exercise[] => {
+  getExercises: async (): Promise<Exercise[]> => {
     // Prefer the remotely synced library if available, fall back to local / defaults
-    const remote = localStorage.getItem('localift_remote_exercises');
-    if (remote) {
-      try { return JSON.parse(remote) as Exercise[]; } catch { /* fall through */ }
-    }
+    const remote = await load<Exercise[] | null>(KEYS.remoteExercises, null);
+    if (remote) return remote;
     return load<Exercise[]>(KEYS.exercises, DEFAULT_EXERCISES);
   },
   saveExercises: (v: Exercise[]) => save(KEYS.exercises, v),
+  saveRemoteExercises: (v: Exercise[]) => save(KEYS.remoteExercises, v),
 
   getPlans: () => load<WorkoutPlan[]>(KEYS.plans, []),
   savePlans: (v: WorkoutPlan[]) => save(KEYS.plans, v),
@@ -96,8 +104,9 @@ export const storage = {
   saveActiveWorkout: (v: ActiveWorkoutState | null) => {
     if (v === null) {
       localStorage.removeItem(KEYS.activeWorkout);
+      return Promise.resolve();
     } else {
-      save(KEYS.activeWorkout, v);
+      return save(KEYS.activeWorkout, v);
     }
   },
 
@@ -109,6 +118,27 @@ export const storage = {
 
   getNutritionGoals: () => load<NutritionGoals>(KEYS.nutritionGoals, DEFAULT_NUTRITION_GOALS),
   saveNutritionGoals: (v: NutritionGoals) => save(KEYS.nutritionGoals, v),
+
+  getRemoteSyncInfo: async () => {
+    return {
+      version: localStorage.getItem(KEYS.remoteVersion),
+      lastSync: parseInt(localStorage.getItem(KEYS.remoteLastSync) ?? '0', 10),
+    };
+  },
+  saveRemoteSyncInfo: async (version: string, lastSync: number) => {
+    localStorage.setItem(KEYS.remoteVersion, version);
+    localStorage.setItem(KEYS.remoteLastSync, lastSync.toString());
+  },
+
+  getFeedbackSkip: async () => localStorage.getItem(KEYS.feedbackSkip) === 'true',
+  saveFeedbackSkip: async (skip: boolean) => {
+    localStorage.setItem(KEYS.feedbackSkip, skip ? 'true' : 'false');
+  },
+
+  getLastReminder: async () => localStorage.getItem(KEYS.lastReminder),
+  saveLastReminder: async (dateStr: string) => {
+    localStorage.setItem(KEYS.lastReminder, dateStr);
+  },
 
   clearAll: () => {
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));

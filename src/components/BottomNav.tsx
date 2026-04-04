@@ -1,28 +1,15 @@
-import { useApp } from '../context';
-import type { NavTab, AppRoute } from '../types';
+import { NavLink, useLocation } from 'react-router-dom';
+import type { NavTab } from '../types/app.types.ts';
 
-const NAV_ITEMS: { tab: NavTab; icon: string; label: string; route: AppRoute }[] = [
-  { tab: 'dashboard', icon: 'grid_view', label: 'Home', route: { screen: 'dashboard' } },
-  { tab: 'plans', icon: 'event_note', label: 'Pläne', route: { screen: 'plans' } },
-  { tab: 'calories', icon: 'restaurant', label: 'Kalorien', route: { screen: 'calories' } },
-  { tab: 'settings', icon: 'settings', label: 'Einstellungen', route: { screen: 'settings' } },
+const NAV_ITEMS: { tab: NavTab; icon: string; label: string; path: string }[] = [
+  { tab: 'dashboard', icon: 'grid_view', label: 'Home', path: '/' },
+  { tab: 'plans', icon: 'event_note', label: 'Pläne', path: '/plans' },
+  { tab: 'calories', icon: 'restaurant', label: 'Kalorien', path: '/calories' },
+  { tab: 'settings', icon: 'settings', label: 'Einstellungen', path: '/settings' },
 ];
 
-function getActiveTab(route: AppRoute): NavTab | null {
-  switch (route.screen) {
-    case 'dashboard': return 'dashboard';
-    case 'plans':
-    case 'plan-detail':
-    case 'exercise-config': return 'plans';
-    case 'calories': return 'calories';
-    case 'settings': return 'settings';
-    default: return null;
-  }
-}
-
 export default function BottomNav() {
-  const { route, navigate } = useApp();
-  const activeTab = getActiveTab(route);
+  const location = useLocation();
 
   return (
     <nav
@@ -36,11 +23,14 @@ export default function BottomNav() {
       }}
     >
       {NAV_ITEMS.map(item => {
-        const isActive = activeTab === item.tab;
+        const isActive = item.path === '/' 
+          ? location.pathname === '/' 
+          : location.pathname.startsWith(item.path);
+        
         return (
-          <button
+          <NavLink
             key={item.tab}
-            onClick={() => navigate(item.route)}
+            to={item.path}
             className={`p-3 transition-all duration-200 active:scale-90 ${
               isActive
                 ? 'bg-primary text-on-primary rounded-xl scale-110'
@@ -49,12 +39,12 @@ export default function BottomNav() {
             aria-label={item.label}
           >
             <span
-              className="material-symbols-outlined"
+              className="material-symbols-outlined flex items-center justify-center"
               style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" : undefined }}
             >
               {item.icon}
             </span>
-          </button>
+          </NavLink>
         );
       })}
     </nav>

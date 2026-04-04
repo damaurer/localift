@@ -1,17 +1,23 @@
+
+export type MuscleGroup = 'chest' | 'back' | 'shoulders' | 'biceps' | 'triceps' | 'abs' | 'legs' | 'glutes';
+
 export interface Exercise {
   id: string;
   name: string;
   equipment: 'barbell' | 'dumbbell' | 'machine' | 'bodyweight' | 'cable' | 'other';
-  muscleGroups: string[];
+  muscleGroups: MuscleGroup[];
   category: string;
   tags?: string[];
   description?: string;
   imageUrl?: string | null;
 }
 
+export type WeightUnit = 'kg' | 'lbs';
+export type Weight = number;
 export interface SetTemplate {
   id: string;
-  weight: number;
+  weight: Weight;
+  weightUnit: WeightUnit;
   reps: number;
   restSeconds: number;
 }
@@ -74,51 +80,3 @@ export interface ActiveWorkoutState {
   exercises: ActiveExerciseState[];
   expandedIndex: number;
 }
-
-export interface AppSettings {
-  weightUnit: 'kg' | 'lbs';
-  reminderEnabled: boolean;
-  reminderTime: string;
-  reminderDays: boolean[];
-  vibration: boolean;
-}
-
-export type MealType = 'fruehstueck' | 'mittagessen' | 'abendessen' | 'snack';
-
-export interface FoodEntry {
-  id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  loggedAt: string;
-  mealType: MealType;
-}
-
-export interface NutritionDay {
-  date: string; // YYYY-MM-DD
-  entries: FoodEntry[];
-  waterMl: number;
-}
-
-export interface NutritionGoals {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  waterMl: number;
-}
-
-export type NavTab = 'dashboard' | 'plans' | 'calories' | 'settings';
-
-export type AppRoute =
-  | { screen: 'dashboard' }
-  | { screen: 'plans' }
-  | { screen: 'plan-detail'; planId: string | null }
-  | { screen: 'exercise-config'; planId: string; planExerciseId: string }
-  | { screen: 'active-workout' }
-  | { screen: 'history' }
-  | { screen: 'history-detail'; sessionId: string }
-  | { screen: 'calories' }
-  | { screen: 'settings' };

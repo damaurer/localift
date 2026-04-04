@@ -1,4 +1,4 @@
-import { useApp } from '../context';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   /** If neither title nor showBack: shows logo mark */
@@ -29,7 +29,7 @@ export function LogoMark() {
 }
 
 export default function Header({ title, subtitle, showBack = false, rightContent }: HeaderProps) {
-  const { goBack } = useApp();
+  const navigate = useNavigate();
   const isMainScreen = !showBack && !title;
 
   return (
@@ -45,7 +45,7 @@ export default function Header({ title, subtitle, showBack = false, rightContent
       <div className="flex items-center gap-3 min-w-0">
         {showBack && (
           <button
-            onClick={goBack}
+            onClick={() => navigate(-1)}
             className="text-on-surface hover:opacity-80 transition-opacity active:scale-95 duration-200 flex-shrink-0"
           >
             <span className="material-symbols-outlined">arrow_back</span>

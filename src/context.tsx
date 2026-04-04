@@ -15,15 +15,18 @@ import type {
   WorkoutSession,
   ActiveWorkoutState,
   ActiveExerciseState,
-  AppSettings,
   SetTemplate,
-  AppRoute,
   LoggedSet,
+} from './types/workout.types.ts';
+import type {
   NutritionDay,
   NutritionGoals,
   FoodEntry,
   MealType,
-} from './types';
+} from './types/nutrition.types.ts';
+import type {
+  AppSettings,
+} from './types/app.types.ts';
 
 interface AppContextValue {
   // State
@@ -32,11 +35,6 @@ interface AppContextValue {
   sessions: WorkoutSession[];
   settings: AppSettings;
   activeWorkout: ActiveWorkoutState | null;
-  route: AppRoute;
-
-  // Navigation
-  navigate: (route: AppRoute) => void;
-  goBack: () => void;
 
   // Exercise library
   addExercise: (ex: Omit<Exercise, 'id'>) => void;
@@ -80,37 +78,74 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [exercises, setExercises] = useState<Exercise[]>(() => storage.getExercises());
-  const [plans, setPlans] = useState<WorkoutPlan[]>(() => storage.getPlans());
-  const [sessions, setSessions] = useState<WorkoutSession[]>(() => storage.getSessions());
-  const [settings, setSettings] = useState<AppSettings>(() => storage.getSettings());
-  const [activeWorkout, setActiveWorkout] = useState<ActiveWorkoutState | null>(() => storage.getActiveWorkout());
-  const [route, setRoute] = useState<AppRoute>({ screen: 'dashboard' });
-  const [, setHistory] = useState<AppRoute[]>([]);
-  const [nutritionDays, setNutritionDays] = useState<NutritionDay[]>(() => storage.getNutritionDays());
-  const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals>(() => storage.getNutritionGoals());
+  const [exercises, setExercises] = useState<Exercise[]>(DEFAULT_EXERCISES);
+  const [plans, setPlans] = useState<WorkoutPlan[]>([]);
+  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    // We can't use async here, so we might need to handle it in useEffect
+    // For now, use a safe default and update in useEffect
+    return {
+      weightUnit: 'kg',
+      reminderEnabled: false,
+      reminderTime: '07:00',
+      reminderDays: [true, true, true, true, true, false, false],
+      vibration: true,
+    };
+  });
+  const [activeWorkout, setActiveWorkout] = useState<ActiveWorkoutState | null>(null);
+  const [nutritionDays, setNutritionDays] = useState<NutritionDay[]>([]);
+  const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals>(() => {
+    return {
+      calories: 2500,
+      protein: 180,
+      carbs: 280,
+      fat: 75,
+      waterMl: 3000,
+    };
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync remote exercise library in the background on mount
+  // Load initial state
   useEffect(() => {
-    syncExercisesIfStale().then(updated => {
-      if (updated) setExercises(updated);
-    });
-  }, []);
+    async function loadInitialData() {
+      try {
+        const [
+          loadedExercises,
+          loadedPlans,
+          loadedSessions,
+          loadedSettings,
+          loadedActiveWorkout,
+          loadedNutritionDays,
+          loadedNutritionGoals,
+        ] = await Promise.all([
+          storage.getExercises(),
+          storage.getPlans(),
+          storage.getSessions(),
+          storage.getSettings(),
+          storage.getActiveWorkout(),
+          storage.getNutritionDays(),
+          storage.getNutritionGoals(),
+        ]);
 
-  const navigate = useCallback((newRoute: AppRoute) => {
-    setHistory(h => [...h, route]);
-    setRoute(newRoute);
-  }, [route]);
+        setExercises(loadedExercises);
+        setPlans(loadedPlans);
+        setSessions(loadedSessions);
+        setSettings(loadedSettings);
+        setActiveWorkout(loadedActiveWorkout);
+        setNutritionDays(loadedNutritionDays);
+        setNutritionGoals(loadedNutritionGoals);
 
-  const goBack = useCallback(() => {
-    setHistory(h => {
-      const prev = h[h.length - 1];
-      if (prev) {
-        setRoute(prev);
-        return h.slice(0, -1);
+        // Also sync remote exercises if stale
+        const updated = await syncExercisesIfStale();
+        if (updated) setExercises(updated);
+      } catch (error) {
+        console.error('Failed to load storage data:', error);
+      } finally {
+        setIsLoading(false);
       }
-      return h;
-    });
+    }
+
+    loadInitialData();
   }, []);
 
   // Exercise library
@@ -283,8 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     storage.saveActiveWorkout(state);
     setActiveWorkout(state);
-    navigate({ screen: 'active-workout' });
-  }, [plans, exercises, navigate]);
+  }, [plans, exercises]);
 
   const updateActiveSet = useCallback((exerciseIndex: number, field: 'weight' | 'reps', value: number) => {
     setActiveWorkout(prev => {
@@ -370,14 +404,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       duration,
       activeWorkout.exercises.reduce((sum, ex) => sum + ex.loggedSets.length, 0)
     );
-    navigate({ screen: 'history' });
-  }, [activeWorkout, navigate]);
+  }, [activeWorkout]);
 
   const cancelWorkout = useCallback(() => {
     storage.saveActiveWorkout(null);
     setActiveWorkout(null);
-    navigate({ screen: 'dashboard' });
-  }, [navigate]);
+  }, []);
 
   const getSessionById = useCallback((id: string) => sessions.find(s => s.id === id), [sessions]);
 
@@ -444,22 +476,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     storage.saveNutritionGoals(goals);
   }, []);
 
-  const clearAllData = useCallback(() => {
+  const clearAllData = useCallback(async () => {
     storage.clearAll();
     setExercises(DEFAULT_EXERCISES);
     setPlans([]);
     setSessions([]);
     setActiveWorkout(null);
-    setSettings(storage.getSettings());
+    const [defSettings, defGoals] = await Promise.all([
+      storage.getSettings(),
+      storage.getNutritionGoals(),
+    ]);
+    setSettings(defSettings);
     setNutritionDays([]);
-    setNutritionGoals(storage.getNutritionGoals());
-    navigate({ screen: 'dashboard' });
-  }, [navigate]);
+    setNutritionGoals(defGoals);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <AppContext.Provider value={{
-      exercises, plans, sessions, settings, activeWorkout, route,
-      navigate, goBack,
+      exercises, plans, sessions, settings, activeWorkout,
       addExercise, deleteExercise, getExerciseById,
       savePlan, deletePlan, getPlanById, updatePlanExerciseSets,
       addExerciseToPlan, removeExerciseFromPlan, reorderPlanExercises,

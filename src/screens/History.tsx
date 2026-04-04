@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
@@ -118,11 +119,13 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
 }
 
 export default function History() {
-  const { sessions, navigate, route } = useApp();
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const { sessions } = useApp();
+  const navigate = useNavigate();
 
   // Show detail if navigated there
-  if (route.screen === 'history-detail') {
-    return <HistoryDetail sessionId={route.sessionId} />;
+  if (sessionId) {
+    return <HistoryDetail sessionId={sessionId} />;
   }
 
   const grouped = useMemo(() => groupByMonth([...sessions].sort((a, b) =>
@@ -164,7 +167,7 @@ export default function History() {
                   return (
                     <button
                       key={session.id}
-                      onClick={() => navigate({ screen: 'history-detail', sessionId: session.id })}
+                      onClick={() => navigate(`/history/${session.id}`)}
                       className={`w-full group relative transition-all duration-300 p-6 rounded-xl overflow-hidden text-left ${
                         idx % 2 === 0
                           ? 'bg-surface-container hover:bg-surface-container-high'

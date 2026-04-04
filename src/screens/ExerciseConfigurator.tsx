@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import { generateId } from '../storage';
-import type { SetTemplate } from '../types';
+import type { SetTemplate } from '../types/workout.types.ts';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 
-interface ExerciseConfiguratorProps {
-  planId: string;
-  planExerciseId: string;
-}
-
-export default function ExerciseConfigurator({ planId, planExerciseId }: ExerciseConfiguratorProps) {
-  const { plans, sessions, getExerciseById, updatePlanExerciseSets, navigate } = useApp();
+export default function ExerciseConfigurator() {
+  const { planId, planExerciseId } = useParams<{ planId: string; planExerciseId: string }>();
+  const navigate = useNavigate();
+  const { plans, sessions, getExerciseById, updatePlanExerciseSets } = useApp();
 
   const plan = plans.find(p => p.id === planId);
   const planExercise = plan?.exercises.find(pe => pe.id === planExerciseId);
@@ -22,7 +20,7 @@ export default function ExerciseConfigurator({ planId, planExerciseId }: Exercis
 
   useEffect(() => {
     if (planExercise?.sets) setSets(planExercise.sets);
-  }, [planExerciseId]);
+  }, [planExerciseId, planExercise?.sets]);
 
   // Kinetic Insight: look up last time this exercise was done
   const lastSession = sessions
@@ -54,9 +52,10 @@ export default function ExerciseConfigurator({ planId, planExerciseId }: Exercis
   };
 
   const handleSave = () => {
+    if (!planId || !planExerciseId) return;
     updatePlanExerciseSets(planId, planExerciseId, sets);
     setSaved(true);
-    setTimeout(() => { setSaved(false); navigate({ screen: 'plan-detail', planId }); }, 800);
+    setTimeout(() => { setSaved(false); navigate(`/plans/${planId}`); }, 800);
   };
 
   if (!planExercise || !exercise) {

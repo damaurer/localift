@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { requestPermission, getPermission, getStorageEstimate } from '../notifications';
+import { storage } from '../storage';
 import type { StorageEstimate } from '../notifications';
 
 const DAY_LABELS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const GITHUB_ISSUES_URL = 'https://github.com/damaurer/localift/issues';
-const FEEDBACK_SKIP_KEY = 'localift_feedback_skip';
 
 export default function Settings() {
+  const navigate = useNavigate();
   const { settings, updateSettings, clearAllData, sessions, plans, exercises } = useApp();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
@@ -22,8 +24,8 @@ export default function Settings() {
     getStorageEstimate().then(setStorageInfo);
   }, []);
 
-  const handleFeedbackClick = () => {
-    const skip = localStorage.getItem(FEEDBACK_SKIP_KEY) === 'true';
+  const handleFeedbackClick = async () => {
+    const skip = await storage.getFeedbackSkip();
     if (skip) {
       window.open(GITHUB_ISSUES_URL, '_blank', 'noopener,noreferrer');
     } else {
@@ -32,9 +34,9 @@ export default function Settings() {
     }
   };
 
-  const handleFeedbackConfirm = () => {
+  const handleFeedbackConfirm = async () => {
     if (feedbackSkipDialog) {
-      localStorage.setItem(FEEDBACK_SKIP_KEY, 'true');
+      await storage.saveFeedbackSkip(true);
     }
     setShowFeedbackDialog(false);
     window.open(GITHUB_ISSUES_URL, '_blank', 'noopener,noreferrer');
@@ -58,12 +60,17 @@ export default function Settings() {
     updateSettings({ reminderDays: next });
   };
 
+  const handleClearAll = () => {
+    clearAllData();
+    navigate('/');
+  };
+
   const handleExport = () => {
     const data = {
       exportDate: new Date().toISOString(),
-      plans: JSON.parse(localStorage.getItem('localift_plans') ?? '[]'),
-      sessions: JSON.parse(localStorage.getItem('localift_sessions') ?? '[]'),
-      exercises: JSON.parse(localStorage.getItem('localift_exercises') ?? '[]'),
+      plans,
+      sessions,
+      exercises,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -342,7 +349,7 @@ export default function Settings() {
               <p className="text-sm text-on-surface font-bold text-center">Alle Daten unwiderruflich löschen?</p>
               <div className="flex gap-3">
                 <button
-                  onClick={clearAllData}
+                  onClick={handleClearAll}
                   className="flex-1 py-3 rounded-xl text-xs font-black text-error uppercase tracking-widest"
                   style={{ background: 'rgba(255, 110, 132, 0.1)' }}
                 >

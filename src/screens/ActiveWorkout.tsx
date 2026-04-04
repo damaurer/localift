@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
-import type { Exercise } from '../types';
+import type { Exercise } from '../types/workout.types.ts';
 
 function formatTimer(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -11,6 +12,7 @@ function formatTimer(seconds: number): string {
 }
 
 export default function ActiveWorkout() {
+  const navigate = useNavigate();
   const {
     activeWorkout,
     updateActiveSet,
@@ -18,7 +20,6 @@ export default function ActiveWorkout() {
     setExpandedExercise,
     finishWorkout,
     cancelWorkout,
-    navigate,
     getExerciseById,
   } = useApp();
 
@@ -69,7 +70,7 @@ export default function ActiveWorkout() {
         <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '64px' }}>fitness_center</span>
         <p className="text-on-surface-variant text-sm tracking-widest uppercase">Kein aktives Training</p>
         <button
-          onClick={() => navigate({ screen: 'plans' })}
+          onClick={() => navigate('/plans')}
           className="kinetic-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
           style={{ fontFamily: 'Space Grotesk, sans-serif' }}
         >
@@ -84,6 +85,16 @@ export default function ActiveWorkout() {
   const totalSets = exercises.reduce((s, e) => s + e.targetSets.length, 0);
   const doneSets = exercises.reduce((s, e) => s + e.loggedSets.length, 0);
   const progress = totalSets > 0 ? doneSets / totalSets : 0;
+
+  const handleFinish = () => {
+    finishWorkout();
+    navigate('/history');
+  };
+
+  const handleCancel = () => {
+    cancelWorkout();
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -455,7 +466,7 @@ export default function ActiveWorkout() {
             </div>
             <div className="space-y-3">
               <button
-                onClick={finishWorkout}
+                onClick={handleFinish}
                 className="w-full py-4 rounded-xl text-on-primary font-black text-base tracking-widest uppercase active:scale-95 transition-all kinetic-gradient"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
@@ -574,7 +585,7 @@ export default function ActiveWorkout() {
             </div>
             <div className="space-y-3">
               <button
-                onClick={cancelWorkout}
+                onClick={handleCancel}
                 className="w-full py-4 rounded-xl font-black text-base tracking-widest uppercase active:scale-95 transition-all text-error"
                 style={{ background: 'rgba(255, 110, 132, 0.1)', border: '1px solid rgba(255, 110, 132, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
               >

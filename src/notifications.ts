@@ -3,6 +3,8 @@
  * Uses the Web Notifications API via the Service Worker for reliable delivery.
  */
 
+import { storage } from './storage';
+
 export type NotificationPermission = 'granted' | 'denied' | 'default';
 
 export function getPermission(): NotificationPermission {
@@ -101,7 +103,7 @@ export function clearReminders(): void {
   }
 }
 
-function checkReminder(time: string, days: boolean[], toleranceMinutes = 0): void {
+async function checkReminder(time: string, days: boolean[], toleranceMinutes = 0): Promise<void> {
   if (getPermission() !== 'granted') return;
 
   const now = new Date();
@@ -119,10 +121,9 @@ function checkReminder(time: string, days: boolean[], toleranceMinutes = 0): voi
   if (!days[dayIndex]) return;
 
   // Avoid duplicate: store last shown date
-  const lastKey = 'localift_last_reminder';
   const todayStr = now.toDateString();
-  if (localStorage.getItem(lastKey) === todayStr) return;
-  localStorage.setItem(lastKey, todayStr);
+  if (await storage.getLastReminder() === todayStr) return;
+  await storage.saveLastReminder(todayStr);
 
   showNotification(
     '💪 Zeit zum Trainieren!',

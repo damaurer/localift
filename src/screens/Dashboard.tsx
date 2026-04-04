@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
@@ -12,7 +13,8 @@ function formatDuration(seconds: number): string {
 }
 
 export default function Dashboard() {
-  const { plans, sessions, activeWorkout, navigate, startWorkout } = useApp();
+  const navigate = useNavigate();
+  const { plans, sessions, activeWorkout, startWorkout } = useApp();
 
   const lastSession = useMemo(
     () => sessions.find(s => !!s.completedAt),
@@ -27,6 +29,11 @@ export default function Dashboard() {
     const totalDuration = todaySessions.reduce((sum, s) => sum + (s.durationSeconds ?? 0), 0);
     return { count: todaySessions.length, totalVolume, totalSets, totalDuration };
   }, [sessions]);
+
+  const handleQuickStart = (id: string, prevSession?: any) => {
+    startWorkout(id, prevSession);
+    navigate('/workout');
+  };
 
   const streak = useMemo(() => {
     let count = 0;
@@ -57,7 +64,7 @@ export default function Dashboard() {
       <Header
         rightContent={activeWorkout ? (
           <button
-            onClick={() => navigate({ screen: 'active-workout' })}
+            onClick={() => navigate('/workout')}
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-on-primary text-xs font-bold uppercase tracking-widest animate-pulse"
             style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
           >
@@ -156,7 +163,7 @@ export default function Dashboard() {
             {lastSession && plans.find(p => p.id === lastSession.planId) ? (
               <>
                 <button
-                  onClick={() => startWorkout(lastSession.planId, lastSession)}
+                  onClick={() => handleQuickStart(lastSession.planId, lastSession)}
                   className="w-full kinetic-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
                   style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
                 >
@@ -175,7 +182,7 @@ export default function Dashboard() {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate({ screen: 'plans' })}
+                  onClick={() => navigate('/plans')}
                   className="w-full text-primary text-xs font-bold tracking-widest uppercase text-center py-1 hover:opacity-70 transition-opacity"
                 >
                   Anderen Plan starten →
@@ -183,7 +190,7 @@ export default function Dashboard() {
               </>
             ) : plans.length > 0 ? (
               <button
-                onClick={() => navigate({ screen: 'plans' })}
+                onClick={() => navigate('/plans')}
                 className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
@@ -194,7 +201,7 @@ export default function Dashboard() {
               </button>
             ) : (
               <button
-                onClick={() => navigate({ screen: 'plan-detail', planId: null })}
+                onClick={() => navigate('/plans/new')}
                 className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
@@ -208,7 +215,7 @@ export default function Dashboard() {
         ) : (
           <section>
             <button
-              onClick={() => navigate({ screen: 'active-workout' })}
+              onClick={() => navigate('/workout')}
               className="w-full py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all border"
               style={{ borderColor: 'rgba(149, 170, 255, 0.4)', background: 'rgba(149, 170, 255, 0.05)' }}
             >
@@ -230,7 +237,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>MEINE PLÄNE</h3>
               <button
-                onClick={() => navigate({ screen: 'plans' })}
+                onClick={() => navigate('/plans')}
                 className="text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
               >
                 Alle anzeigen
@@ -260,7 +267,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <button
-                    onClick={() => startWorkout(plan.id)}
+                    onClick={() => handleQuickStart(plan.id)}
                     className="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:border-primary transition-colors group"
                   >
                     <span className="material-symbols-outlined text-on-surface group-hover:text-on-primary">play_arrow</span>
@@ -277,7 +284,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>LETZTE EINHEITEN</h3>
               <button
-                onClick={() => navigate({ screen: 'history' })}
+                onClick={() => navigate('/history')}
                 className="flex items-center gap-1 text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>history</span>
@@ -287,7 +294,7 @@ export default function Dashboard() {
             {sessions.slice(0, 3).map(session => (
               <button
                 key={session.id}
-                onClick={() => navigate({ screen: 'history-detail', sessionId: session.id })}
+                onClick={() => navigate(`/history/${session.id}`)}
                 className="w-full group relative bg-surface-container hover:bg-surface-container-high transition-all duration-300 p-5 rounded-xl overflow-hidden text-left"
                 style={{ borderLeft: '3px solid rgba(55, 102, 255, 0.5)' }}
               >
@@ -336,7 +343,7 @@ export default function Dashboard() {
             <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Willkommen bei LOCALIFT</h3>
             <p className="text-on-surface-variant text-sm mb-8">Erstelle deinen ersten Trainingsplan und leg los.</p>
             <button
-              onClick={() => navigate({ screen: 'plan-detail', planId: null })}
+              onClick={() => navigate('/plans/new')}
               className="kinetic-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
