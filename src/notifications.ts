@@ -3,7 +3,7 @@
  * Uses the Web Notifications API via the Service Worker for reliable delivery.
  */
 
-import { storage } from './storage';
+import {storage} from './storage';
 
 export type NotificationPermission = 'granted' | 'denied' | 'default';
 
@@ -138,8 +138,7 @@ async function checkReminder(time: string, days: boolean[], toleranceMinutes = 0
 export async function requestPersistentStorage(): Promise<boolean> {
   if (!navigator.storage?.persist) return false;
   try {
-    const persisted = await navigator.storage.persist();
-    return persisted;
+    return await navigator.storage.persist();
   } catch {
     return false;
   }

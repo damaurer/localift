@@ -4,6 +4,7 @@ import { useApp } from '../context';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { calcTotalVolume, calcTotalSets } from '../storage';
+import type {WorkoutSession} from "../types/workout.types.ts";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -30,7 +31,7 @@ export default function Dashboard() {
     return { count: todaySessions.length, totalVolume, totalSets, totalDuration };
   }, [sessions]);
 
-  const handleQuickStart = (id: string, prevSession?: any) => {
+  const handleQuickStart = (id: string, prevSession?: WorkoutSession) => {
     startWorkout(id, prevSession);
     navigate('/workout');
   };
@@ -168,7 +169,7 @@ export default function Dashboard() {
                   style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
                 >
                   <span
-                    className="material-symbols-outlined text-3xl flex-shrink-0"
+                    className="material-symbols-outlined text-3xl shrink-0"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >play_arrow</span>
                   <div className="min-w-0">

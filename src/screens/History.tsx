@@ -123,14 +123,18 @@ export default function History() {
   const { sessions } = useApp();
   const navigate = useNavigate();
 
+  const grouped = useMemo(() => {
+    return groupByMonth(
+      [...sessions].sort(
+        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+      )
+    );
+  }, [sessions]);
+
   // Show detail if navigated there
   if (sessionId) {
     return <HistoryDetail sessionId={sessionId} />;
   }
-
-  const grouped = useMemo(() => groupByMonth([...sessions].sort((a, b) =>
-    new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-  )), [sessions]);
 
   const monthEntries = Object.entries(grouped);
 

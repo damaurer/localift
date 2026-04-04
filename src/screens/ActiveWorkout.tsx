@@ -37,7 +37,7 @@ export default function ActiveWorkout() {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [activeWorkout?.startedAt]);
+  }, [activeWorkout, activeWorkout?.startedAt]);
 
   // Rest timer countdown
   useEffect(() => {

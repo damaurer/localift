@@ -38,7 +38,7 @@ export default function PlanDetail() {
       setDescription(existing.description);
       setTags(existing.tags);
     }
-  }, [planId]);
+  }, [existing, planId]);
 
   const handleSaveMeta = () => {
     if (!name.trim()) return;
