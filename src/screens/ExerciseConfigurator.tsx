@@ -9,7 +9,7 @@ import BottomNav from '../components/BottomNav';
 export default function ExerciseConfigurator() {
   const { planId, planExerciseId } = useParams<{ planId: string; planExerciseId: string }>();
   const navigate = useNavigate();
-  const { plans, sessions, getExerciseById, updatePlanExerciseSets } = useApp();
+  const { plans, sessions, settings, getExerciseById, updatePlanExerciseSets } = useApp();
 
   const plan = plans.find(p => p.id === planId);
   const planExercise = plan?.exercises.find(pe => pe.id === planExerciseId);
@@ -43,6 +43,7 @@ export default function ExerciseConfigurator() {
       weight: last?.weight ?? 60,
       reps: last?.reps ?? 8,
       restSeconds: last?.restSeconds ?? 90,
+      weightUnit: settings.weightUnit,
     }]);
   };
 
