@@ -76,22 +76,6 @@ export default function ExerciseConfigurator() {
       />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
-        {/* Equipment toggle */}
-        <section className="mb-10">
-          <div className="flex items-center justify-between p-1 bg-surface-container rounded-xl">
-            <div className={`flex-1 py-3 text-center rounded-xl text-sm font-bold tracking-widest uppercase transition-all ${
-              exercise.equipment !== 'bodyweight' ? 'bg-surface-container-high text-primary' : 'text-on-surface-variant'
-            }`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              Gerät
-            </div>
-            <div className={`flex-1 py-3 text-center rounded-xl text-sm font-bold tracking-widest uppercase transition-all ${
-              exercise.equipment === 'bodyweight' ? 'bg-surface-container-high text-primary' : 'text-on-surface-variant'
-            }`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              Körpergewicht
-            </div>
-          </div>
-        </section>
-
         {/* Sets */}
         <section className="space-y-4">
           <div className="flex items-baseline justify-between mb-3">

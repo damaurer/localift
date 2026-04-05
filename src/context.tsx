@@ -143,7 +143,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Also sync remote exercises if stale
         const updated = await syncExercisesIfStale();
-        if (updated) setExercises(updated);
+        if (updated) setExercises(prev => {
+          const next = updated.reduce((list: Exercise[], currentValue: Exercise): Exercise[] => {
+            if(!list.find(i => i.id === currentValue.id)){
+              list.push(currentValue)
+            }
+            return list
+          }, prev)
+          storage.saveExercises(next);
+          return next;
+        });
       } catch (error) {
         console.error('Failed to load storage data:', error);
       } finally {
