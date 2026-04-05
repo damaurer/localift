@@ -64,6 +64,12 @@ interface AppContextValue {
   // Settings
   updateSettings: (patch: Partial<AppSettings>) => void;
   clearAllData: () => void;
+  importBackup: (data: {
+    plans?: WorkoutPlan[];
+    sessions?: WorkoutSession[];
+    exercises?: Exercise[];
+    exportDate?: string;
+  }) => void;
 
   // Nutrition
   nutritionDays: NutritionDay[];
@@ -491,6 +497,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNutritionGoals(defGoals);
   }, []);
 
+  const importBackup = useCallback((data: {
+    plans?: WorkoutPlan[];
+    sessions?: WorkoutSession[];
+    exercises?: Exercise[];
+    exportDate?: string;
+  }) => {
+    setExercises(prev => {
+      const incoming = Array.isArray(data.exercises) ? data.exercises : [];
+      const nextById = new Map(prev.map(ex => [ex.id, ex]));
+      incoming.forEach(ex => nextById.set(ex.id, ex));
+      const next = Array.from(nextById.values());
+      storage.saveExercises(next);
+      return next;
+    });
+
+    setPlans(prev => {
+      const incoming = Array.isArray(data.plans) ? data.plans : [];
+      const nextById = new Map(prev.map(plan => [plan.id, plan]));
+      incoming.forEach(plan => nextById.set(plan.id, plan));
+      const next = Array.from(nextById.values());
+      storage.savePlans(next);
+      return next;
+    });
+
+    setSessions(prev => {
+      const incoming = Array.isArray(data.sessions) ? data.sessions : [];
+      const nextById = new Map(prev.map(session => [session.id, session]));
+      incoming.forEach(session => nextById.set(session.id, session));
+      const next = Array.from(nextById.values());
+      storage.saveSessions(next);
+      return next;
+    });
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
@@ -509,6 +549,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       finishWorkout, cancelWorkout,
       getSessionById,
       updateSettings, clearAllData,
+      importBackup,
       nutritionDays, nutritionGoals,
       getTodayNutrition, addFoodEntry, removeFoodEntry, updateWater, updateNutritionGoals,
     }}>

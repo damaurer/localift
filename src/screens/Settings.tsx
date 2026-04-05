@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context';
 import Header from '../components/Header';
@@ -12,13 +12,16 @@ const GITHUB_ISSUES_URL = 'https://github.com/damaurer/localift/issues';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { settings, updateSettings, clearAllData, sessions, plans, exercises } = useApp();
+  const { settings, updateSettings, clearAllData, importBackup, sessions, plans, exercises } = useApp();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
+  const [showImportSuccess, setShowImportSuccess] = useState(false);
+  const [showImportError, setShowImportError] = useState(false);
   const [notifPermission, setNotifPermission] = useState(() => getPermission());
   const [storageInfo, setStorageInfo] = useState<StorageEstimate | null>(null);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [feedbackSkipDialog, setFeedbackSkipDialog] = useState(false);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     getStorageEstimate().then(setStorageInfo);
@@ -81,6 +84,48 @@ export default function Settings() {
     URL.revokeObjectURL(url);
     setShowExportSuccess(true);
     setTimeout(() => setShowExportSuccess(false), 2000);
+  };
+
+  const handleImportClick = () => {
+    importInputRef.current?.click();
+  };
+
+  const handleImportFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as {
+        exportDate?: string;
+        plans?: unknown;
+        sessions?: unknown;
+        exercises?: unknown;
+      };
+
+      if (
+        !parsed ||
+        (!Array.isArray(parsed.plans) && !Array.isArray(parsed.sessions) && !Array.isArray(parsed.exercises))
+      ) {
+        throw new Error('Ungültiges Backup-Format');
+      }
+
+      importBackup({
+        exportDate: parsed.exportDate,
+        plans: Array.isArray(parsed.plans) ? parsed.plans as never : undefined,
+        sessions: Array.isArray(parsed.sessions) ? parsed.sessions as never : undefined,
+        exercises: Array.isArray(parsed.exercises) ? parsed.exercises as never : undefined,
+      });
+
+      setShowImportSuccess(true);
+      setTimeout(() => setShowImportSuccess(false), 2000);
+    } catch (error) {
+      console.error('Import failed:', error);
+      setShowImportError(true);
+      setTimeout(() => setShowImportError(false), 2500);
+    }
   };
 
   return (
@@ -321,6 +366,32 @@ export default function Settings() {
                   {showExportSuccess ? '✓ Exportiert!' : 'Daten exportieren'}
                 </span>
                 <p className="text-xs text-on-surface-variant">JSON-Backup herunterladen</p>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant text-base">chevron_right</span>
+          </button>
+
+          {/* Import */}
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportFileChange}
+          />
+          <button
+            onClick={handleImportClick}
+            className="w-full bg-surface-container-low hover:bg-surface-container transition-colors rounded-xl p-5 flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-4">
+              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">upload</span>
+              <div className="text-left">
+                <span className="font-bold text-lg block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  {showImportSuccess ? '✓ Importiert!' : 'Daten importieren'}
+                </span>
+                <p className="text-xs text-on-surface-variant">
+                  {showImportError ? 'Import fehlgeschlagen' : 'JSON-Backup auswählen'}
+                </p>
               </div>
             </div>
             <span className="material-symbols-outlined text-on-surface-variant text-base">chevron_right</span>

@@ -1,0 +1,601 @@
+{
+  "exportDate": "2026-04-05T00:00:00.000Z",
+  "plans": [
+    {
+      "id": "plan-20260405-tag1-a1",
+      "name": "Tag 1 – Brust & Trizeps (Push)",
+      "description": "",
+      "tags": [
+        "Muskelaufbau",
+        "Kabelzug",
+        "Push",
+        "Brust",
+        "Trizeps"
+      ],
+      "estimatedDuration": 1.0,
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "exercises": [
+        {
+          "id": "exinst-t1-0",
+          "exerciseId": "ex-incline",
+          "order": 0,
+          "sets": [
+            {
+              "id": "set-t1-0-1",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-0-2",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-0-3",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-0-4",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t1-1",
+          "exerciseId": "ex-cable-fly",
+          "order": 1,
+          "sets": [
+            {
+              "id": "set-t1-1-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-1-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-1-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t1-2",
+          "exerciseId": "ex-low-high-fly",
+          "order": 2,
+          "sets": [
+            {
+              "id": "set-t1-2-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-2-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-2-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t1-3",
+          "exerciseId": "ex-triceps-pushdown",
+          "order": 3,
+          "sets": [
+            {
+              "id": "set-t1-3-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-3-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-3-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t1-4",
+          "exerciseId": "ex-overhead-triceps-extension",
+          "order": 4,
+          "sets": [
+            {
+              "id": "set-t1-4-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-4-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t1-4-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plan-20260405-tag2-b1",
+      "name": "Tag 2 – Rücken & Bizeps (Pull)",
+      "description": "",
+      "tags": [
+        "Muskelaufbau",
+        "Kabelzug",
+        "Pull",
+        "Rücken",
+        "Bizeps"
+      ],
+      "estimatedDuration": 1.0,
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "exercises": [
+        {
+          "id": "exinst-t2-0",
+          "exerciseId": "ex-cable-row",
+          "order": 0,
+          "sets": [
+            {
+              "id": "set-t2-0-1",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-0-2",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-0-3",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-0-4",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t2-1",
+          "exerciseId": "ex-lat-pulldown",
+          "order": 1,
+          "sets": [
+            {
+              "id": "set-t2-1-1",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-1-2",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-1-3",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-1-4",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t2-2",
+          "exerciseId": "ex-face-pull",
+          "order": 2,
+          "sets": [
+            {
+              "id": "set-t2-2-1",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-2-2",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-2-3",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t2-3",
+          "exerciseId": "ex-biceps-curl",
+          "order": 3,
+          "sets": [
+            {
+              "id": "set-t2-3-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-3-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t2-3-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plan-20260405-tag3-c1",
+      "name": "Tag 3 – Beine & Glutes (knieschonend)",
+      "description": "",
+      "tags": [
+        "Muskelaufbau",
+        "Kabelzug",
+        "Beine",
+        "Glutes",
+        "Knieschonend"
+      ],
+      "estimatedDuration": 1.0,
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "exercises": [
+        {
+          "id": "exinst-t3-0",
+          "exerciseId": "ex-deadlift",
+          "order": 0,
+          "sets": [
+            {
+              "id": "set-t3-0-1",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-0-2",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-0-3",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-0-4",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t3-1",
+          "exerciseId": "ex-pull-through",
+          "order": 1,
+          "sets": [
+            {
+              "id": "set-t3-1-1",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-1-2",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-1-3",
+              "weight": 0,
+              "reps": 10,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t3-2",
+          "exerciseId": "ex-cable-crunch",
+          "order": 2,
+          "sets": [
+            {
+              "id": "set-t3-2-1",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-2-2",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t3-2-3",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plan-20260405-tag4-d1",
+      "name": "Tag 4 – Schulter & Core",
+      "description": "",
+      "tags": [
+        "Muskelaufbau",
+        "Kabelzug",
+        "Schulter",
+        "Core"
+      ],
+      "estimatedDuration": 1.0,
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "exercises": [
+        {
+          "id": "exinst-t4-0",
+          "exerciseId": "ex-ohp",
+          "order": 0,
+          "sets": [
+            {
+              "id": "set-t4-0-1",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-0-2",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-0-3",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-0-4",
+              "weight": 0,
+              "reps": 8,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t4-1",
+          "exerciseId": "ex-lateral-raise",
+          "order": 1,
+          "sets": [
+            {
+              "id": "set-t4-1-1",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-1-2",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-1-3",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t4-2",
+          "exerciseId": "ex-face-pull",
+          "order": 2,
+          "sets": [
+            {
+              "id": "set-t4-2-1",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-2-2",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t4-2-3",
+              "weight": 0,
+              "reps": 12,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plan-20260405-tag5-e1",
+      "name": "Optional Tag 5 – Pump / Schwachstellen",
+      "description": "",
+      "tags": [
+        "Muskelaufbau",
+        "Kabelzug",
+        "Pump",
+        "Optional"
+      ],
+      "estimatedDuration": 0.75,
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "exercises": [
+        {
+          "id": "exinst-t5-0",
+          "exerciseId": "ex-cable-fly",
+          "order": 0,
+          "sets": [
+            {
+              "id": "set-t5-0-1",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t5-0-2",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t5-0-3",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        },
+        {
+          "id": "exinst-t5-1",
+          "exerciseId": "ex-lateral-raise",
+          "order": 1,
+          "sets": [
+            {
+              "id": "set-t5-1-1",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t5-1-2",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            },
+            {
+              "id": "set-t5-1-3",
+              "weight": 0,
+              "reps": 15,
+              "restSeconds": 75,
+              "weightUnit": "kg"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sessions": [],
+  "exercises": []
+}
