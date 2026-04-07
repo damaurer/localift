@@ -28,7 +28,7 @@ const KEYS = {
   nutritionGoals: 'localift_nutrition_goals',
 } as const;
 
-async function load<T>(key: string, fallback: T): Promise<T> {
+export async function load<T>(key: string, fallback: T): Promise<T> {
   try {
     const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
@@ -37,15 +37,13 @@ async function load<T>(key: string, fallback: T): Promise<T> {
   }
 }
 
-async function save<T>(key: string, value: T): Promise<void> {
+export async function save<T>(key: string, value: T): Promise<void> {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // Storage full or unavailable
   }
 }
-
-export const DEFAULT_EXERCISES: Exercise[] = [];
 
 export const DEFAULT_NUTRITION_GOALS: NutritionGoals = {
   calories: 2500,
@@ -64,14 +62,8 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export const storage = {
-  getExercises: async (): Promise<Exercise[]> => {
-    // Prefer the remotely synced library if available, fall back to local / defaults
-    const remote = await load<Exercise[] | null>(KEYS.remoteExercises, null);
-    if (remote) return remote;
-    return load<Exercise[]>(KEYS.exercises, DEFAULT_EXERCISES);
-  },
+  getExercises: async (): Promise<Exercise[]> =>  load<Exercise[]>(KEYS.exercises, []),
   saveExercises: (v: Exercise[]) => save(KEYS.exercises, v),
-  saveRemoteExercises: (v: Exercise[]) => save(KEYS.remoteExercises, v),
 
   getPlans: () => load<WorkoutPlan[]>(KEYS.plans, []),
   savePlans: (v: WorkoutPlan[]) => save(KEYS.plans, v),

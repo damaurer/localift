@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
 import type { PlanExercise } from '../types/workout.types.ts';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
+import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
+import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
 
 const TAGS = ['Kraft', 'Hypertrophie', 'Ausdauer', 'Mobilität', 'Ganzkörper', 'Oberkörper', 'Unterkörper', 'Push', 'Pull', 'Beine'];
 
@@ -11,7 +13,9 @@ export default function PlanDetail() {
   const { planId: urlPlanId } = useParams<{ planId: string }>();
   const navigate = useNavigate();
   const planId = urlPlanId === 'new' ? null : urlPlanId;
-  const { plans, exercises, savePlan, addExerciseToPlan, removeExerciseFromPlan, getExerciseById, startWorkout } = useApp();
+  const { exercises, getExerciseById } = useExerciseContext();
+  const { plans,  savePlan, addExerciseToPlan, removeExerciseFromPlan} = usePlanContext();
+  const {  startWorkout } = useWorkoutContext();
 
   const existing = planId ? plans.find(p => p.id === planId) : null;
 

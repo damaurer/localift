@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
+
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { calcTotalVolume, calcTotalSets } from '../storage';
 import type {WorkoutSession} from "../types/workout.types.ts";
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
+import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -15,7 +17,8 @@ function formatDuration(seconds: number): string {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { plans, sessions, activeWorkout, startWorkout } = useApp();
+  const { plans } = usePlanContext();
+  const { sessions, activeWorkout, startWorkout } = useWorkoutContext();
 
   const lastSession = useMemo(
     () => sessions.find(s => !!s.completedAt),

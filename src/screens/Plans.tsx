@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
+
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
+import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 
 export default function Plans() {
   const navigate = useNavigate();
-  const { plans, startWorkout, deletePlan } = useApp();
+  const { plans, deletePlan } = usePlanContext();
+  const { startWorkout } = useWorkoutContext();
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 

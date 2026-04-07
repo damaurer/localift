@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
+
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import { calcTotalVolume, calcTotalSets } from '../storage';
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   return `${m} MIN`;
 }
 
-function groupByMonth(sessions: ReturnType<typeof useApp>['sessions']) {
+function groupByMonth(sessions: ReturnType<typeof useWorkoutContext>['sessions']) {
   const groups: Record<string, typeof sessions> = {};
   sessions.forEach(s => {
     const key = new Date(s.startedAt).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }).toUpperCase();
@@ -25,7 +26,7 @@ interface HistoryDetailProps {
 }
 
 function HistoryDetail({ sessionId }: HistoryDetailProps) {
-  const { sessions } = useApp();
+  const { sessions } = useWorkoutContext();
   const session = sessions.find(s => s.id === sessionId);
 
   if (!session) return (
@@ -120,7 +121,7 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
 
 export default function History() {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { sessions } = useApp();
+  const { sessions } = useWorkoutContext();
   const navigate = useNavigate();
 
   const grouped = useMemo(() => {

@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { useApp } from '../context';
+
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import type { MealType } from '../types/nutrition.types';
+import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
 
 const MEAL_LABELS: Record<MealType, string> = {
   fruehstueck: 'Frühstück',
@@ -48,7 +49,7 @@ export default function Calories() {
   const {
     nutritionGoals, getTodayNutrition,
     addFoodEntry, removeFoodEntry, updateWater,
-  } = useApp();
+  } = useNutritionContext();
 
   const todayNutrition = getTodayNutrition();
 
@@ -557,7 +558,7 @@ export default function Calories() {
 }
 
 function GoalsEditor({ goals }: { goals: import('../types/nutrition.types.ts').NutritionGoals }) {
-  const { updateNutritionGoals } = useApp();
+  const { updateNutritionGoals } = useNutritionContext();
   const [local, setLocal] = useState(goals);
 
   function handleSave() {

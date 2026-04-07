@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
+
 import type { Exercise } from '../types/workout.types.ts';
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
+import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
 
 function formatTimer(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -19,9 +21,9 @@ export default function ActiveWorkout() {
     completeSet,
     setExpandedExercise,
     finishWorkout,
-    cancelWorkout,
-    getExerciseById,
-  } = useApp();
+    cancelWorkout
+  } = useWorkoutContext();
+  const { getExerciseById } = useExerciseContext();
 
   const [elapsed, setElapsed] = useState(0);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);

@@ -1,5 +1,5 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context';
+
 import Dashboard from './screens/Dashboard';
 import Plans from './screens/Plans';
 import PlanDetail from './screens/PlanDetail';
@@ -11,6 +11,7 @@ import Settings from './screens/Settings';
 import PWABadge from './PWABadge.tsx';
 import InstallPrompt from './components/InstallPrompt';
 import './App.css';
+import {AppProvider} from "./contexts/AppProvider.tsx";
 
 export default function App() {
   return (
