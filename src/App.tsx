@@ -1,5 +1,6 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
+import Layout from './components/Layout';
 import Dashboard from './screens/Dashboard';
 import Plans from './screens/Plans';
 import PlanDetail from './screens/PlanDetail';
@@ -18,16 +19,18 @@ export default function App() {
     <Router>
       <AppProvider>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path="/plans/:planId" element={<PlanDetail />} />
-          <Route path="/plans/:planId/exercise/:planExerciseId" element={<ExerciseConfigurator />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/plans" element={<Plans />} />
+            <Route path="/plans/:planId" element={<PlanDetail />} />
+            <Route path="/plans/:planId/exercise/:planExerciseId" element={<ExerciseConfigurator />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/history/:sessionId" element={<History />} />
+            <Route path="/calories" element={<Calories />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Dashboard />} />
+          </Route>
           <Route path="/workout" element={<ActiveWorkout />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/history/:sessionId" element={<History />} />
-          <Route path="/calories" element={<Calories />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Dashboard />} />
         </Routes>
         <InstallPrompt />
         <PWABadge />

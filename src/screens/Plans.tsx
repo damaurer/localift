@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader } from '../contexts/LayoutContext';
 import { usePlanContext } from '../contexts/plan/PlanContext.tsx';
 import { useWorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
 import { useExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
@@ -46,6 +45,7 @@ function parseShareable(text: string): ShareablePlan | null {
 // ─── component ──────────────────────────────────────────────────────────────
 
 export default function Plans() {
+  useHeader({}, []);
   const navigate = useNavigate();
   const { plans, deletePlan, savePlan } = usePlanContext();
   const { startWorkout } = useWorkoutContext();
@@ -157,7 +157,6 @@ export default function Plans() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
         <section className="mb-8">
@@ -333,8 +332,6 @@ export default function Plans() {
           <span className="material-symbols-outlined text-3xl">add</span>
         </button>
       </div>
-
-      <BottomNav />
 
       {/* Import confirmation modal */}
       {pendingImport && (

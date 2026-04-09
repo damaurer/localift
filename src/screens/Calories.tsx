@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader } from '../contexts/LayoutContext';
 import type { MealType } from '../types/nutrition.types';
 import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
 
@@ -46,6 +45,7 @@ function todayDateStr(): string {
 }
 
 export default function Calories() {
+  useHeader({}, []);
   const {
     nutritionGoals, getTodayNutrition,
     addFoodEntry, removeFoodEntry, updateWater,
@@ -109,7 +109,6 @@ export default function Calories() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto space-y-8">
 
@@ -552,7 +551,6 @@ export default function Calories() {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 }

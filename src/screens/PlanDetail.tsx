@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { PlanExercise } from '../types/workout.types.ts';
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader } from '../contexts/LayoutContext';
 import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
@@ -111,22 +110,26 @@ export default function PlanDetail() {
 
   const currentExercises = livePlan?.exercises.sort((a, b) => a.order - b.order) ?? [];
 
+  useHeader(
+    {
+      showBack: true,
+      title: planId ? 'Plan bearbeiten' : 'Neuer Plan',
+      rightContent: currentPlanId && currentExercises.length > 0 ? (
+        <button
+          onClick={() => startWorkout(currentPlanId)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-on-primary text-xs font-bold uppercase tracking-widest"
+          style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
+        >
+          <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+          Starten
+        </button>
+      ) : undefined,
+    },
+    [planId, currentPlanId, currentExercises.length],
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      <Header
-        showBack
-        title={planId ? 'Plan bearbeiten' : 'Neuer Plan'}
-        rightContent={currentPlanId && currentExercises.length > 0 ? (
-          <button
-            onClick={() => startWorkout(currentPlanId)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-on-primary text-xs font-bold uppercase tracking-widest"
-            style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
-          >
-            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-            Starten
-          </button>
-        ) : undefined}
-      />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto space-y-8">
         {/* Plan Meta */}
@@ -441,7 +444,6 @@ export default function PlanDetail() {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 }

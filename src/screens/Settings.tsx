@@ -1,8 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader } from '../contexts/LayoutContext';
 import {requestPermission, getPermission, getStorageEstimate} from '../notifications';
 import {storage} from '../data/storage.ts';
 import type {StorageEstimate} from '../notifications';
@@ -15,6 +14,7 @@ const DAY_LABELS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const GITHUB_ISSUES_URL = 'https://github.com/damaurer/localift/issues';
 
 export default function Settings() {
+    useHeader({}, []);
     const navigate = useNavigate();
     const {settings, updateSettings, clearAllData, importBackup} = useSettingsContext();
     const {sessions} = useWorkoutContext();
@@ -137,8 +137,6 @@ export default function Settings() {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header/>
-
             <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
                 <section className="mb-10">
                     <h1 className="text-5xl font-bold tracking-tighter mb-2"
@@ -588,7 +586,6 @@ export default function Settings() {
                 </div>
             )}
 
-            <BottomNav/>
         </div>
     );
 }

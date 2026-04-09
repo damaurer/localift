@@ -3,8 +3,7 @@ import {useParams, useNavigate} from 'react-router-dom';
 
 import {generateId} from '../data/storage.ts';
 import type {SetTemplate} from '../types/workout.types.ts';
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader } from '../contexts/LayoutContext';
 import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
@@ -28,6 +27,17 @@ export default function ExerciseConfigurator() {
     useEffect(() => {
         if (planExercise?.sets) setSets(planExercise.sets);
     }, [planExerciseId, planExercise?.sets]);
+
+    useHeader(
+        {
+            showBack: true,
+            title: exercise?.name ?? '',
+            subtitle: exercise
+                ? `${exercise.category} · ${exercise.muscleGroups.slice(0, 2).join(', ')}`
+                : '',
+        },
+        [planExerciseId],
+    );
 
     // Kinetic Insight: look up last time this exercise was done
     const lastSession = sessions
@@ -79,11 +89,6 @@ export default function ExerciseConfigurator() {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header
-                showBack
-                title={exercise.name}
-                subtitle={`${exercise.category} · ${exercise.muscleGroups.slice(0, 2).join(', ')}`}
-            />
 
             <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
                 {/* Sets */}
@@ -238,7 +243,6 @@ export default function ExerciseConfigurator() {
                 </div>
             </main>
 
-            <BottomNav/>
         </div>
     );
 }

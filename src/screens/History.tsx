@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+import { useHeader, useLayoutContext } from '../contexts/LayoutContext';
 import { calcTotalVolume, calcTotalSets } from '../data/storage.ts';
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 
@@ -29,6 +28,17 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
   const { sessions } = useWorkoutContext();
   const session = sessions.find(s => s.id === sessionId);
 
+  useHeader(
+    {
+      showBack: true,
+      title: session?.planName ?? '',
+      subtitle: session
+        ? new Date(session.startedAt).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+        : '',
+    },
+    [session?.id],
+  );
+
   if (!session) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <p className="text-on-surface-variant">Einheit nicht gefunden</p>
@@ -40,11 +50,6 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header
-        showBack
-        title={session.planName}
-        subtitle={new Date(session.startedAt).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })}
-      />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
         {/* Summary */}
@@ -114,7 +119,6 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
           })}
         </div>
       </main>
-      <BottomNav />
     </div>
   );
 }
@@ -123,6 +127,11 @@ export default function History() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { sessions } = useWorkoutContext();
   const navigate = useNavigate();
+  const { setHeaderConfig } = useLayoutContext();
+
+  useEffect(() => {
+    if (!sessionId) setHeaderConfig({});
+  }, [sessionId, setHeaderConfig]);
 
   const grouped = useMemo(() => {
     return groupByMonth(
@@ -141,8 +150,6 @@ export default function History() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="pt-20 px-6 max-w-2xl mx-auto pb-32">
         {sessions.length === 0 ? (
           <div className="text-center py-24">
@@ -221,8 +228,6 @@ export default function History() {
           ))
         )}
       </main>
-
-      <BottomNav />
     </div>
   );
 }
