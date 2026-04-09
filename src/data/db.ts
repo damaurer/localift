@@ -79,7 +79,7 @@ export async function idbDelete(storeName: StoreName, key: IDBValidKey): Promise
 
 export async function idbClearAll(): Promise<void> {
   const db = await openDb();
-  const tx = db.transaction(db.objectStoreNames as any, "readwrite");
+  const tx = db.transaction(db.objectStoreNames, "readwrite");
   for (const name of Array.from(db.objectStoreNames)) {
     tx.objectStore(name).clear();
   }
