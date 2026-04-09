@@ -11,44 +11,48 @@ export function ExerciseProvider({children}: { children: ReactNode }) {
 
     const syncExercisesWithRepo = useCallback(async () => {
         const {version: cachedVersion, lastSync} = await storage.getRemoteSyncInfo();
-        const cachedExercises = await storage.getExercises(); // This will already check remote storage internally
+        const cachedExercises = await storage.getExercises();
 
         if (Date.now() - lastSync < SYNC_INTERVAL_MS && cachedExercises.length > 0) {
-            return cachedExercises; // recently synced, skip
+            setExercises(cachedExercises);
+            return cachedExercises;
         }
 
         try {
             const res = await fetch(`${import.meta.env.BASE_URL}exercises.json`, {cache: 'no-cache'});
-            if (!res.ok) return cachedExercises;
+            if (!res.ok) {
+                setExercises(cachedExercises);
+                return cachedExercises;
+            }
 
             const data = (await res.json()) as { version: string; exercises: Exercise[] };
 
             await storage.saveRemoteSyncInfo(data.version, Date.now());
 
             if (cachedVersion === data.version) {
-                return cachedExercises; // same version, no update needed
+                setExercises(cachedExercises);
+                return cachedExercises;
             }
 
-            const updatedExercises: Exercise[] = data.exercises.reduce((acc: Exercise[], ex: Exercise) => {
-                const existing = cachedExercises.find(e => e.id === ex.id);
-                if (!existing) {
-                    acc.push(ex)
-                }
-                return acc;
-            }, cachedExercises);
-
+            const existingIds = new Set(cachedExercises.map(e => e.id));
+            const newExercises = data.exercises.filter((ex: Exercise) => !existingIds.has(ex.id));
+            const updatedExercises = newExercises.length > 0
+                ? [...cachedExercises, ...newExercises]
+                : cachedExercises;
 
             setExercises(updatedExercises);
-            await storage.saveExercises(updatedExercises);
+            if (newExercises.length > 0) {
+                await storage.saveExercises(updatedExercises);
+            }
             return updatedExercises;
         } catch (error) {
             console.error('Failed to sync exercises with remote storage', error);
-            return [];
+            setExercises(cachedExercises);
+            return cachedExercises;
         }
     }, [])
 
     useEffect(() => {
-        storage.getExercises().then(setExercises).catch(() => setExercises([]));
         syncExercisesWithRepo();
     }, [syncExercisesWithRepo]);
 
