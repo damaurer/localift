@@ -1,71 +1,45 @@
-import {type ReactNode, useCallback, useEffect, useState} from "react";
+import {type ReactNode, useCallback} from "react";
 import type {AppSettings} from "../../types/app.types.ts";
 import type {Exercise, WorkoutPlan, WorkoutSession} from "../../types/workout.types.ts";
-import {storage} from "../../storage.ts";
+import {storage} from "../../data/storage.ts";
 import {clearReminders, scheduleReminder} from "../../notifications.ts";
 import {useExerciseContext} from "../exercise/ExerciseContext.tsx";
 import {usePlanContext} from "../plan/PlanContext.tsx";
 import {useWorkoutContext} from "../workout/WorkoutContext.tsx";
 import {SettingContext} from "./SettingsContext.tsx";
 import {useNutritionContext} from "../nutrition/NutritionContext.tsx";
+import {useState} from "react";
 
 export function SettingsProvider({children}: { children: ReactNode }) {
-    const {setExercises, syncExercisesWithRepo} = useExerciseContext()
+    const {setExercises} = useExerciseContext()
     const {setPlans} = usePlanContext()
     const {setSessions, setActiveWorkout} = useWorkoutContext()
     const {setNutritionDays, setNutritionGoals} = useNutritionContext()
 
-    const [settings, setSettings] = useState<AppSettings>({
+    const [settings, setSettings] = useState<AppSettings>(() => storage.getSettingsSync());
+
+    const clearAllData = useCallback(async () => {
+        await storage.clearAll();
+        setExercises([]);
+        setPlans([]);
+        setSessions([]);
+        setActiveWorkout(null);
+        setNutritionDays([]);
+        setNutritionGoals({
+            calories: 2500,
+            protein: 180,
+            carbs: 280,
+            fat: 75,
+            waterMl: 3000,
+        });
+        setSettings({
             weightUnit: 'kg',
             reminderEnabled: false,
             reminderTime: '07:00',
             reminderDays: [true, true, true, true, true, false, false],
             vibration: true,
-    });
-
-
-    const [isLoading, setIsLoading] = useState(true);
-
-    // Load initial state
-    useEffect(() => {
-        async function loadInitialData() {
-            try {
-                const [
-                    loadedExercises,
-                    loadedPlans,
-                    loadedSessions,
-                    loadedSettings,
-                    loadedActiveWorkout,
-                    loadedNutritionDays,
-                    loadedNutritionGoals,
-                ] = await Promise.all([
-                    storage.getExercises(),
-                    storage.getPlans(),
-                    storage.getSessions(),
-                    storage.getSettings(),
-                    storage.getActiveWorkout(),
-                    storage.getNutritionDays(),
-                    storage.getNutritionGoals(),
-                ]);
-
-                setExercises(loadedExercises);
-                setPlans(loadedPlans);
-                setSessions(loadedSessions);
-                setSettings(loadedSettings);
-                setActiveWorkout(loadedActiveWorkout);
-                setNutritionDays(loadedNutritionDays);
-                setNutritionGoals(loadedNutritionGoals);
-
-                syncExercisesWithRepo();
-            } catch (error) {
-                console.error('Failed to load storage data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        loadInitialData();
-    }, []);
+        });
+    }, [setExercises, setPlans, setSessions, setActiveWorkout, setNutritionDays, setNutritionGoals]);
 
     const updateSettings = useCallback((patch: Partial<AppSettings>) => {
         setSettings(prev => {
@@ -80,20 +54,6 @@ export function SettingsProvider({children}: { children: ReactNode }) {
         });
     }, []);
 
-    const clearAllData = useCallback(async () => {
-        storage.clearAll();
-        setExercises([]);
-        setPlans([]);
-        setSessions([]);
-        setActiveWorkout(null);
-        const [defSettings, defGoals] = await Promise.all([
-            storage.getSettings(),
-            storage.getNutritionGoals(),
-        ]);
-        setSettings(defSettings);
-        setNutritionDays([]);
-        setNutritionGoals(defGoals);
-    }, []);
 
     const importBackup = useCallback((data: {
         plans?: WorkoutPlan[];
@@ -127,16 +87,7 @@ export function SettingsProvider({children}: { children: ReactNode }) {
             storage.saveSessions(next);
             return next;
         });
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
-    }
-
+    }, [setExercises, setPlans, setSessions]);
 
     return (
         <SettingContext.Provider value={{settings, updateSettings, clearAllData, importBackup}}>

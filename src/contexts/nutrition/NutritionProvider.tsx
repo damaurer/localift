@@ -1,20 +1,24 @@
-import {type ReactNode, useCallback, useState} from "react";
+import {type ReactNode, useCallback, useEffect, useState} from "react";
 import {NutritionContext} from "./NutritionContext.tsx";
 import type {FoodEntry, MealType, NutritionDay, NutritionGoals} from "../../types/nutrition.types.ts";
-import {generateId, storage} from "../../storage.ts";
+import {DEFAULT_NUTRITION_GOALS, generateId, storage} from "../../data/storage.ts";
 
 export function NutritionProvider({ children }: { children: ReactNode }) {
-
     const [nutritionDays, setNutritionDays] = useState<NutritionDay[]>([]);
-    const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals>(() => {
-        return {
-            calories: 2500,
-            protein: 180,
-            carbs: 280,
-            fat: 75,
-            waterMl: 3000,
-        };
-    });
+    const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals>(DEFAULT_NUTRITION_GOALS);
+
+    useEffect(() => {
+        Promise.all([
+            storage.getNutritionDays(),
+            storage.getNutritionGoals(),
+        ]).then(([days, goals]) => {
+            setNutritionDays(days);
+            setNutritionGoals(goals);
+        }).catch(() => {
+            setNutritionDays([]);
+            setNutritionGoals(DEFAULT_NUTRITION_GOALS);
+        });
+    }, []);
 
     const getTodayNutrition = useCallback((): NutritionDay => {
         const today = new Date().toISOString().split('T')[0];

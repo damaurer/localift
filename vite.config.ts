@@ -25,6 +25,15 @@ export default defineConfig({
       short_name: 'localift',
       description: 'This training app is a local-first Progressive Web App (PWA) built for people who want full control over their workout data.',
       theme_color: '#212121',
+      share_target: {
+        action: '/share-target',
+        method: 'POST',
+        enctype: 'multipart/form-data',
+        params: {
+          files: [{ name: 'file', accept: ['application/json', '.localift'] }],
+        },
+      },
+
       icons: [
         {
           src: 'pwa-64x64.png',

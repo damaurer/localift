@@ -1,12 +1,15 @@
-import {type ReactNode, useCallback, useState} from "react";
+import {type ReactNode, useEffect, useCallback, useState} from "react";
 import type {PlanExercise, SetTemplate, WorkoutPlan} from "../../types/workout.types.ts";
-import {generateId, storage} from "../../storage.ts";
+import {generateId, storage} from "../../data/storage.ts";
 import {PlanContext} from "./PlanContext.tsx";
 
 
 export function PlanProvider({children}: { children: ReactNode }) {
     const [plans, setPlans] = useState<WorkoutPlan[]>([]);
 
+    useEffect(() => {
+        storage.getPlans().then(setPlans).catch(() => setPlans([]));
+    }, []);
     const savePlan = useCallback((plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
         const now = new Date().toISOString();
         const id = plan.id ?? generateId();

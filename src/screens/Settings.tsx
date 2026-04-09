@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 import {requestPermission, getPermission, getStorageEstimate} from '../notifications';
-import {storage} from '../storage';
+import {storage} from '../data/storage.ts';
 import type {StorageEstimate} from '../notifications';
 import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";

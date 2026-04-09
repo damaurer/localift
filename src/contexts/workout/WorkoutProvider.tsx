@@ -1,11 +1,11 @@
-import { type ReactNode, useCallback,  useState} from "react";
+import { type ReactNode, useCallback,  useState, useEffect} from "react";
 import type {
     ActiveExerciseState,
     ActiveWorkoutState,
     LoggedSet,
     WorkoutSession
 } from "../../types/workout.types.ts";
-import {generateId, storage} from "../../storage.ts";
+import {generateId, storage} from "../../data/storage.ts";
 import {notifyWorkoutComplete} from "../../notifications.ts";
 import {WorkoutContext} from "./WorkoutContext.tsx";
 import {usePlanContext} from "../plan/PlanContext.tsx";
@@ -14,12 +14,25 @@ import {useExerciseContext} from "../exercise/ExerciseContext.tsx";
 
 
 
-export function WorkoutProvider({children}: { children: ReactNode }) {
-    const {plans} = usePlanContext();
-    const {exercises} = useExerciseContext();
-
+export function WorkoutProvider({ children }: { children: ReactNode }) {
     const [sessions, setSessions] = useState<WorkoutSession[]>([]);
     const [activeWorkout, setActiveWorkout] = useState<ActiveWorkoutState | null>(null);
+
+    useEffect(() => {
+        Promise.all([
+            storage.getSessions(),
+            storage.getActiveWorkout(),
+        ]).then(([loadedSessions, loadedActiveWorkout]) => {
+            setSessions(loadedSessions);
+            setActiveWorkout(loadedActiveWorkout);
+        }).catch(() => {
+            setSessions([]);
+            setActiveWorkout(null);
+        });
+    }, []);
+
+    const {plans} = usePlanContext();
+    const {exercises} = useExerciseContext();
 
     const startWorkout = useCallback((planId: string, prevSession?: WorkoutSession) => {
         const plan = plans.find(p => p.id === planId);

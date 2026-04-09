@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 
-import {generateId} from '../storage';
+import {generateId} from '../data/storage.ts';
 import type {SetTemplate} from '../types/workout.types.ts';
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';

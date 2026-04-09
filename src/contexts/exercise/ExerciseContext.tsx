@@ -8,6 +8,7 @@ export interface ExerciseContextValue {
     deleteExercise: (id: string) => void;
     getExerciseById: (id: string) => Exercise | undefined;
     syncExercisesWithRepo: () => Promise<Exercise[]>;
+    importExercises: (newExercises: Exercise[]) => Promise<void>;
 }
 
 

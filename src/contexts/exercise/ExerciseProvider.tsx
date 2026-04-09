@@ -1,6 +1,6 @@
-import { type ReactNode, useCallback,  useState} from "react";
+import { type ReactNode, useCallback, useEffect, useState} from "react";
 import type {Exercise} from "../../types/workout.types.ts";
-import {generateId, storage} from "../../storage.ts";
+import {generateId, storage} from "../../data/storage.ts";
 import {ExerciseContext} from "./ExerciseContext.tsx";
 
 
@@ -47,6 +47,11 @@ export function ExerciseProvider({children}: { children: ReactNode }) {
         }
     }, [])
 
+    useEffect(() => {
+        storage.getExercises().then(setExercises).catch(() => setExercises([]));
+        syncExercisesWithRepo();
+    }, [syncExercisesWithRepo]);
+
     const addExercise = useCallback((ex: Omit<Exercise, 'id'>) => {
         const newEx: Exercise = {...ex, id: generateId()};
         setExercises(prev => {
@@ -66,9 +71,20 @@ export function ExerciseProvider({children}: { children: ReactNode }) {
 
     const getExerciseById = useCallback((id: string) => exercises.find(e => e.id === id), [exercises]);
 
+    const importExercises = useCallback(async (newExercises: Exercise[]) => {
+        setExercises(prev => {
+            const existingIds = new Set(prev.map(e => e.id));
+            const toAdd = newExercises.filter(e => !existingIds.has(e.id));
+            if (toAdd.length === 0) return prev;
+            const next = [...prev, ...toAdd];
+            storage.saveExercises(next);
+            return next;
+        });
+    }, []);
+
     return (
         <ExerciseContext.Provider
-            value={{exercises, setExercises, addExercise, deleteExercise, getExerciseById, syncExercisesWithRepo}}>
+            value={{exercises, setExercises, addExercise, deleteExercise, getExerciseById, syncExercisesWithRepo, importExercises}}>
             {children}
         </ExerciseContext.Provider>
     )

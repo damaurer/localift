@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
-import { calcTotalVolume, calcTotalSets } from '../storage';
+import { calcTotalVolume, calcTotalSets } from '../data/storage.ts';
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 
 function formatDuration(seconds: number): string {
