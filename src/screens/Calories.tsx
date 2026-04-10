@@ -138,14 +138,14 @@ export default function Calories() {
               <circle
                 cx="100" cy="100" r={RING_R}
                 fill="none"
-                stroke="url(#kineticGrad)"
+                stroke="url(#localliftGrad)"
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeDasharray={`${caloriePct * CIRC} ${CIRC}`}
                 style={{ transition: 'stroke-dasharray 0.6s ease' }}
               />
               <defs>
-                <linearGradient id="kineticGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="localliftGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3766ff" />
                   <stop offset="100%" stopColor="#95aaff" />
                 </linearGradient>

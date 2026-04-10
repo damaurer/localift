@@ -7,9 +7,17 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
+    /* baseUrl is required for paths resolution to work relative to tsconfig location */
+    "baseUrl": ".",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* Redirect @wllama/wllama to its pre-compiled ESM declaration to avoid
+       incompatibilities between wllama's raw TypeScript source and our strict config
+       (wllama's package root index.js doesn't exist, so TS falls back to index.ts). */
+    "paths": {
+      "@wllama/wllama": ["node_modules/@wllama/wllama/esm/index.d.ts"]
+    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

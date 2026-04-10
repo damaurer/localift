@@ -39,7 +39,7 @@ export default function ExerciseConfigurator() {
         [planExerciseId],
     );
 
-    // Kinetic Insight: look up last time this exercise was done
+    // Locallift Insight: look up last time this exercise was done
     const lastSession = sessions
         .filter(s => s.completedAt && s.exercises.some(e => e.exerciseId === planExercise?.exerciseId))
         .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
@@ -195,7 +195,7 @@ export default function ExerciseConfigurator() {
                     </button>
                 </section>
 
-                {/* Kinetic Insight */}
+                {/* Locallift Insight */}
                 {lastBestSet && (
                     <section className="mt-10 p-6 rounded-xl" style={{
                         background: 'rgba(130, 155, 255, 0.1)',

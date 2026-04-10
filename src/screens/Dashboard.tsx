@@ -170,7 +170,7 @@ export default function Dashboard() {
               <>
                 <button
                   onClick={() => handleQuickStart(lastSession.planId, lastSession)}
-                  className="w-full kinetic-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
+                  className="w-full locallift-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
                   style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
                 >
                   <span
@@ -197,7 +197,7 @@ export default function Dashboard() {
             ) : plans.length > 0 ? (
               <button
                 onClick={() => navigate('/plans')}
-                className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="w-full locallift-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -208,7 +208,7 @@ export default function Dashboard() {
             ) : (
               <button
                 onClick={() => navigate('/plans/new')}
-                className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="w-full locallift-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
                 <span className="material-symbols-outlined text-2xl">add</span>
@@ -350,7 +350,7 @@ export default function Dashboard() {
             <p className="text-on-surface-variant text-sm mb-8">Erstelle deinen ersten Trainingsplan und leg los.</p>
             <button
               onClick={() => navigate('/plans/new')}
-              className="kinetic-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
+              className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
               Plan erstellen

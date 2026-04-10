@@ -73,7 +73,7 @@ export default function ActiveWorkout() {
         <p className="text-on-surface-variant text-sm tracking-widest uppercase">Kein aktives Training</p>
         <button
           onClick={() => navigate('/plans')}
-          className="kinetic-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
+          className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
           style={{ fontFamily: 'Space Grotesk, sans-serif' }}
         >
           Plan wählen
@@ -379,7 +379,7 @@ export default function ActiveWorkout() {
                         {/* Complete Set */}
                         <button
                           onClick={() => handleCompleteSet(exIdx)}
-                          className="w-full py-4 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all duration-200 kinetic-gradient"
+                          className="w-full py-4 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all duration-200 locallift-gradient"
                           style={{ boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)' }}
                         >
                           <span className="text-base font-black text-on-primary uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
@@ -471,7 +471,7 @@ export default function ActiveWorkout() {
             <div className="space-y-3">
               <button
                 onClick={handleFinish}
-                className="w-full py-4 rounded-xl text-on-primary font-black text-base tracking-widest uppercase active:scale-95 transition-all kinetic-gradient"
+                className="w-full py-4 rounded-xl text-on-primary font-black text-base tracking-widest uppercase active:scale-95 transition-all locallift-gradient"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
                 Training speichern

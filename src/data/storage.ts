@@ -13,6 +13,7 @@ import type {
   AppSettings,
 } from "../types/app.types.ts";
 import { idbClearAll, idbDelete, idbGet, idbSet } from "./db.ts";
+import {DEFAULT_MODEL_URL} from "../ai/wllama-config.ts";
 
 const KEYS = {
   settings: "localift_settings",
@@ -62,6 +63,11 @@ const DEFAULT_SETTINGS: AppSettings = {
   reminderTime: "07:00",
   reminderDays: [true, true, true, true, true, false, false],
   vibration: true,
+  aiTrainer: {
+    enabled: false,
+    modelUrl:
+      DEFAULT_MODEL_URL,
+  },
 };
 
 export const storage = {

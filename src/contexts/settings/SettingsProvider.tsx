@@ -9,6 +9,7 @@ import {useWorkoutContext} from "../workout/WorkoutContext.tsx";
 import {SettingContext} from "./SettingsContext.tsx";
 import {useNutritionContext} from "../nutrition/NutritionContext.tsx";
 import {useState} from "react";
+import {DEFAULT_MODEL_URL} from "../../ai/wllama-config.ts";
 
 export function SettingsProvider({children}: { children: ReactNode }) {
     const {setExercises} = useExerciseContext()
@@ -38,6 +39,11 @@ export function SettingsProvider({children}: { children: ReactNode }) {
             reminderTime: '07:00',
             reminderDays: [true, true, true, true, true, false, false],
             vibration: true,
+            aiTrainer: {
+                enabled: false,
+                modelUrl:
+                    DEFAULT_MODEL_URL,
+            },
         });
     }, [setExercises, setPlans, setSessions, setActiveWorkout, setNutritionDays, setNutritionGoals]);
 

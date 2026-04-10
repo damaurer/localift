@@ -5,6 +5,7 @@ import { useHeader } from '../contexts/LayoutContext';
 import { usePlanContext } from '../contexts/plan/PlanContext.tsx';
 import { useWorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
 import { useExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
+import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
 import { generateId } from '../data/storage.ts';
 import type { ShareablePlan } from '../types/workout.types.ts';
 
@@ -50,6 +51,7 @@ export default function Plans() {
   const { plans, deletePlan, savePlan } = usePlanContext();
   const { startWorkout } = useWorkoutContext();
   const { exercises, importExercises } = useExerciseContext();
+  const { settings } = useSettingsContext();
 
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -322,11 +324,31 @@ export default function Plans() {
         </div>
       </main>
 
-      {/* FAB */}
-      <div className="fixed bottom-24 right-6 z-50">
+      {/* FABs */}
+      <div className="fixed bottom-24 right-6 z-50 flex flex-col gap-3 items-end">
+        {/* AI Plan FAB — only visible when AI Trainer is enabled */}
+        {settings.aiTrainer.enabled && (
+          <button
+            onClick={() => navigate('/ai-plan')}
+            className="flex items-center gap-2 px-4 h-12 rounded-xl active:scale-95 transition-transform duration-200"
+            style={{
+              background: 'rgba(14,14,14,0.9)',
+              border: '1px solid rgba(149,170,255,0.3)',
+              boxShadow: '0 0 24px 0 rgba(149,170,255,0.15)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <span className="material-symbols-outlined text-primary text-xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+            <span className="text-xs font-black uppercase tracking-widest text-primary"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>KI Plan</span>
+          </button>
+        )}
+
+        {/* Standard new-plan FAB */}
         <button
           onClick={() => navigate('/plans/new')}
-          className="kinetic-gradient w-14 h-14 rounded-xl flex items-center justify-center text-on-primary active:scale-95 transition-transform duration-200"
+          className="locallift-gradient w-14 h-14 rounded-xl flex items-center justify-center text-on-primary active:scale-95 transition-transform duration-200"
           style={{ boxShadow: '0 0 32px 0 rgba(149, 170, 255, 0.2)' }}
         >
           <span className="material-symbols-outlined text-3xl">add</span>
@@ -383,7 +405,7 @@ export default function Plans() {
               </button>
               <button
                 onClick={confirmImport}
-                className="flex-1 py-3 kinetic-gradient rounded-xl text-sm font-bold uppercase tracking-widest text-on-primary"
+                className="flex-1 py-3 locallift-gradient rounded-xl text-sm font-bold uppercase tracking-widest text-on-primary"
               >
                 Importieren
               </button>

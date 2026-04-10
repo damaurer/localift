@@ -8,6 +8,11 @@ export default defineConfig({
   // GitHub Pages deploys to /<repo-name>/ — read base from env set by the CI workflow.
   // Locally (or on a custom domain root) this is just '/'.
   base: process.env.VITE_BASE_URL ?? '/',
+  // Required for wllama WebAssembly binaries (AI Trainer feature)
+  assetsInclude: ['**/*.wasm'],
+  optimizeDeps: {
+    exclude: ['@wllama/wllama'],
+  },
   plugins: [tailwindcss(), react(), VitePWA({
     strategies: 'injectManifest',
     srcDir: 'src',
