@@ -4,10 +4,36 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 
 declare let self: ServiceWorkerGlobalScope
 
+const SHARE_CACHE = 'localift-pending-share';
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING')
     self.skipWaiting()
 })
+
+self.addEventListener('fetch', (event: FetchEvent) => {
+  const url = new URL(event.request.url);
+  if (event.request.method === 'POST' && url.pathname === '/share-target') {
+    event.respondWith(
+      (async () => {
+        try {
+          const formData = await event.request.formData();
+          const file = formData.get('file') as File | null;
+          if (file) {
+            const text = await file.text();
+            const cache = await caches.open(SHARE_CACHE);
+            await cache.put('/pending-share', new Response(text, {
+              headers: { 'Content-Type': 'application/json' },
+            }));
+          }
+        } catch {
+          // ignore parse errors — app will handle empty cache
+        }
+        return Response.redirect('/?import=pending', 303);
+      })()
+    );
+  }
+});
 
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();

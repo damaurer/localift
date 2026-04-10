@@ -3,7 +3,7 @@
  * Uses the Web Notifications API via the Service Worker for reliable delivery.
  */
 
-import {storage} from './storage';
+import {storage} from './data/storage.ts';
 
 export type NotificationPermission = 'granted' | 'denied' | 'default';
 

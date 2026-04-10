@@ -43,7 +43,7 @@ Jede Übung in einem Plan kann individuell konfiguriert werden:
 
 - Beliebige Anzahl an **Sätzen** pro Übung
 - Pro Satz: **Zielgewicht** (kg oder lbs), **Zielwiederholungen** und **Pausenzeit in Sekunden**
-- **Kinetic Insight**: Zeigt Verlaufsdaten aus der Trainingshistorie – zuletzt verwendetes Gewicht, Maximalkraft und Volumen-Trend
+- **Locallift Insight**: Zeigt Verlaufsdaten aus der Trainingshistorie – zuletzt verwendetes Gewicht, Maximalkraft und Volumen-Trend
 
 ---
 
@@ -162,13 +162,13 @@ src/
     └── Settings.tsx             # App-Einstellungen
 ```
 
-### Design-System: "The Kinetic Monolith"
+### Design-System: "The Locallift Monolith"
 
 - **Hintergrund**: Tiefdunkel `#0e0e0e` / `#131313`
 - **Primary**: Elektrisches Blau `#95aaff` / `#3766ff`
 - **Typografie**: Space Grotesk (Headlines) + Manrope (Body)
 - **Ikonographie**: Google Material Symbols (Variable Fonts)
-- **Stil**: High-Contrast Dark UI, kinetic Gradient-Akzente, Glassmorphism-Elemente
+- **Stil**: High-Contrast Dark UI, Locallift Gradient-Akzente, Glassmorphism-Elemente
 
 ---
 

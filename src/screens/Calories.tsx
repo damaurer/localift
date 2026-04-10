@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useApp } from '../context';
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
+
+import { useHeader } from '../contexts/LayoutContext';
 import type { MealType } from '../types/nutrition.types';
+import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
 
 const MEAL_LABELS: Record<MealType, string> = {
   fruehstueck: 'Frühstück',
@@ -45,10 +45,11 @@ function todayDateStr(): string {
 }
 
 export default function Calories() {
+  useHeader({}, []);
   const {
     nutritionGoals, getTodayNutrition,
     addFoodEntry, removeFoodEntry, updateWater,
-  } = useApp();
+  } = useNutritionContext();
 
   const todayNutrition = getTodayNutrition();
 
@@ -108,7 +109,6 @@ export default function Calories() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto space-y-8">
 
@@ -138,14 +138,14 @@ export default function Calories() {
               <circle
                 cx="100" cy="100" r={RING_R}
                 fill="none"
-                stroke="url(#kineticGrad)"
+                stroke="url(#localliftGrad)"
                 strokeWidth="12"
                 strokeLinecap="round"
                 strokeDasharray={`${caloriePct * CIRC} ${CIRC}`}
                 style={{ transition: 'stroke-dasharray 0.6s ease' }}
               />
               <defs>
-                <linearGradient id="kineticGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="localliftGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3766ff" />
                   <stop offset="100%" stopColor="#95aaff" />
                 </linearGradient>
@@ -551,13 +551,12 @@ export default function Calories() {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 }
 
 function GoalsEditor({ goals }: { goals: import('../types/nutrition.types.ts').NutritionGoals }) {
-  const { updateNutritionGoals } = useApp();
+  const { updateNutritionGoals } = useNutritionContext();
   const [local, setLocal] = useState(goals);
 
   function handleSave() {

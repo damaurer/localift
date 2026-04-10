@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context';
-import Header from '../components/Header';
-import BottomNav from '../components/BottomNav';
-import { calcTotalVolume, calcTotalSets } from '../storage';
+
+import { useHeader } from '../contexts/LayoutContext';
+import { calcTotalVolume, calcTotalSets } from '../data/storage.ts';
 import type {WorkoutSession} from "../types/workout.types.ts";
+import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
+import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -15,7 +16,8 @@ function formatDuration(seconds: number): string {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { plans, sessions, activeWorkout, startWorkout } = useApp();
+  const { plans } = usePlanContext();
+  const { sessions, activeWorkout, startWorkout } = useWorkoutContext();
 
   const lastSession = useMemo(
     () => sessions.find(s => !!s.completedAt),
@@ -49,6 +51,22 @@ export default function Dashboard() {
 
   const recentPlans = plans.slice(0, 3);
 
+  useHeader(
+    {
+      rightContent: activeWorkout ? (
+        <button
+          onClick={() => navigate('/workout')}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-on-primary text-xs font-bold uppercase tracking-widest animate-pulse"
+          style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
+        >
+          <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
+          Aktiv
+        </button>
+      ) : undefined,
+    },
+    [!!activeWorkout],
+  );
+
   const weekActivity = useMemo(() => {
     const result: boolean[] = Array(7).fill(false);
     const today = new Date();
@@ -62,19 +80,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header
-        rightContent={activeWorkout ? (
-          <button
-            onClick={() => navigate('/workout')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-on-primary text-xs font-bold uppercase tracking-widest animate-pulse"
-            style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
-          >
-            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
-            Aktiv
-          </button>
-        ) : undefined}
-      />
-
       <main className="px-6 pt-20 pb-32 space-y-8 max-w-2xl mx-auto">
         {/* Daily Progress */}
         <section className="space-y-5">
@@ -165,7 +170,7 @@ export default function Dashboard() {
               <>
                 <button
                   onClick={() => handleQuickStart(lastSession.planId, lastSession)}
-                  className="w-full kinetic-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
+                  className="w-full locallift-gradient text-on-primary px-6 py-5 rounded-xl flex items-center gap-4 active:scale-95 transition-all text-left"
                   style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
                 >
                   <span
@@ -192,7 +197,7 @@ export default function Dashboard() {
             ) : plans.length > 0 ? (
               <button
                 onClick={() => navigate('/plans')}
-                className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="w-full locallift-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
@@ -203,7 +208,7 @@ export default function Dashboard() {
             ) : (
               <button
                 onClick={() => navigate('/plans/new')}
-                className="w-full kinetic-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="w-full locallift-gradient text-on-primary py-6 rounded-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 style={{ boxShadow: '0 20px 40px -15px rgba(55, 102, 255, 0.4)' }}
               >
                 <span className="material-symbols-outlined text-2xl">add</span>
@@ -345,7 +350,7 @@ export default function Dashboard() {
             <p className="text-on-surface-variant text-sm mb-8">Erstelle deinen ersten Trainingsplan und leg los.</p>
             <button
               onClick={() => navigate('/plans/new')}
-              className="kinetic-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
+              className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
               Plan erstellen
@@ -353,8 +358,6 @@ export default function Dashboard() {
           </section>
         )}
       </main>
-
-      <BottomNav />
     </div>
   );
 }

@@ -2,13 +2,13 @@
 
 
 
-## 1. Overview & Creative North Star: "The Kinetic Monolith"
+## 1. Overview & Creative North Star: "The Locallift Monolith"
 
-This design system rejects the cluttered, gamified aesthetic of legacy fitness apps. Our Creative North Star is **The Kinetic Monolith**: a high-contrast, editorial experience that feels like a premium Swiss timepiece or a high-end fashion lookbook.
+This design system rejects the cluttered, gamified aesthetic of legacy fitness apps. Our Creative North Star is **The Locallift Monolith**: a high-contrast, editorial experience that feels like a premium Swiss timepiece or a high-end fashion lookbook.
 
 
 
-We break the "template" look by using **aggressive typographic scales** and **intentional asymmetry**. Layouts should prioritize large, breathable areas of `surface` and `background` to focus the eye on a single, high-stakes metric. By utilizing "nested depth" instead of borders, the UI feels carved from a single block of charcoal, illuminated by electric pulses of kinetic energy.
+We break the "template" look by using **aggressive typographic scales** and **intentional asymmetry**. Layouts should prioritize large, breathable areas of `surface` and `background` to focus the eye on a single, high-stakes metric. By utilizing "nested depth" instead of borders, the UI feels carved from a single block of charcoal, illuminated by electric pulses of Locallift energy.
 
 
 
@@ -132,7 +132,7 @@ Traditional drop shadows are too "software-standard." We use light and opacity t
 
 * **Do** use `Spacing: 12` and `16` for top-level padding to create a "Gallery" feel.
 
-* **Do** use `primary` sparingly. It is "kinetic energy"—use it only for the thing the user needs to touch *right now*.
+* **Do** use `primary` sparingly. It is "Locallift energy"—use it only for the thing the user needs to touch *right now*.
 
 * **Do** favor `headline-sm` for labels over `body-md` to maintain the editorial strength.
 

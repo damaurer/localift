@@ -80,3 +80,10 @@ export interface ActiveWorkoutState {
   exercises: ActiveExerciseState[];
   expandedIndex: number;
 }
+
+export interface ShareablePlan {
+  type: 'localift-plan';
+  version: 1;
+  plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'>;
+  exercises: Exercise[];
+}
