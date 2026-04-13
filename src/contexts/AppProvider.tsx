@@ -13,7 +13,6 @@ export function AppProvider({children}: { children: ReactNode }) {
                 <WorkoutProvider>
                     <NutritionProvider>
                         <SettingsProvider>
-                            {/* AiProvider is innermost so it can access all other contexts */}
                             <AiProvider>
                                 {children}
                             </AiProvider>

@@ -57,6 +57,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setModelStatus('ready');
       setLoadedModelUrl(modelUrl);
     } catch (err) {
+        if(err instanceof Error && err.message.toLowerCase() === 'module is already initialized'){
+            return
+        }
+
       console.error('[AiProvider] loadModel error:', err);
       setModelError(
         err instanceof Error ? err.message : 'Modell konnte nicht geladen werden.',

@@ -80,7 +80,7 @@ export default function Plans() {
   }, []);
 
   // ── share ─────────────────────────────────────────────────────────────────
-  const handleShare = async (planId: string) => {
+  const handleShare =  (planId: string) => {
     const shareable = buildShareable(planId, plans, exercises);
     if (!shareable) return;
 
@@ -89,7 +89,7 @@ export default function Plans() {
 
     if (navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({
+        navigator.share({
           title: shareable.plan.name,
           text: `Trainingsplan: ${shareable.plan.name}`,
           files: [file],

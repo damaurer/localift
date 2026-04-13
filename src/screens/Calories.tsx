@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 
 import { useHeader } from '../contexts/LayoutContext';
-import type { MealType } from '../types/nutrition.types';
+import type { MealType, NutritionDay } from '../types/nutrition.types';
 import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
 
 const MEAL_LABELS: Record<MealType, string> = {
@@ -47,7 +47,7 @@ function todayDateStr(): string {
 export default function Calories() {
   useHeader({}, []);
   const {
-    nutritionGoals, getTodayNutrition,
+    nutritionGoals, nutritionDays, getTodayNutrition,
     addFoodEntry, removeFoodEntry, updateWater,
   } = useNutritionContext();
 
@@ -110,7 +110,7 @@ export default function Calories() {
   return (
     <div className="min-h-screen bg-background">
 
-      <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto space-y-8">
+      <main className="pt-20 pb-50 px-6 max-w-2xl mx-auto space-y-8">
 
         {/* Page heading */}
         <section className="space-y-1 pt-4">
@@ -130,7 +130,7 @@ export default function Calories() {
 
         {/* Progress Ring + Sub-stats */}
         <section className="bg-surface-container-low rounded-xl relative overflow-hidden py-10 flex flex-col items-center">
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-tr from-primary/5 to-transparent opacity-50 pointer-events-none" />
 
           <div className="relative w-56 h-56 flex items-center justify-center">
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 200 200">
@@ -414,6 +414,9 @@ export default function Calories() {
           </div>
         </section>
 
+        {/* Nutrition History */}
+        <NutritionHistory days={nutritionDays} goals={nutritionGoals} />
+
         {/* Goals shortcut */}
         <section>
           <button
@@ -464,7 +467,7 @@ export default function Calories() {
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="w-full max-w-lg rounded-t-2xl p-6 space-y-6"
+            className="w-full max-w-lg rounded-t-2xl p-6 space-y-6 pb-30"
             style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.12)' }}
             onClick={e => e.stopPropagation()}
           >
@@ -552,6 +555,179 @@ export default function Calories() {
       )}
 
     </div>
+  );
+}
+
+function NutritionHistory({
+  days,
+  goals,
+}: {
+  days: NutritionDay[];
+  goals: import('../types/nutrition.types.ts').NutritionGoals;
+}) {
+  const today = new Date().toISOString().split('T')[0];
+  const pastDays = useMemo(
+    () =>
+      [...days]
+        .filter(d => d.date !== today && d.entries.length > 0)
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    [days, today]
+  );
+
+  const [expandedDate, setExpandedDate] = useState<string | null>(null);
+
+  if (pastDays.length === 0) return null;
+
+  function formatDate(dateStr: string) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  return (
+    <section className="space-y-3">
+      <h2
+        className="text-xl font-bold tracking-tight uppercase"
+        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+      >
+        Verlauf
+      </h2>
+      <div className="space-y-2">
+        {pastDays.map(day => {
+          const totals = day.entries.reduce(
+            (acc, e) => ({
+              calories: acc.calories + e.calories,
+              protein: acc.protein + e.protein,
+              carbs: acc.carbs + e.carbs,
+              fat: acc.fat + e.fat,
+            }),
+            { calories: 0, protein: 0, carbs: 0, fat: 0 }
+          );
+          const calPct = Math.min(100, Math.round((totals.calories / goals.calories) * 100));
+          const isExpanded = expandedDate === day.date;
+
+          return (
+            <div
+              key={day.date}
+              className="bg-surface-container-low rounded-xl overflow-hidden"
+            >
+              <button
+                onClick={() => setExpandedDate(isExpanded ? null : day.date)}
+                className="w-full p-4 flex items-center gap-4 text-left hover:bg-surface-container transition-colors"
+              >
+                {/* Date */}
+                <div className="flex-1 min-w-0">
+                  <span
+                    className="text-xs font-bold tracking-widest text-primary uppercase block"
+                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                  >
+                    {formatDate(day.date)}
+                  </span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${calPct}%`, background: 'linear-gradient(90deg, #3766ff, #95aaff)' }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-outline whitespace-nowrap">
+                      {totals.calories.toLocaleString('de')} kcal
+                    </span>
+                  </div>
+                </div>
+
+                {/* Macro pills */}
+                <div className="hidden sm:flex gap-2 shrink-0">
+                  {[
+                    { label: 'P', value: Math.round(totals.protein), color: '#95aaff' },
+                    { label: 'K', value: Math.round(totals.carbs), color: '#ffaced' },
+                    { label: 'F', value: Math.round(totals.fat), color: '#ffffff' },
+                  ].map(m => (
+                    <span
+                      key={m.label}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: 'rgba(72,72,71,0.3)', color: m.color }}
+                    >
+                      {m.label} {m.value}g
+                    </span>
+                  ))}
+                </div>
+
+                {/* Water */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="material-symbols-outlined text-primary" style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}>water_drop</span>
+                  <span className="text-[10px] font-bold text-outline">{(day.waterMl / 1000).toFixed(1)}L</span>
+                </div>
+
+                <span
+                  className="material-symbols-outlined text-outline-variant transition-transform shrink-0"
+                  style={{ fontSize: '18px', transform: isExpanded ? 'rotate(90deg)' : 'none' }}
+                >
+                  chevron_right
+                </span>
+              </button>
+
+              {isExpanded && (
+                <div className="px-4 pb-4 space-y-3">
+                  {/* Macros row (mobile) */}
+                  <div className="flex gap-2 sm:hidden">
+                    {[
+                      { label: 'Protein', value: Math.round(totals.protein), color: '#95aaff' },
+                      { label: 'Kohlenhydrate', value: Math.round(totals.carbs), color: '#ffaced' },
+                      { label: 'Fette', value: Math.round(totals.fat), color: '#ffffff' },
+                    ].map(m => (
+                      <span
+                        key={m.label}
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(72,72,71,0.3)', color: m.color }}
+                      >
+                        {m.label.slice(0, 1)} {m.value}g
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Entries grouped by meal */}
+                  {MEAL_ORDER.map(mealType => {
+                    const entries = day.entries.filter(e => e.mealType === mealType);
+                    if (entries.length === 0) return null;
+                    const mealCal = entries.reduce((s, e) => s + e.calories, 0);
+                    return (
+                      <div key={mealType}>
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span
+                            className="material-symbols-outlined text-outline-variant"
+                            style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}
+                          >
+                            {MEAL_ICONS[mealType]}
+                          </span>
+                          <span className="text-[10px] font-bold tracking-widest text-primary uppercase"
+                            style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                            {MEAL_LABELS[mealType]}
+                          </span>
+                          <span className="ml-auto text-[10px] font-bold text-outline">{mealCal} kcal</span>
+                        </div>
+                        <div className="space-y-1 pl-5">
+                          {entries.map(entry => (
+                            <div key={entry.id} className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-bold text-on-surface truncate flex-1">{entry.name}</span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-[10px] text-outline font-bold">{entry.calories} kcal</span>
+                                {entry.protein > 0 && (
+                                  <span className="text-[10px] text-outline/60">P {Math.round(entry.protein)}g</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

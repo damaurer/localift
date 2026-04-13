@@ -11,7 +11,9 @@ import type {
 } from '../types/nutrition.types.ts';
 import type {
   AppSettings,
+  ConsentState,
 } from "../types/app.types.ts";
+import { CURRENT_CONSENT_VERSION } from "../types/app.types.ts";
 import { idbClearAll, idbDelete, idbGet, idbSet } from "./db.ts";
 import {DEFAULT_MODEL_URL} from "../ai/wllama-config.ts";
 
@@ -21,6 +23,7 @@ const KEYS = {
   remoteLastSync: "localift_remote_exercises_last_sync",
   lastReminder: "localift_last_reminder",
   feedbackSkip: "localift_feedback_skip",
+  consent: "localift_consent",
 } as const;
 
 const DB_KEYS = {
@@ -115,11 +118,19 @@ export const storage = {
     localStorage.setItem(KEYS.lastReminder, dateStr);
   },
 
+  getConsent: (): ConsentState | null => loadSync<ConsentState | null>(KEYS.consent, null),
+  saveConsent: (state: ConsentState) => save(KEYS.consent, state),
+
   clearAll: async () => {
     await idbClearAll();
     Object.values(KEYS).forEach(k => localStorage.removeItem(k));
   },
 };
+
+export function needsConsent(): boolean {
+  const state = storage.getConsent();
+  return !state || !state.accepted || state.version !== CURRENT_CONSENT_VERSION;
+}
 
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;

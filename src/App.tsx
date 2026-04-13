@@ -13,6 +13,7 @@ import AiChat from './screens/AiChat';
 import AiPlanGenerator from './screens/AiPlanGenerator';
 import PWABadge from './PWABadge.tsx';
 import InstallPrompt from './components/InstallPrompt';
+import ConsentModal from './components/ConsentModal';
 import './App.css';
 import {AppProvider} from "./contexts/AppProvider.tsx";
 
@@ -36,6 +37,7 @@ export default function App() {
                         <Route path="*" element={<Dashboard/>}/>
                     </Route>
                 </Routes>
+                <ConsentModal/>
                 <InstallPrompt/>
                 <PWABadge/>
             </AppProvider>

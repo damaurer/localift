@@ -1,4 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
+import ConsentModal from '../components/ConsentModal';
 import {useNavigate} from 'react-router-dom';
 
 import { useHeader } from '../contexts/LayoutContext';
@@ -32,6 +33,7 @@ export default function Settings() {
     const [storageInfo, setStorageInfo] = useState<StorageEstimate | null>(null);
     const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
     const [feedbackSkipDialog, setFeedbackSkipDialog] = useState(false);
+    const [showConsentInfo, setShowConsentInfo] = useState(false);
     const importInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
@@ -626,7 +628,27 @@ export default function Settings() {
                         <span
                             className="material-symbols-outlined text-on-surface-variant text-base">chevron_right</span>
                     </button>
+
+                    {/* Datenschutzhinweise */}
+                    <button
+                        onClick={() => setShowConsentInfo(true)}
+                        className="w-full bg-surface-container-low hover:bg-surface-container transition-colors rounded-xl p-5 flex items-center justify-between group"
+                    >
+                        <div className="flex items-center gap-4">
+                            <span
+                                className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">privacy_tip</span>
+                            <div className="text-left">
+                                <span className="font-bold text-lg block"
+                                      style={{fontFamily: 'Space Grotesk, sans-serif'}}>Datenschutzhinweise</span>
+                                <p className="text-xs text-on-surface-variant">Datenspeicherung & Transparenz</p>
+                            </div>
+                        </div>
+                        <span
+                            className="material-symbols-outlined text-on-surface-variant text-base">chevron_right</span>
+                    </button>
                 </section>
+
+                {showConsentInfo && <ConsentModal onClose={() => setShowConsentInfo(false)} />}
 
                 {/* Danger zone */}
                 <section>

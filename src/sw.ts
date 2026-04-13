@@ -11,12 +11,6 @@ self.addEventListener('message', (event) => {
     self.skipWaiting()
 })
 
-// Claim all open clients immediately on activation so COOP/COEP headers
-// apply to the current page without needing a manual navigation.
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim())
-})
-
 self.addEventListener('fetch', (event: FetchEvent) => {
   const url = new URL(event.request.url);
   if (event.request.method === 'POST' && url.pathname === '/share-target') {
@@ -71,22 +65,8 @@ let allowlist
 if (import.meta.env.DEV)
   allowlist = [/^\/$/]
 
-// Serve index.html for all navigation requests, with COOP/COEP headers
-// injected so the page becomes cross-origin isolated and SharedArrayBuffer
-// (required by wllama multi-threading) is available.
-const navigationHandler = createHandlerBoundToURL('index.html')
-
+// to allow work offline
 registerRoute(new NavigationRoute(
-  async (options) => {
-    const response = await navigationHandler(options)
-    const headers = new Headers(response.headers)
-    headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
-    headers.set('Cross-Origin-Opener-Policy', 'same-origin')
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
-    })
-  },
+  createHandlerBoundToURL('index.html'),
   { allowlist },
 ))

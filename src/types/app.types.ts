@@ -20,3 +20,11 @@ export interface AppSettings {
 }
 
 export type NavTab = 'dashboard' | 'plans' | 'calories' | 'settings' | 'chat';
+
+export interface ConsentState {
+  accepted: boolean;
+  version: string;
+  timestamp: number;
+}
+
+export const CURRENT_CONSENT_VERSION = '1.0';
