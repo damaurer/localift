@@ -36,4 +36,4 @@ export const WLLAMA_CONFIG_PATHS: AssetsPathConfig = {
  *  ~700 MB  bartowski/Llama-3.2-1B-Instruct-GGUF → Llama-3.2-1B-Instruct-Q4_K_M.gguf
  */
 export const DEFAULT_MODEL_URL =
-  'https://huggingface.co/unsloth/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_0.gguf';
+  'https://huggingface.co/LiquidAI/LFM2.5-VL-450M-GGUF/resolve/main/LFM2.5-VL-450M-Q4_0.gguf';
