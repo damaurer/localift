@@ -117,6 +117,7 @@ export const storage = {
   saveLastReminder: async (dateStr: string) => {
     localStorage.setItem(KEYS.lastReminder, dateStr);
   },
+  clearLastReminder: async () => localStorage.removeItem(KEYS.lastReminder),
 
   getConsent: (): ConsentState | null => loadSync<ConsentState | null>(KEYS.consent, null),
   saveConsent: (state: ConsentState) => save(KEYS.consent, state),

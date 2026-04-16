@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 
 const DISMISSED_KEY = 'localift_install_dismissed';
+const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 Tage
+
+function isDismissed(): boolean {
+  const val = localStorage.getItem(DISMISSED_KEY);
+  if (!val) return false;
+  return Date.now() - Number(val) < DISMISS_DURATION_MS;
+}
 
 function isInstalled(): boolean {
   return window.matchMedia('(display-mode: standalone)').matches
@@ -17,7 +24,7 @@ export default function InstallPrompt() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (isInstalled() || localStorage.getItem(DISMISSED_KEY)) return;
+    if (isInstalled() || isDismissed()) return;
 
     if (isIOS()) {
       setShowIOS(true);
@@ -36,7 +43,7 @@ export default function InstallPrompt() {
   }, []);
 
   function dismiss() {
-    localStorage.setItem(DISMISSED_KEY, '1');
+    localStorage.setItem(DISMISSED_KEY, String(Date.now()));
     setVisible(false);
   }
 
@@ -45,7 +52,7 @@ export default function InstallPrompt() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
-      localStorage.setItem(DISMISSED_KEY, '1');
+      localStorage.setItem(DISMISSED_KEY, String(Date.now()));
     }
     setVisible(false);
   }
