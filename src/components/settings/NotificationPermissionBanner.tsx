@@ -15,7 +15,6 @@ const NotificationPermissionBanner: React.FC<NotificationPermissionBannerProps> 
         <section className="mb-6">
             <button
                 onClick={handleRequestPermission}
-                disabled={notifPermission === 'denied'}
                 className="w-full rounded-xl p-4 flex items-center gap-4 transition-colors"
                 style={{
                     background: notifPermission === 'denied'
