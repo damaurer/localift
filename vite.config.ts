@@ -32,6 +32,13 @@ export default defineConfig({
       theme_color: '#212121',
       background_color: '#0e0e0e',
       display: 'standalone',
+      display_override: ['window-controls-overlay', 'standalone'],
+      protocol_handlers: [
+        {
+          protocol: 'web+localift',
+          url: '/?protocol=%s',
+        },
+      ],
       share_target: {
         action: '/share-target',
         method: 'POST',
@@ -40,6 +47,20 @@ export default defineConfig({
           files: [{ name: 'file', accept: ['application/json', '.localift'] }],
         },
       },
+
+      screenshots: [
+        {
+          src: 'pwa-screenshot-desktop.png',
+          sizes: '1280x720',
+          type: 'image/png',
+          form_factor: 'wide',
+        },
+        {
+          src: 'pwa-screenshot-mobile.png',
+          sizes: '540x720',
+          type: 'image/png',
+        },
+      ],
 
       icons: [
         {
@@ -73,13 +94,13 @@ export default defineConfig({
     },
 
     injectManifest: {
-      globPatterns: ['**/*.{js,css,svg,png,ico}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
     },
 
     devOptions: {
       enabled: true,
       navigateFallback: 'index.html',
-      suppressWarnings: true,
+      suppressWarnings: false,
       type: 'module',
     },
 
