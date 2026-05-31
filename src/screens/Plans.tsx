@@ -5,7 +5,6 @@ import { useHeader } from '../contexts/LayoutContext';
 import { usePlanContext } from '../contexts/plan/PlanContext.tsx';
 import { useWorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
 import { useExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
-import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
 import { generateId } from '../data/storage.ts';
 import type { ShareablePlan } from '../types/workout.types.ts';
 import {useTranslation} from "../i18n/I18nContext.tsx";
@@ -52,7 +51,6 @@ export default function Plans() {
   const { plans, deletePlan, savePlan } = usePlanContext();
   const { startWorkout } = useWorkoutContext();
   const { exercises, importExercises } = useExerciseContext();
-  const { settings } = useSettingsContext();
 
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
