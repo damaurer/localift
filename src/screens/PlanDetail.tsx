@@ -456,7 +456,7 @@ export default function PlanDetail() {
         >
           <div
             className="w-full max-w-2xl rounded-t-3xl overflow-hidden"
-            style={{ background: '#131313', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
+            style={{ background: 'var(--color-surface)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}
           >
             <div className="px-6 pt-6 pb-4 flex items-center justify-between">
               <div>

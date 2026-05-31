@@ -478,7 +478,7 @@ export default function Calories() {
         >
           <div
             className="w-full max-w-lg rounded-t-2xl p-6 space-y-6 pb-30"
-            style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.12)' }}
+            style={{ background: 'var(--color-surface)', border: '1px solid rgba(149,170,255,0.12)' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -523,7 +523,7 @@ export default function Calories() {
                     className="w-full bg-transparent border-none p-0 text-5xl font-bold focus:outline-none focus:ring-0 placeholder:text-surface-container-highest"
                     style={{
                       fontFamily: 'Space Grotesk, sans-serif',
-                      color: accent ? '#95aaff' : '#ffffff',
+                      color: accent ? '#95aaff' : 'var(--color-on-surface)',
                     }}
                   />
                 </div>
@@ -542,7 +542,7 @@ export default function Calories() {
                     style={
                       form.mealType === mt
                         ? { background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e' }
-                        : { background: '#262626', color: '#adaaaa' }
+                        : { background: 'var(--color-surface-variant)', color: 'var(--color-on-surface-variant)' }
                     }
                   >
                     {MEAL_LABELS[mt].slice(0, mt === 'mittagessen' || mt === 'abendessen' ? 6 : 8)}
@@ -637,7 +637,7 @@ function NutritionHistory({
                     {formatDate(day.date)}
                   </span>
                   <div className="flex items-center gap-2 mt-1.5">
-                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-variant)' }}>
                       <div
                         className="h-full rounded-full"
                         style={{ width: `${calPct}%`, background: 'linear-gradient(90deg, #3766ff, #95aaff)' }}
