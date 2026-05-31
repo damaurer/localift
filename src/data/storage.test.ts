@@ -36,8 +36,8 @@ beforeEach(() => {
 describe('calcTotalVolume', () => {
   it('sums weight × reps across all sets and exercises', () => {
     const exercises = [
-      { loggedSets: [{ weight: 100, reps: 5 }, { weight: 80, reps: 8 }] },
-      { loggedSets: [{ weight: 60, reps: 10 }] },
+      { loggedSets: [{ weight: 100, reps: 5, completedAt: '' }, { weight: 80, reps: 8, completedAt: '' }] },
+      { loggedSets: [{ weight: 60, reps: 10, completedAt: '' }] },
     ];
     expect(calcTotalVolume(exercises)).toBe(100 * 5 + 80 * 8 + 60 * 10);
   });
@@ -54,8 +54,8 @@ describe('calcTotalVolume', () => {
 describe('calcTotalSets', () => {
   it('counts total logged sets', () => {
     const exercises = [
-      { loggedSets: [{ weight: 0, reps: 0 }, { weight: 0, reps: 0 }] },
-      { loggedSets: [{ weight: 0, reps: 0 }] },
+      { loggedSets: [{ weight: 0, reps: 0, completedAt: '' }, { weight: 0, reps: 0, completedAt: '' }] },
+      { loggedSets: [{ weight: 0, reps: 0, completedAt: '' }] },
     ];
     expect(calcTotalSets(exercises)).toBe(3);
   });

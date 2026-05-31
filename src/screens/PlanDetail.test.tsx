@@ -9,6 +9,7 @@ import { PlanContext } from '../contexts/plan/PlanContext.tsx';
 import type { PlanContextValue } from '../contexts/plan/PlanContext.tsx';
 import { ExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
 import type { ExerciseContextValue } from '../contexts/exercise/ExerciseContext.tsx';
+import type { Exercise } from '../types/workout.types.ts';
 import { WorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
 import type { WorkoutContextValue } from '../contexts/workout/WorkoutContext.tsx';
 import { SettingContext } from '../contexts/settings/SettingsContext.tsx';
@@ -20,7 +21,7 @@ const mockExercises = [
     id: 'ex1',
     name: 'Bankdrücken',
     category: 'Brust',
-    equipment: 'Langhantel',
+    equipment: 'barbell' as const,
     muscleGroups: ['Brust', 'Trizeps'],
     description: '',
     tags: [],
@@ -41,11 +42,11 @@ function createWrapper(path = '/plans/new') {
   };
 
   const exerciseCtx: ExerciseContextValue = {
-    exercises: mockExercises,
+    exercises: mockExercises as Exercise[],
     setExercises: vi.fn(),
     addExercise: vi.fn(),
     deleteExercise: vi.fn(),
-    getExerciseById: (id: string) => mockExercises.find(e => e.id === id),
+    getExerciseById: (id: string) => mockExercises.find(e => e.id === id) as Exercise | undefined,
     syncExercisesWithRepo: vi.fn().mockResolvedValue([]),
     importExercises: vi.fn().mockResolvedValue(undefined),
   };
@@ -155,7 +156,7 @@ describe('PlanDetail – Two-section layout', () => {
     render(<PlanDetail />, { wrapper: Wrapper });
 
     const addBtn = screen.getByRole('button', { name: /Übung hinzufügen/i });
-    expect(addBtn.disabled).toBe(true);
+    expect((addBtn as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('enables the add-exercise button after entering a plan name', () => {
@@ -166,7 +167,7 @@ describe('PlanDetail – Two-section layout', () => {
     fireEvent.change(nameInput, { target: { value: 'Mein Trainingsplan' } });
 
     const addBtn = screen.getByRole('button', { name: /Übung hinzufügen/i });
-    expect(addBtn.disabled).toBe(false);
+    expect((addBtn as HTMLButtonElement).disabled).toBe(false);
   });
 
   it('does not open the exercise picker when clicking add-exercise with empty name', () => {
