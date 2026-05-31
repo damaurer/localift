@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useHeader } from '../contexts/LayoutContext';
@@ -6,6 +6,7 @@ import { useAiContext } from '../contexts/ai/AiContext.tsx';
 import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
 import { useTranslation } from '../i18n/I18nContext.tsx';
 import { getLocale } from '../i18n/I18nContext.tsx';
+import ChatInput from '../components/ChatInput.tsx';
 
 export default function AiChat() {
   const navigate = useNavigate();
@@ -53,9 +54,7 @@ export default function AiChat() {
     [modelStatus, isGenerating, activeToolName, clearChat],
   );
 
-  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // AI not enabled guard — navigate in effect to avoid render-time side effect
   useEffect(() => {
@@ -71,18 +70,8 @@ export default function AiChat() {
 
   if (!settings.aiTrainer.enabled) return null;
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || isGenerating || modelStatus !== 'ready') return;
-    setInput('');
-    await sendMessage(text);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+  const handleSend = (text: string) => {
+    sendMessage(text);
   };
 
   const formatTimestamp = (iso: string) =>
@@ -321,32 +310,12 @@ export default function AiChat() {
           )}
 
           {/* Text input */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"
-              style={{ background: 'rgba(149,170,255,0.1)' }} />
-            <div className="relative flex items-center rounded-2xl p-2"
-              style={{ background: 'var(--color-surface-container)', border: '1px solid var(--color-outline-variant, rgba(72,72,71,0.1))' }}>
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t.aiChat.messagePlaceholder}
-                disabled={isGenerating}
-                className="flex-1 bg-transparent border-none focus:outline-none text-on-surface text-sm px-3 py-3 placeholder:text-outline/50"
-                style={{ fontFamily: 'Manrope, sans-serif', color: 'var(--color-on-surface)' }}
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isGenerating}
-                className="w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition-transform shrink-0 disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)' }}
-              >
-                <span className="material-symbols-outlined text-sm" style={{ color: '#00247e' }}>send</span>
-              </button>
-            </div>
-          </div>
+          <ChatInput
+            onSend={handleSend}
+            isGenerating={isGenerating}
+            modelReady={modelStatus === 'ready'}
+            t={t}
+          />
         </div>
       </div>
     </div>
