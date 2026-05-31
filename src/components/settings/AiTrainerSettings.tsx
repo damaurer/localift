@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type {AppSettings} from "../../types/app.types.ts";
+import {useTranslation} from "../../i18n/I18nContext.tsx";
 
 interface AiTrainerSettingsProps {
     aiTrainer: {
@@ -23,12 +24,13 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
     updateSettings
 }) => {
     const navigate = useNavigate();
+    const t = useTranslation();
 
     return (
         <section className="mb-10">
             <h3 className="text-xs uppercase tracking-widest text-on-surface-variant mb-5 ml-1"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                KI Trainer
+                {t.settings.aiTrainer}
             </h3>
 
             <div className="bg-surface-container rounded-xl p-6 relative overflow-hidden group"
@@ -54,8 +56,8 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                         </div>
                         <div>
                             <h2 className="text-xl font-bold"
-                                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>KI Trainer</h2>
-                            <p className="text-on-surface-variant text-sm">Lokales Sprachmodell (WASM)</p>
+                                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.aiTrainer}</h2>
+                            <p className="text-on-surface-variant text-sm">{t.settings.localModel}</p>
                         </div>
                     </div>
                     {/* Enable toggle */}
@@ -89,11 +91,11 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                             }} />
                             <div className="flex-1 min-w-0">
                                 <span className="text-sm font-bold block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                                    {modelStatus === 'ready' ? 'Modell bereit'
-                                        : modelStatus === 'downloading' ? `Download… ${Math.round(downloadProgress * 100)}%`
-                                        : modelStatus === 'loading' ? 'Wird geladen…'
-                                        : modelStatus === 'error' ? 'Fehler beim Laden'
-                                        : 'Nicht installiert'}
+                                    {modelStatus === 'ready' ? t.settings.modelReady
+                                        : modelStatus === 'downloading' ? `${t.settings.downloadProgress} ${Math.round(downloadProgress * 100)}%`
+                                        : modelStatus === 'loading' ? t.settings.modelLoading
+                                        : modelStatus === 'error' ? t.settings.modelError
+                                        : t.common.notInstalled}
                                 </span>
                                 {loadedModelUrl && (
                                     <span className="text-xs text-on-surface-variant truncate block" style={{ opacity: 0.6 }}>
@@ -130,7 +132,7 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                                 >
                                     <span className="material-symbols-outlined text-base"
                                           style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-                                    Chat öffnen
+                                    {t.settings.openChat}
                                 </button>
                             </div>
                         )}

@@ -35,6 +35,7 @@ export function SettingsProvider({children}: { children: ReactNode }) {
         });
         setSettings({
             weightUnit: 'kg',
+            language: 'de',
             reminderEnabled: false,
             reminderTime: '07:00',
             reminderDays: [true, true, true, true, true, false, false],

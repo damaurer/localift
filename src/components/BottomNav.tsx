@@ -1,15 +1,17 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import type { NavTab } from '../types/app.types.ts';
-
-const NAV_ITEMS: { tab: NavTab; icon: string; label: string; path: string }[] = [
-  { tab: 'dashboard', icon: 'grid_view', label: 'Home', path: '/' },
-  { tab: 'plans', icon: 'event_note', label: 'Pläne', path: '/plans' },
-  { tab: 'calories', icon: 'restaurant', label: 'Kalorien', path: '/calories' },
-  { tab: 'settings', icon: 'settings', label: 'Einstellungen', path: '/settings' },
-];
+import { useTranslation } from '../i18n/I18nContext.tsx';
 
 export default function BottomNav() {
   const location = useLocation();
+  const t = useTranslation();
+
+  const NAV_ITEMS: { tab: NavTab; icon: string; label: string; path: string }[] = [
+    { tab: 'dashboard', icon: 'grid_view', label: t.nav.home, path: '/' },
+    { tab: 'plans', icon: 'event_note', label: t.nav.plans, path: '/plans' },
+    { tab: 'calories', icon: 'restaurant', label: t.nav.calories, path: '/calories' },
+    { tab: 'settings', icon: 'settings', label: t.nav.settings, path: '/settings' },
+  ];
 
   return (
     <nav

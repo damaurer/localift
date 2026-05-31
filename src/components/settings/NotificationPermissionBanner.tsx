@@ -1,4 +1,5 @@
 import React from 'react';
+import {useTranslation} from "../../i18n/I18nContext.tsx";
 
 interface NotificationPermissionBannerProps {
     notifPermission: NotificationPermission | 'default';
@@ -9,6 +10,7 @@ const NotificationPermissionBanner: React.FC<NotificationPermissionBannerProps> 
     notifPermission,
     handleRequestPermission,
 }) => {
+    const t = useTranslation();
     if (notifPermission === 'granted') return null;
 
     return (
@@ -39,12 +41,12 @@ const NotificationPermissionBanner: React.FC<NotificationPermissionBannerProps> 
                         fontFamily: 'Space Grotesk, sans-serif',
                         color: notifPermission === 'denied' ? '#ff6e84' : '#95aaff'
                     }}>
-                        {notifPermission === 'denied' ? 'Benachrichtigungen blockiert' : 'Benachrichtigungen aktivieren'}
+                        {notifPermission === 'denied' ? t.settings.notificationsBlocked : t.settings.enableNotifications}
                     </p>
                     <p className="text-xs text-on-surface-variant mt-0.5">
                         {notifPermission === 'denied'
-                            ? 'In den Browser-Einstellungen entsperren'
-                            : 'Erlaubnis erteilen für Erinnerungen & Abschluss-Alerts'}
+                            ? t.settings.unblockInBrowser
+                            : t.settings.grantPermission}
                     </p>
                 </div>
                 {notifPermission === 'default' && (

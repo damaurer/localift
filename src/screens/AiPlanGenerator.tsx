@@ -18,30 +18,7 @@ import { useAiContext } from '../contexts/ai/AiContext.tsx';
 import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
 import { useHeader } from '../contexts/LayoutContext';
 import type { AiPlanStep } from '../types/ai.types.ts';
-
-const INITIAL_STEPS: AiPlanStep[] = [
-  {
-    id: 'analyze',
-    label: 'Statistiken analysieren',
-    description: 'Verfügbare Übungen und Trainingsverlauf werden ausgewertet.',
-    icon: 'analytics',
-    status: 'pending',
-  },
-  {
-    id: 'structure',
-    label: 'Blöcke strukturieren',
-    description: 'Hypertrophie- und Kraftphasen werden sequenziert…',
-    icon: 'grid_view',
-    status: 'pending',
-  },
-  {
-    id: 'finalize',
-    label: 'Zeitplan finalisieren',
-    description: 'Intensität wird auf deine Regenerationsfenster abgestimmt.',
-    icon: 'calendar_today',
-    status: 'pending',
-  },
-];
+import { useTranslation } from '../i18n/I18nContext.tsx';
 
 type GeneratorState = 'input' | 'generating' | 'done' | 'error';
 
@@ -49,6 +26,13 @@ export default function AiPlanGenerator() {
   const navigate = useNavigate();
   const { settings } = useSettingsContext();
   const { modelStatus, isGenerating, generatingContext, generatePlan, installModel, downloadProgress } = useAiContext();
+  const t = useTranslation();
+
+  const INITIAL_STEPS: AiPlanStep[] = [
+    { id: 'analyze', label: t.aiPlanGen.analyzeStats, description: t.aiPlanGen.analyzeStatsDesc, icon: 'analytics', status: 'pending' },
+    { id: 'structure', label: t.aiPlanGen.structureBlocks, description: t.aiPlanGen.structureBlocksDesc, icon: 'grid_view', status: 'pending' },
+    { id: 'finalize', label: t.aiPlanGen.finalizeSchedule, description: t.aiPlanGen.finalizeScheduleDesc, icon: 'calendar_today', status: 'pending' },
+  ];
 
   const chatIsRunning = isGenerating && generatingContext === 'chat';
 
@@ -59,7 +43,7 @@ export default function AiPlanGenerator() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  useHeader({ showBack: true, title: 'KI Plan' }, []);
+  useHeader({ showBack: true, title: t.aiPlanGen.title }, []);
 
   // Guard
   useEffect(() => {
@@ -124,7 +108,7 @@ export default function AiPlanGenerator() {
     } catch (err) {
       clearTimeout(stepTimer);
       clearTimeout(stepTimer2);
-      setErrorMsg(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setErrorMsg(err instanceof Error ? err.message : t.aiPlanGen.unknownError);
       setState('error');
     }
   };
@@ -150,12 +134,12 @@ export default function AiPlanGenerator() {
             </div>
             <h2 className="text-3xl font-black tracking-tighter"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              {isDownloading ? 'Modell wird geladen…' : 'Modell erforderlich'}
+              {isDownloading ? t.aiPlanGen.modelLoading : t.aiPlanGen.modelRequired}
             </h2>
             <p className="text-sm text-on-surface-variant leading-relaxed">
               {isDownloading
-                ? 'Das KI-Modell wird heruntergeladen und vorbereitet. Dies dauert beim ersten Start etwas länger.'
-                : 'Installiere das KI-Modell in den Einstellungen um Trainingspläne zu generieren.'}
+                ? t.aiPlanGen.modelLoadingDesc
+                : t.aiPlanGen.installModelDesc}
             </p>
 
             {isDownloading && (
@@ -167,7 +151,7 @@ export default function AiPlanGenerator() {
                     <span className="text-primary-dim">%</span>
                   </span>
                   <span className="text-xs uppercase tracking-widest text-on-surface-variant">
-                    {modelStatus === 'loading' ? 'Initialisierung' : 'Download'}
+                    {modelStatus === 'loading' ? t.aiPlanGen.initialization : t.aiPlanGen.download}
                   </span>
                 </div>
                 <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: '#262626' }}>
@@ -187,14 +171,14 @@ export default function AiPlanGenerator() {
                   className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm active:scale-95 transition-transform"
                   style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e', fontFamily: 'Space Grotesk, sans-serif' }}
                 >
-                  Modell installieren
+                  {t.aiChat.installModel}
                 </button>
                 <button
                   onClick={() => navigate('/settings')}
                   className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-on-surface-variant"
                   style={{ background: 'rgba(72,72,71,0.3)' }}
                 >
-                  Einstellungen
+                  {t.nav.settings}
                 </button>
               </div>
             )}
@@ -223,21 +207,19 @@ export default function AiPlanGenerator() {
 
             <div className="space-y-2">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Abgeschlossen</p>
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.aiPlanGen.completed}</p>
               <h2 className="text-3xl font-black tracking-tighter"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                {resultName ? 'Plan erstellt!' : 'Analyse abgeschlossen'}
+                {resultName ? t.aiPlanGen.planCreated : t.aiPlanGen.analysisCompleted}
               </h2>
               {resultName && (
                 <p className="text-sm text-on-surface-variant leading-relaxed">
-                  Der Plan <span className="text-primary font-bold">„{resultName}"</span> wurde
-                  erfolgreich erstellt und ist in deinen Plänen verfügbar.
+                  <span className="text-primary font-bold">„{resultName}“</span> {t.aiPlanGen.planCreatedDesc}
                 </p>
               )}
               {!resultName && (
                 <p className="text-sm text-on-surface-variant leading-relaxed">
-                  Die KI hat geantwortet. Falls kein Plan erstellt wurde, öffne den Chat für
-                  eine detailliertere Anfrage.
+                  {t.aiPlanGen.analysisCompletedDesc}
                 </p>
               )}
             </div>
@@ -248,14 +230,14 @@ export default function AiPlanGenerator() {
                 className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm active:scale-95 transition-transform"
                 style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e', fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                {resultName ? 'Zu meinen Plänen' : 'Pläne öffnen'}
+                {resultName ? t.aiPlanGen.toMyPlans : t.aiPlanGen.openPlans}
               </button>
               <button
                 onClick={() => { setState('input'); setGoal(''); setResultName(null); }}
                 className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-on-surface-variant"
                 style={{ background: 'rgba(72,72,71,0.3)' }}
               >
-                Neuen Plan erstellen
+                {t.aiPlanGen.createNewPlan}
               </button>
             </div>
           </div>
@@ -300,10 +282,10 @@ export default function AiPlanGenerator() {
                 <div className="relative z-10 flex flex-col h-full justify-between">
                   <div>
                     <p className="text-xl font-bold mb-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      Plan wird generiert
+                      {t.aiPlanGen.planGenerating}
                     </p>
                     <p className="text-xs text-on-surface-variant leading-relaxed max-w-[200px]">
-                      Die KI analysiert deine Übungen und erstellt einen individuellen Plan.
+                      {t.aiPlanGen.planGeneratingDesc}
                     </p>
                   </div>
                   <div className="mt-6 space-y-1.5">
@@ -312,7 +294,7 @@ export default function AiPlanGenerator() {
                         style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                         {progress}<span className="text-primary-dim">%</span>
                       </span>
-                      <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">Optimierung</span>
+                      <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">{t.aiPlanGen.optimization}</span>
                     </div>
                     <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: '#262626' }}>
                       <div className="h-full rounded-full transition-all duration-700"
@@ -328,9 +310,9 @@ export default function AiPlanGenerator() {
                 <span className="material-symbols-outlined text-primary text-3xl"
                   style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Status</p>
+                  <p className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">{t.aiPlanGen.status}</p>
                   <p className="text-2xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                    AKTIV
+                    {t.common.active.toUpperCase()}
                   </p>
                 </div>
               </div>
@@ -405,20 +387,20 @@ export default function AiPlanGenerator() {
             <span style={{ color: '#2c2c2c' }}>YOUR EDGE.</span>
           </h2>
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
-            Beschreibe dein Ziel. Die KI analysiert deine Übungsbibliothek und erstellt einen maßgeschneiderten Trainingsplan.
+            {t.aiPlanGen.heroSubtitle}
           </p>
         </div>
 
         {/* Goal suggestions */}
         <div className="mb-6 space-y-2">
           <p className="text-xs uppercase tracking-widest text-on-surface-variant font-bold"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Schnellauswahl</p>
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.aiPlanGen.quickSelect}</p>
           <div className="flex flex-wrap gap-2">
             {[
-              '3-Tage Kraft für Anfänger',
-              'Push/Pull/Legs Split',
-              'Ganzkörper Hypertrophie',
-              '4-Tage Upper/Lower',
+              t.aiPlanGen.suggestion1,
+              t.aiPlanGen.suggestion2,
+              t.aiPlanGen.suggestion3,
+              t.aiPlanGen.suggestion4,
             ].map(suggestion => (
               <button
                 key={suggestion}
@@ -445,7 +427,7 @@ export default function AiPlanGenerator() {
             <textarea
               value={goal}
               onChange={e => setGoal(e.target.value)}
-              placeholder="z.B. Erstelle mir einen 4-Tage Hypertrophieplan mit Fokus auf Brust und Rücken…"
+              placeholder={t.aiPlanGen.inputPlaceholder}
               rows={4}
               className="relative w-full rounded-xl p-5 text-sm text-on-surface focus:outline-none resize-none placeholder:text-outline/50 leading-relaxed"
               style={{
@@ -468,7 +450,7 @@ export default function AiPlanGenerator() {
               style={{ background: 'rgba(149,170,255,0.08)', border: '1px solid rgba(149,170,255,0.2)' }}>
               <span className="material-symbols-outlined text-primary text-base animate-spin">sync</span>
               <p className="text-xs font-bold uppercase tracking-widest text-primary">
-                KI ist gerade im Chat aktiv…
+                {t.aiPlanGen.chatBusy}
               </p>
             </div>
           )}
@@ -486,7 +468,7 @@ export default function AiPlanGenerator() {
           >
             <span className="material-symbols-outlined text-xl"
               style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-            Plan generieren
+            {t.aiPlanGen.generatePlan}
           </button>
         </div>
 
@@ -496,13 +478,13 @@ export default function AiPlanGenerator() {
             <span className="material-symbols-outlined text-primary text-xl"
               style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
             <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Wie es funktioniert</p>
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.aiPlanGen.howItWorks}</p>
           </div>
           <div className="space-y-2">
             {[
-              { icon: 'database', text: 'Die KI nutzt ausschließlich Übungen aus deiner Bibliothek' },
-              { icon: 'lock', text: 'Alles läuft lokal auf deinem Gerät – keine Cloud' },
-              { icon: 'edit', text: 'Den Plan kannst du danach manuell anpassen' },
+              { icon: 'database', text: t.aiPlanGen.infoLibrary },
+              { icon: 'lock', text: t.aiPlanGen.infoLocal },
+              { icon: 'edit', text: t.aiPlanGen.infoEdit },
             ].map(item => (
               <div key={item.icon} className="flex items-start gap-3">
                 <span className="material-symbols-outlined text-outline text-base shrink-0 mt-0.5">{item.icon}</span>

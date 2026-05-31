@@ -1,4 +1,5 @@
 import React from 'react';
+import {useTranslation} from "../../i18n/I18nContext.tsx";
 
 interface FeedbackDialogProps {
     feedbackSkipDialog: boolean;
@@ -13,6 +14,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
     setShowFeedbackDialog,
     handleFeedbackConfirm,
 }) => {
+    const t = useTranslation();
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
@@ -32,19 +34,21 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
                     </div>
                     <div>
                         <h2 className="font-bold text-lg"
-                            style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Feedback & Probleme</h2>
-                        <p className="text-xs text-on-surface-variant">Wie kann ich helfen?</p>
+                            style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.feedback.title}</h2>
+                        <p className="text-xs text-on-surface-variant">{t.feedback.subtitle}</p>
                     </div>
                 </div>
 
                 <p className="text-sm text-on-surface-variant leading-relaxed">
-                    Feedback und Fehlerberichte werden ausschließlich über <span
-                    className="text-primary font-bold">GitHub Issues</span> entgegengenommen. Dort kannst du
-                    Bugs melden, Ideen einreichen und den Status deiner Anfrage verfolgen.
+                    {t.feedback.description.split('<highlight>').map((part, i) => {
+                        if (i === 0) return part;
+                        const [highlight, rest] = part.split('</highlight>');
+                        return <span key={i}><span className="text-primary font-bold">{highlight}</span>{rest}</span>;
+                    })}
                 </p>
 
                 <p className="text-sm font-medium text-on-surface">
-                    Möchtest du die GitHub-Issues-Seite jetzt öffnen?
+                    {t.feedback.openGithub}
                 </p>
 
                 <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -68,7 +72,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
                         checked={feedbackSkipDialog}
                         onChange={e => setFeedbackSkipDialog(e.target.checked)}
                     />
-                    <span className="text-xs text-on-surface-variant">Nicht mehr anzeigen – direkt zu GitHub weiterleiten</span>
+                    <span className="text-xs text-on-surface-variant">{t.feedback.skipCheckbox}</span>
                 </label>
 
                 <div className="flex gap-3 pt-1">
@@ -77,14 +81,14 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
                         className="flex-1 py-3 rounded-xl text-sm font-bold text-on-surface-variant uppercase tracking-widest"
                         style={{ background: 'rgba(72,72,71,0.3)' }}
                     >
-                        Abbrechen
+                        {t.common.cancel}
                     </button>
                     <button
                         onClick={handleFeedbackConfirm}
                         className="flex-1 py-3 rounded-xl text-sm font-black uppercase tracking-widest"
                         style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e' }}
                     >
-                        Ja, öffnen
+                        {t.feedback.yesOpen}
                     </button>
                 </div>
             </div>

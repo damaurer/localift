@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
 import {storage} from "../../data/storage.ts";
 import type {AppSettings} from "../../types/app.types.ts";
-
-const DAY_LABELS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+import {useTranslation} from "../../i18n/I18nContext.tsx";
 
 interface WorkoutRemindersProps {
     reminderEnabled: boolean;
@@ -21,6 +20,8 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
     handleRequestPermission,
     updateSettings,
 }) => {
+    const t = useTranslation();
+    const DAY_LABELS = [t.days.mo, t.days.tu, t.days.we, t.days.th, t.days.fr, t.days.sa, t.days.su];
     const [time, setTime] = useState(reminderTime);
 
     const handleTimeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,8 +54,8 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
                         </div>
                         <div>
                             <h2 className="text-xl font-bold"
-                                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Erinnerungen</h2>
-                            <p className="text-on-surface-variant text-sm">Tägliche Trainingshinweise</p>
+                                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.reminders}</h2>
+                            <p className="text-on-surface-variant text-sm">{t.settings.dailyTrainingHints}</p>
                         </div>
                     </div>
                     {/* Toggle */}
@@ -87,7 +88,7 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
                              style={{ borderBottom: '1px solid rgba(72, 72, 71, 0.1)' }}>
                             <div className="flex flex-col gap-1">
                                 <span
-                                    className="text-xs uppercase tracking-widest font-bold text-primary">Uhrzeit</span>
+                                    className="text-xs uppercase tracking-widest font-bold text-primary">{t.settings.time}</span>
                                 <input
                                     type="time"
                                     value={time}

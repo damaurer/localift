@@ -6,6 +6,9 @@ import { calcTotalVolume, calcTotalSets } from '../data/storage.ts';
 import type {WorkoutSession} from "../types/workout.types.ts";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
+import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
+import {getLocale} from "../i18n/I18nContext.tsx";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -18,6 +21,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { plans } = usePlanContext();
   const { sessions, activeWorkout, startWorkout } = useWorkoutContext();
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
 
   const lastSession = useMemo(
     () => sessions.find(s => !!s.completedAt),
@@ -89,13 +95,13 @@ export default function Dashboard() {
                 className="text-xs font-bold tracking-widest text-outline uppercase"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Heute
+                {t.common.today}
               </span>
               <h2
                 className="text-4xl font-bold tracking-tighter"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                {todayStats.count === 0 ? 'BEREIT' : `${todayStats.count}× TRAINING`}
+                {todayStats.count === 0 ? t.dashboard.readyLabel : `${todayStats.count}${t.dashboard.trainingCount}`}
               </h2>
             </div>
             <div className="text-right">
@@ -105,7 +111,7 @@ export default function Dashboard() {
               >
                 {streak > 0 ? `${streak}🔥` : '—'}
               </span>
-              {streak > 0 && <p className="text-xs text-outline uppercase tracking-wider mt-1">Streak</p>}
+              {streak > 0 && <p className="text-xs text-outline uppercase tracking-wider mt-1">{t.common.streak}</p>}
             </div>
           </div>
 
@@ -117,14 +123,14 @@ export default function Dashboard() {
               <div className="relative z-10">
                 <div className="flex items-baseline gap-2">
                   <span className="text-6xl font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                    {todayStats.totalVolume > 0 ? Math.round(todayStats.totalVolume).toLocaleString('de') : '—'}
+                    {todayStats.totalVolume > 0 ? Math.round(todayStats.totalVolume).toLocaleString(locale) : '—'}
                   </span>
                   {todayStats.totalVolume > 0 && (
                     <span className="text-lg font-bold text-outline" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>KG</span>
                   )}
                 </div>
                 <p className="text-xs tracking-widest text-primary font-bold uppercase mt-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  Gesamtvolumen
+                  {t.dashboard.totalVolume}
                 </p>
               </div>
             </div>
@@ -136,7 +142,7 @@ export default function Dashboard() {
                   {todayStats.totalDuration > 0 ? formatDuration(todayStats.totalDuration) : '—'}
                 </span>
               </div>
-              <p className="text-xs font-bold tracking-widest text-outline uppercase">Dauer</p>
+              <p className="text-xs font-bold tracking-widest text-outline uppercase">{t.common.duration}</p>
             </div>
 
             <div className="bg-surface-container-high rounded-xl p-5 space-y-2">
@@ -146,13 +152,13 @@ export default function Dashboard() {
                   {todayStats.totalSets > 0 ? todayStats.totalSets : '—'}
                 </span>
               </div>
-              <p className="text-xs font-bold tracking-widest text-outline uppercase">Sätze</p>
+              <p className="text-xs font-bold tracking-widest text-outline uppercase">{t.common.sets}</p>
             </div>
           </div>
 
           {/* Week Activity */}
           <div className="flex gap-2">
-            {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day, i) => (
+            {[t.days.mo, t.days.tu, t.days.we, t.days.th, t.days.fr, t.days.sa, t.days.su].map((day, i) => (
               <div key={day} className="flex-1 flex flex-col items-center gap-1">
                 <div
                   className={`w-full h-2 rounded-full transition-all ${weekActivity[i] ? 'bg-primary' : 'bg-surface-container-high'}`}
@@ -178,12 +184,12 @@ export default function Dashboard() {
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >play_arrow</span>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold tracking-widest uppercase opacity-70">Training Starten</p>
+                    <p className="text-xs font-bold tracking-widest uppercase opacity-70">{t.dashboard.startTraining}</p>
                     <p className="text-xl font-black tracking-tight truncate" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {lastSession.planName.toUpperCase()}
                     </p>
                     <p className="text-xs opacity-60 mt-0.5">
-                      {lastSession.exercises.length} Übungen · letzte Gewichte vorgeladen
+                      {lastSession.exercises.length} {t.dashboard.exercisesWithWeights}
                     </p>
                   </div>
                 </button>
@@ -191,7 +197,7 @@ export default function Dashboard() {
                   onClick={() => navigate('/plans')}
                   className="w-full text-primary text-xs font-bold tracking-widest uppercase text-center py-1 hover:opacity-70 transition-opacity"
                 >
-                  Anderen Plan starten →
+                  {t.dashboard.startOtherPlan}
                 </button>
               </>
             ) : plans.length > 0 ? (
@@ -202,7 +208,7 @@ export default function Dashboard() {
               >
                 <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                 <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  WORKOUT STARTEN
+                  {t.dashboard.startWorkout}
                 </span>
               </button>
             ) : (
@@ -213,7 +219,7 @@ export default function Dashboard() {
               >
                 <span className="material-symbols-outlined text-2xl">add</span>
                 <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  ERSTEN PLAN ERSTELLEN
+                  {t.dashboard.createFirstPlan}
                 </span>
               </button>
             )}
@@ -227,7 +233,7 @@ export default function Dashboard() {
             >
               <span className="material-symbols-outlined text-primary text-2xl animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>fitness_center</span>
               <div className="text-left">
-                <p className="text-xs text-primary font-bold uppercase tracking-widest">Aktives Training</p>
+                <p className="text-xs text-primary font-bold uppercase tracking-widest">{t.dashboard.activeTraining}</p>
                 <p className="text-lg font-bold text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                   {activeWorkout.planName}
                 </p>
@@ -241,12 +247,12 @@ export default function Dashboard() {
         {recentPlans.length > 0 && (
           <section className="space-y-5">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>MEINE PLÄNE</h3>
+              <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.dashboard.myPlans}</h3>
               <button
                 onClick={() => navigate('/plans')}
                 className="text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
               >
-                Alle anzeigen
+                {t.dashboard.showAll}
               </button>
             </div>
             <div className="space-y-3">
@@ -262,7 +268,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-bold tracking-widest text-outline uppercase flex items-center gap-1">
                         <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>fitness_center</span>
-                        {plan.exercises.length} Übungen
+                        {plan.exercises.length} {t.common.exercises}
                       </span>
                       {plan.tags[0] && (
                         <>
@@ -288,13 +294,13 @@ export default function Dashboard() {
         {sessions.length > 0 && (
           <section className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>LETZTE EINHEITEN</h3>
+              <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.dashboard.recentSessions}</h3>
               <button
                 onClick={() => navigate('/history')}
                 className="flex items-center gap-1 text-primary text-xs font-bold tracking-widest uppercase hover:opacity-70 transition-opacity"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>history</span>
-                Verlauf
+                {t.dashboard.history}
               </button>
             </div>
             {sessions.slice(0, 3).map(session => (
@@ -307,7 +313,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-on-surface-variant font-bold text-xs tracking-widest uppercase mb-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      {new Date(session.startedAt).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {new Date(session.startedAt).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}
                     </p>
                     <h3 className="text-xl font-bold text-on-surface leading-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {session.planName}
@@ -317,19 +323,19 @@ export default function Dashboard() {
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div>
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Dauer</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.duration}</span>
                     <p className="text-sm font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {session.durationSeconds ? formatDuration(session.durationSeconds) : '—'}
                     </p>
                   </div>
                   <div className="border-l border-surface-container-high pl-4">
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Volumen</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.volume}</span>
                     <p className="text-sm font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      {Math.round(calcTotalVolume(session.exercises)).toLocaleString('de')} kg
+                      {Math.round(calcTotalVolume(session.exercises)).toLocaleString(locale)} kg
                     </p>
                   </div>
                   <div className="border-l border-surface-container-high pl-4">
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Sätze</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.sets}</span>
                     <p className="text-sm font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {calcTotalSets(session.exercises)}
                     </p>
@@ -346,14 +352,14 @@ export default function Dashboard() {
             <div className="w-20 h-20 rounded-xl mx-auto mb-6 flex items-center justify-center" style={{ background: 'rgba(149, 170, 255, 0.1)' }}>
               <span className="material-symbols-outlined text-primary" style={{ fontSize: '40px' }}>fitness_center</span>
             </div>
-            <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Willkommen bei LOCALIFT</h3>
-            <p className="text-on-surface-variant text-sm mb-8">Erstelle deinen ersten Trainingsplan und leg los.</p>
+            <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.dashboard.welcomeTitle}</h3>
+            <p className="text-on-surface-variant text-sm mb-8">{t.dashboard.welcomeSubtitle}</p>
             <button
               onClick={() => navigate('/plans/new')}
               className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              Plan erstellen
+              {t.dashboard.createPlan}
             </button>
           </section>
         )}

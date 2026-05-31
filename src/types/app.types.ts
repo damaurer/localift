@@ -12,6 +12,7 @@ export interface AiTrainerSettings {
 
 export interface AppSettings {
   weightUnit: 'kg' | 'lbs';
+  language: 'de' | 'en';
   reminderEnabled: boolean;
   reminderTime: string;
   reminderDays: boolean[];

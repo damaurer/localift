@@ -1,8 +1,12 @@
 import React from 'react';
 import type {AppSettings} from "../../types/app.types.ts";
+import {useTranslation} from "../../i18n/I18nContext.tsx";
+import {AVAILABLE_LANGUAGES, LANGUAGE_LABELS} from "../../i18n/I18nContext.tsx";
+import type {Language} from "../../i18n/types.ts";
 
 interface GeneralSettingsProps {
     weightUnit: 'kg' | 'lbs';
+    language: Language;
     vibration: boolean;
     showExportSuccess: boolean;
     showImportSuccess: boolean;
@@ -16,6 +20,7 @@ interface GeneralSettingsProps {
 
 const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     weightUnit,
+    language,
     vibration,
     showExportSuccess,
     showImportSuccess,
@@ -26,12 +31,41 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     handleFeedbackClick,
     setShowConsentInfo,
 }) => {
+    const t = useTranslation();
+
     return (
         <section className="space-y-4 mb-10">
             <h3 className="text-xs uppercase tracking-widest text-on-surface-variant mb-5 ml-1"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                App & Daten
+                {t.settings.appAndData}
             </h3>
+
+            {/* Language */}
+            <div className="bg-surface-container-low rounded-xl p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-on-surface-variant">language</span>
+                    <div>
+                        <span className="font-bold text-lg"
+                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.language}</span>
+                        <p className="text-xs text-on-surface-variant mt-0.5">{t.settings.languageDesc}</p>
+                    </div>
+                </div>
+                <div className="flex gap-1 bg-surface-container rounded-xl p-1">
+                    {AVAILABLE_LANGUAGES.map(lang => (
+                        <button
+                            key={lang}
+                            onClick={() => updateSettings({ language: lang })}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold tracking-widest transition-all ${
+                                language === lang
+                                    ? 'bg-primary text-on-primary'
+                                    : 'text-on-surface-variant'
+                            }`}
+                        >
+                            {LANGUAGE_LABELS[lang]}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {/* Weight Unit */}
             <div className="bg-surface-container-low rounded-xl p-5 flex items-center justify-between">
@@ -39,8 +73,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                     <span className="material-symbols-outlined text-on-surface-variant">straighten</span>
                     <div>
                         <span className="font-bold text-lg"
-                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Gewichtseinheit</span>
-                        <p className="text-xs text-on-surface-variant mt-0.5">Für alle Gewichtsanzeigen</p>
+                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.weightUnit}</span>
+                        <p className="text-xs text-on-surface-variant mt-0.5">{t.settings.weightUnitDesc}</p>
                     </div>
                 </div>
                 <div className="flex gap-1 bg-surface-container rounded-xl p-1">
@@ -65,7 +99,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 <div className="flex items-center gap-4">
                     <span className="material-symbols-outlined text-on-surface-variant">vibration</span>
                     <span className="font-bold text-lg"
-                          style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Vibration</span>
+                          style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.vibration}</span>
                 </div>
                 <button
                     onClick={() => updateSettings({ vibration: !vibration })}
@@ -93,9 +127,9 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">download</span>
                     <div className="text-left">
                         <span className="font-bold text-lg block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {showExportSuccess ? '✓ Exportiert!' : 'Daten exportieren'}
+                            {showExportSuccess ? t.settings.exported : t.settings.exportData}
                         </span>
-                        <p className="text-xs text-on-surface-variant">JSON-Backup herunterladen</p>
+                        <p className="text-xs text-on-surface-variant">{t.settings.downloadBackup}</p>
                     </div>
                 </div>
                 <span
@@ -112,10 +146,10 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">upload</span>
                     <div className="text-left">
                         <span className="font-bold text-lg block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {showImportSuccess ? '✓ Importiert!' : 'Daten importieren'}
+                            {showImportSuccess ? t.settings.imported : t.settings.importData}
                         </span>
                         <p className="text-xs text-on-surface-variant">
-                            {showImportError ? 'Import fehlgeschlagen' : 'JSON-Backup auswählen'}
+                            {showImportError ? t.settings.importFailed : t.settings.selectBackup}
                         </p>
                     </div>
                 </div>
@@ -133,8 +167,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">bug_report</span>
                     <div className="text-left">
                         <span className="font-bold text-lg block"
-                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Feedback & Probleme</span>
-                        <p className="text-xs text-on-surface-variant">Fehler melden oder Wünsche äußern</p>
+                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.feedbackAndProblems}</span>
+                        <p className="text-xs text-on-surface-variant">{t.settings.reportBugsOrWishes}</p>
                     </div>
                 </div>
                 <span
@@ -151,8 +185,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                         className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">privacy_tip</span>
                     <div className="text-left">
                         <span className="font-bold text-lg block"
-                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Datenschutzhinweise</span>
-                        <p className="text-xs text-on-surface-variant">Datenspeicherung & Transparenz</p>
+                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.privacyNotice}</span>
+                        <p className="text-xs text-on-surface-variant">{t.settings.dataStorageTransparency}</p>
                     </div>
                 </div>
                 <span

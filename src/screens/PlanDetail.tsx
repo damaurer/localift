@@ -5,8 +5,9 @@ import { useHeader } from '../contexts/LayoutContext';
 import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
 
-const TAGS = ['Kraft', 'Hypertrophie', 'Ausdauer', 'Mobilität', 'Ganzkörper', 'Oberkörper', 'Unterkörper', 'Push', 'Pull', 'Beine'];
+const TAG_KEYS = ['kraft', 'hypertrophie', 'ausdauer', 'mobilitaet', 'ganzkoerper', 'oberkoerper', 'unterkoerper', 'push', 'pull', 'beine'] as const;
 
 export default function PlanDetail() {
   const { planId: urlPlanId } = useParams<{ planId: string }>();
@@ -16,6 +17,8 @@ export default function PlanDetail() {
   const { exercises, getExerciseById } = useExerciseContext();
   const { plans, savePlan, addExerciseToPlan, removeExerciseFromPlan } = usePlanContext();
   const { startWorkout } = useWorkoutContext();
+  const t = useTranslation();
+  const TAGS = TAG_KEYS.map(k => t.planTags[k]);
 
   const existing = planId ? plans.find(p => p.id === planId) : null;
 
@@ -143,7 +146,7 @@ export default function PlanDetail() {
   useHeader(
     {
       showBack: true,
-      title: planId ? 'Plan bearbeiten' : 'Neuer Plan',
+      title: planId ? t.planDetail.editPlan : t.planDetail.newPlan,
       rightContent: currentPlanId && currentExercises.length > 0 ? (
         <button
           onClick={() => startWorkout(currentPlanId)}
@@ -151,7 +154,7 @@ export default function PlanDetail() {
           style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)' }}
         >
           <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-          Starten
+          {t.common.start}
         </button>
       ) : undefined,
     },
@@ -170,7 +173,7 @@ export default function PlanDetail() {
                 className="absolute -top-1 left-0 text-xs font-extrabold tracking-widest uppercase transition-colors"
                 style={{ fontFamily: 'Manrope, sans-serif', color: nameShake ? '#95aaff' : 'rgba(149, 170, 255, 0.6)' }}
               >
-                {nameShake ? '← Planname eingeben' : 'Planname'}
+                {nameShake ? t.planDetail.enterPlanName : t.planDetail.planName}
               </label>
               <input
                 ref={nameInputRef}
@@ -183,7 +186,7 @@ export default function PlanDetail() {
                     ? '2px solid #95aaff'
                     : '2px solid rgba(149, 170, 255, 0.25)',
                 }}
-                placeholder="MEIN PLAN"
+                placeholder={t.planDetail.planNamePlaceholder}
                 value={name}
                 onChange={e => { setName(e.target.value); if (nameShake) setNameShake(false); }}
                 onBlur={handleSaveMeta}
@@ -192,7 +195,7 @@ export default function PlanDetail() {
 
             <textarea
               className="w-full bg-surface-container-low rounded-xl p-4 text-sm text-on-surface placeholder:text-outline focus:outline-none resize-none"
-              placeholder="Beschreibung (optional)"
+              placeholder={t.planDetail.descriptionPlaceholder}
               rows={2}
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -203,7 +206,7 @@ export default function PlanDetail() {
 
           {/* Tags */}
           <div>
-            <p className="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-3">Tags</p>
+            <p className="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-3">{t.planDetail.tags}</p>
             <div className="flex flex-wrap gap-2">
               {TAGS.map(tag => (
                 <button
@@ -232,14 +235,14 @@ export default function PlanDetail() {
               ÜBUNGEN
             </h2>
             <span className="text-xs font-bold text-on-surface-variant tracking-widest uppercase">
-              {totalExerciseCount} Gesamt
+              {totalExerciseCount} {t.common.total}
             </span>
           </div>
 
           {/* New plan: buffered exercises (simplified — no sets yet) */}
           {isNew && localExerciseIds.length === 0 && (
             <div className="text-center py-10 border-2 border-dashed rounded-xl" style={{ borderColor: 'rgba(72, 72, 71, 0.3)' }}>
-              <p className="text-on-surface-variant text-sm">Noch keine Übungen hinzugefügt</p>
+              <p className="text-on-surface-variant text-sm">{t.planDetail.noExercisesYet}</p>
             </div>
           )}
 
@@ -266,7 +269,7 @@ export default function PlanDetail() {
                 <button
                   onClick={() => setLocalExerciseIds(prev => prev.filter(id => id !== exId))}
                   className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-error transition-colors"
-                  title="Entfernen"
+                  title={t.planDetail.remove}
                 >
                   <span className="material-symbols-outlined text-base">delete</span>
                 </button>
@@ -277,7 +280,7 @@ export default function PlanDetail() {
           {/* Existing plan exercises */}
           {!isNew && currentExercises.length === 0 && (
             <div className="text-center py-10 border-2 border-dashed rounded-xl" style={{ borderColor: 'rgba(72, 72, 71, 0.3)' }}>
-              <p className="text-on-surface-variant text-sm">Noch keine Übungen hinzugefügt</p>
+              <p className="text-on-surface-variant text-sm">{t.planDetail.noExercisesYet}</p>
             </div>
           )}
 
@@ -306,14 +309,14 @@ export default function PlanDetail() {
                     <button
                       onClick={() => navigate(`/plans/${currentPlanId}/exercise/${pe.id}`)}
                       className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors"
-                      title="Konfigurieren"
+                      title={t.common.configure}
                     >
                       <span className="material-symbols-outlined text-base">tune</span>
                     </button>
                     <button
                       onClick={() => currentPlanId && removeExerciseFromPlan(currentPlanId, pe.id)}
                       className="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-error transition-colors"
-                      title="Entfernen"
+                      title={t.planDetail.remove}
                     >
                       <span className="material-symbols-outlined text-base">delete</span>
                     </button>
@@ -323,7 +326,7 @@ export default function PlanDetail() {
                 {/* Sets summary */}
                 <div className="flex gap-3">
                   <div className="px-3 py-1.5 bg-surface-container rounded-lg text-xs font-bold text-on-surface-variant">
-                    {pe.sets.length} Sätze
+                    {pe.sets.length} {t.common.sets}
                   </div>
                   {pe.sets[0] && (
                     <div className="px-3 py-1.5 bg-surface-container rounded-lg text-xs font-bold text-on-surface-variant">
@@ -335,7 +338,7 @@ export default function PlanDetail() {
                     className="px-3 py-1.5 rounded-lg text-xs font-bold text-primary uppercase tracking-wider"
                     style={{ background: 'rgba(149, 170, 255, 0.1)' }}
                   >
-                    Konfigurieren
+                    {t.common.configure}
                   </button>
                 </div>
               </div>
@@ -355,7 +358,7 @@ export default function PlanDetail() {
               className="text-sm font-bold tracking-widest uppercase transition-colors text-on-surface-variant group-hover:text-primary"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              Übung hinzufügen
+              {t.planDetail.addExercise}
             </span>
           </button>
         </section>
@@ -367,11 +370,11 @@ export default function PlanDetail() {
             className={`w-full py-5 rounded-xl text-on-primary font-black text-lg tracking-widest uppercase active:scale-95 transition-all ${name.trim() ? '' : 'opacity-40 cursor-not-allowed'}`}
             style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)', boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
           >
-            {saved ? '✓ GESPEICHERT' : 'PLAN SPEICHERN'}
+            {saved ? t.planDetail.saved : t.planDetail.savePlan}
           </button>
           {!name.trim() && (
             <p className="text-center text-xs text-primary font-bold tracking-widest uppercase mt-2" style={{ opacity: 0.7 }}>
-              Zuerst Planname eingeben
+              {t.planDetail.enterPlanNameFirst}
             </p>
           )}
         </div>
@@ -391,11 +394,11 @@ export default function PlanDetail() {
             <div className="px-6 pt-6 pb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  ÜBUNG WÄHLEN
+                  {t.planDetail.chooseExercise}
                 </h2>
                 {addedExerciseIds.size > 0 && (
                   <p className="text-xs font-bold mt-0.5" style={{ color: '#95aaff', fontFamily: 'Manrope, sans-serif' }}>
-                    {addedExerciseIds.size} {addedExerciseIds.size === 1 ? 'Übung' : 'Übungen'} hinzugefügt
+                    {addedExerciseIds.size} {addedExerciseIds.size === 1 ? t.planDetail.exerciseAdded : t.planDetail.exercisesAdded}
                   </p>
                 )}
               </div>
@@ -429,7 +432,7 @@ export default function PlanDetail() {
                   className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                     !exCategory ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'
                   }`}
-                >Alle</button>
+                >{t.common.all}</button>
                 {allCategories.map(cat => (
                   <button
                     key={cat}
@@ -448,7 +451,7 @@ export default function PlanDetail() {
                   className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase transition-all ${
                     !exEquipment ? 'bg-surface-container-high text-on-surface' : 'bg-surface-container text-on-surface-variant'
                   }`}
-                >Alles</button>
+                >{t.common.allEquipment}</button>
                 {allEquipment.map(eq => (
                   <button
                     key={eq}
@@ -461,7 +464,7 @@ export default function PlanDetail() {
               </div>
 
               <p className="text-xs text-on-surface-variant" style={{ opacity: 0.5 }}>
-                {filteredExercises.length} Übungen
+                {filteredExercises.length} {t.common.exercises}
               </p>
             </div>
 
@@ -517,7 +520,7 @@ export default function PlanDetail() {
               })}
               {filteredExercises.length === 0 && (
                 <div className="text-center py-10">
-                  <p className="text-on-surface-variant text-sm">Keine Übungen gefunden</p>
+                  <p className="text-on-surface-variant text-sm">{t.planDetail.noExercisesFound}</p>
                 </div>
               )}
             </div>
