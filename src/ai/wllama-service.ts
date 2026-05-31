@@ -16,8 +16,8 @@ function getInstance(): Wllama {
     instance = new Wllama(WLLAMA_CONFIG_PATHS, {
       suppressNativeLog: true,
       logger: {
-        debug: () => {},
-        log: () => {},
+        debug: console.debug,
+        log: console.log,
         warn: console.warn,
         error: console.error,
       },

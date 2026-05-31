@@ -235,7 +235,7 @@ export default function AiChat() {
                 <span className="font-black text-[10px] tracking-widest uppercase"
                   style={{
                     fontFamily: 'Space Grotesk, sans-serif',
-                    color: msg.role === 'assistant' ? '#95aaff' : '#ffffff',
+                    color: msg.role === 'assistant' ? '#95aaff' : 'var(--color-on-surface)',
                   }}>
                   {msg.role === 'assistant' ? 'LOCALLIFT AI' : t.aiChat.you}
                 </span>
@@ -247,14 +247,14 @@ export default function AiChat() {
                 className="rounded-xl p-4 text-sm leading-relaxed"
                 style={msg.role === 'assistant'
                   ? {
-                    background: '#20201f',
+                    background: 'var(--color-surface-container)',
                     borderLeft: '2px solid #95aaff',
-                    color: '#ffffff',
+                    color: 'var(--color-on-surface)',
                     whiteSpace: 'pre-wrap',
                   }
                   : {
-                    background: '#2c2c2c',
-                    color: '#ffffff',
+                    background: 'var(--color-surface-variant)',
+                    color: 'var(--color-on-surface)',
                     whiteSpace: 'pre-wrap',
                   }}
               >
@@ -286,8 +286,7 @@ export default function AiChat() {
       </main>
 
       {/* Input area (sticky) */}
-      <div className="fixed bottom-0 left-0 w-full px-4 pb-28"
-        style={{ background: 'linear-gradient(to top, #0e0e0e 60%, transparent)' }}>
+      <div className="fixed bottom-0 left-0 w-full px-4 pb-28">
         <div className="max-w-2xl mx-auto space-y-3">
           {/* Busy banner — plan generator is running */}
           {planIsRunning && (
@@ -311,8 +310,8 @@ export default function AiChat() {
                       sendMessage(a.prompt);
                     }
                   }}
-                  className="whitespace-nowrap px-4 py-2.5 rounded-xl text-white text-xs font-bold tracking-widest uppercase transition-all active:scale-95 flex items-center gap-2 shrink-0"
-                  style={{ background: '#262626' }}
+                  className="whitespace-nowrap px-4 py-2.5 rounded-xl text-on-surface text-xs font-bold tracking-widest uppercase transition-all active:scale-95 flex items-center gap-2 shrink-0"
+                  style={{ background: 'var(--color-surface-variant)' }}
                 >
                   <span className="material-symbols-outlined text-primary text-base">{a.icon}</span>
                   {a.label}
@@ -326,7 +325,7 @@ export default function AiChat() {
             <div className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"
               style={{ background: 'rgba(149,170,255,0.1)' }} />
             <div className="relative flex items-center rounded-2xl p-2"
-              style={{ background: '#20201f', border: '1px solid rgba(72,72,71,0.1)' }}>
+              style={{ background: 'var(--color-surface-container)', border: '1px solid var(--color-outline-variant, rgba(72,72,71,0.1))' }}>
               <input
                 ref={inputRef}
                 type="text"
@@ -336,7 +335,7 @@ export default function AiChat() {
                 placeholder={t.aiChat.messagePlaceholder}
                 disabled={isGenerating}
                 className="flex-1 bg-transparent border-none focus:outline-none text-on-surface text-sm px-3 py-3 placeholder:text-outline/50"
-                style={{ fontFamily: 'Manrope, sans-serif' }}
+                style={{ fontFamily: 'Manrope, sans-serif', color: 'var(--color-on-surface)' }}
               />
               <button
                 onClick={handleSend}

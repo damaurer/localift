@@ -215,6 +215,57 @@ html:not(.light) {
   80%       { transform: translateX(5px); }
 }
 
+/* AI Nav Button shimmer */
+@keyframes ai-shimmer {
+  0%   { opacity: 0.5; transform: scale(0.95); }
+  50%  { opacity: 1;   transform: scale(1.08); }
+  100% { opacity: 0.5; transform: scale(0.95); }
+}
+
+.ai-nav-shimmer {
+  position: relative;
+  overflow: visible;
+}
+
+.ai-nav-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  animation: ai-shimmer 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ai-nav-shimmer--active::before {
+  background: linear-gradient(135deg, #95aaff 0%, #3766ff 50%, #95aaff 100%);
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+.ai-nav-shimmer--error::before {
+  background: linear-gradient(135deg, #ff6e84 0%, #d73357 50%, #ff6e84 100%);
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+.ai-nav-shimmer--warning::before {
+  background: linear-gradient(135deg, #ffd666 0%, #ffb020 50%, #ffd666 100%);
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+/* AI Header shimmer shadow */
+@keyframes ai-header-pulse {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+.ai-header-shimmer {
+  animation: ai-header-pulse 2s ease-in-out infinite;
+}
+
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
