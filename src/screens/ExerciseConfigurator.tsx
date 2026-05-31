@@ -54,6 +54,10 @@ export default function ExerciseConfigurator() {
     );
 
     const updateSet = (idx: number, field: keyof SetTemplate, value: number | string) => {
+        if (typeof value === 'number') {
+            if (field === 'reps') value = Math.max(1, Math.round(value));
+            else value = Math.max(0, value);
+        }
         setSets(prev => prev.map((s, i) => i === idx ? {...s, [field]: value} : s));
     };
 

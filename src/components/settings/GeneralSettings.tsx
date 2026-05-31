@@ -60,6 +60,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                                     ? 'bg-primary text-on-primary'
                                     : 'text-on-surface-variant'
                             }`}
+                            aria-pressed={language === lang}
                         >
                             {LANGUAGE_LABELS[lang]}
                         </button>
@@ -87,6 +88,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                                     ? 'bg-primary text-on-primary'
                                     : 'text-on-surface-variant'
                             }`}
+                            aria-pressed={weightUnit === unit}
                         >
                             {unit}
                         </button>
@@ -104,6 +106,9 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 <button
                     onClick={() => updateSettings({ vibration: !vibration })}
                     className="relative inline-flex items-center cursor-pointer"
+                    role="switch"
+                    aria-checked={vibration}
+                    aria-label={t.settings.vibration}
                 >
                     <div
                         className="w-12 h-6 rounded-full transition-colors duration-200 relative"

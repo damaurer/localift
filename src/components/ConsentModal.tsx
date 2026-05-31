@@ -48,6 +48,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
       aria-modal="true"
       role="dialog"
       aria-labelledby="consent-title"
+      aria-describedby="consent-description"
     >
       <div
         className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
@@ -81,7 +82,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
             )}
           </div>
 
-          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+          <p id="consent-description" className="text-sm leading-relaxed mb-4" style={{ color: 'var(--color-text-secondary)' }}>
             {onClose
               ? t.consent.infoText
               : t.consent.introText}

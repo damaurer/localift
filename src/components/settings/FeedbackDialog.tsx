@@ -20,6 +20,10 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
             onClick={() => setShowFeedbackDialog(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feedback-dialog-title"
+            aria-describedby="feedback-dialog-desc"
         >
             <div
                 className="w-full max-w-sm rounded-2xl p-6 space-y-5"
@@ -33,13 +37,13 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
                               style={{ fontVariationSettings: "'FILL' 1" }}>bug_report</span>
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg"
+                        <h2 id="feedback-dialog-title" className="font-bold text-lg"
                             style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.feedback.title}</h2>
                         <p className="text-xs text-on-surface-variant">{t.feedback.subtitle}</p>
                     </div>
                 </div>
 
-                <p className="text-sm text-on-surface-variant leading-relaxed">
+                <p id="feedback-dialog-desc" className="text-sm text-on-surface-variant leading-relaxed">
                     {t.feedback.description.split('<highlight>').map((part, i) => {
                         if (i === 0) return part;
                         const [highlight, rest] = part.split('</highlight>');

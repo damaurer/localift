@@ -39,6 +39,7 @@ export default function BottomNav() {
                 : 'text-on-surface-variant hover:text-on-surface'
             }`}
             aria-label={item.label}
+            aria-current={isActive ? 'page' : undefined}
           >
             <span
               className="material-symbols-outlined flex items-center justify-center"

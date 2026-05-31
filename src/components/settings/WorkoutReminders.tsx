@@ -30,7 +30,7 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
     };
 
     const toggleDay = (idx: number) => {
-        const next = [...reminderDays];
+        const next = [...reminderDays] as AppSettings['reminderDays'];
         next[idx] = !next[idx];
         updateSettings({ reminderDays: next });
     };

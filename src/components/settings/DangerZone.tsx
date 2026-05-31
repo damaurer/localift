@@ -19,8 +19,8 @@ const DangerZone: React.FC<DangerZoneProps> = ({
                 <div className="rounded-xl p-5 space-y-4" style={{
                     background: 'rgba(255, 110, 132, 0.05)',
                     border: '1px solid rgba(255, 110, 132, 0.2)'
-                }}>
-                    <p className="text-sm text-on-surface font-bold text-center">{t.settings.deleteAllConfirm}</p>
+                }} role="alertdialog" aria-labelledby="danger-zone-title">
+                    <p id="danger-zone-title" className="text-sm text-on-surface font-bold text-center">{t.settings.deleteAllConfirm}</p>
                     <div className="flex gap-3">
                         <button
                             onClick={handleClearAll}

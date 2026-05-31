@@ -15,7 +15,7 @@ export interface AppSettings {
   language: 'de' | 'en';
   reminderEnabled: boolean;
   reminderTime: string;
-  reminderDays: boolean[];
+  reminderDays: [boolean, boolean, boolean, boolean, boolean, boolean, boolean];
   vibration: boolean;
   aiTrainer: AiTrainerSettings;
 }
