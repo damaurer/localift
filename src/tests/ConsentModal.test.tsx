@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ConsentModal from './ConsentModal.tsx';
+import ConsentModal from '../components/ConsentModal.tsx';
 import { TestWrapper } from '../test-utils.tsx';
 
 vi.mock('../data/storage', () => ({

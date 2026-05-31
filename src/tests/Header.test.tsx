@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Header, { LogoMark } from './Header.tsx';
+import Header, { LogoMark } from '../components/Header.tsx';
 import { TestWrapper } from '../test-utils.tsx';
 
 describe('LogoMark', () => {

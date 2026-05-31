@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import StatsSummary from './StatsSummary.tsx';
-import DangerZone from './DangerZone.tsx';
-import FeedbackDialog from './FeedbackDialog.tsx';
-import GeneralSettings from './GeneralSettings.tsx';
-import AiTrainerSettings from './AiTrainerSettings.tsx';
-import { TestWrapper } from '../../test-utils.tsx';
+import StatsSummary from '../components/settings/StatsSummary.tsx';
+import DangerZone from '../components/settings/DangerZone.tsx';
+import FeedbackDialog from '../components/settings/FeedbackDialog.tsx';
+import GeneralSettings from '../components/settings/GeneralSettings.tsx';
+import AiTrainerSettings from '../components/settings/AiTrainerSettings.tsx';
+import { TestWrapper } from '../test-utils.tsx';
 
 describe('StatsSummary', () => {
   it('renders session, plan, and exercise counts', () => {

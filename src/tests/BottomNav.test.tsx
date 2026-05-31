@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import BottomNav from './BottomNav.tsx';
+import BottomNav from '../components/BottomNav.tsx';
 import { TestWrapper, createTestWrapper } from '../test-utils.tsx';
 
 describe('BottomNav', () => {

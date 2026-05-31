@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useExerciseContext } from './exercise/ExerciseContext.tsx';
-import { usePlanContext } from './plan/PlanContext.tsx';
-import { useWorkoutContext } from './workout/WorkoutContext.tsx';
-import { useNutritionContext } from './nutrition/NutritionContext.tsx';
-import { useSettingsContext } from './settings/SettingsContext.tsx';
-import { useAiContext } from './ai/AiContext.tsx';
-import { useLayoutContext } from './LayoutContext.tsx';
+import { useExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
+import { usePlanContext } from '../contexts/plan/PlanContext.tsx';
+import { useWorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
+import { useNutritionContext } from '../contexts/nutrition/NutritionContext.tsx';
+import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
+import { useAiContext } from '../contexts/ai/AiContext.tsx';
+import { useLayoutContext } from '../contexts/LayoutContext.tsx';
 
 describe('Context hooks throw without provider', () => {
   it('useExerciseContext throws', () => {

@@ -14,7 +14,7 @@ import { WorkoutContext } from '../contexts/workout/WorkoutContext.tsx';
 import type { WorkoutContextValue } from '../contexts/workout/WorkoutContext.tsx';
 import { SettingContext } from '../contexts/settings/SettingsContext.tsx';
 import type { SettingsContextValue } from '../contexts/settings/SettingsContext.tsx';
-import PlanDetail from './PlanDetail.tsx';
+import PlanDetail from '../screens/PlanDetail.tsx';
 
 const mockExercises = [
   {

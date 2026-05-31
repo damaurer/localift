@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { FITNESS_TOOLS, executeTool } from './tools.ts';
-import type { ToolContext } from './tools.ts';
+import { FITNESS_TOOLS, executeTool } from '../ai/tools.ts';
+import type { ToolContext } from '../ai/tools.ts';
 import type { Exercise, WorkoutSession, WorkoutPlan } from '../types/workout.types.ts';
 
 vi.mock('../data/storage.ts', () => ({

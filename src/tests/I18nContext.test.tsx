@@ -2,9 +2,9 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { I18nProvider, useTranslation, getLocale, LANGUAGE_LABELS, AVAILABLE_LANGUAGES } from './I18nContext.tsx';
-import { de } from './de.ts';
-import { en } from './en.ts';
+import { I18nProvider, useTranslation, getLocale, LANGUAGE_LABELS, AVAILABLE_LANGUAGES } from '../i18n/I18nContext.tsx';
+import { de } from '../i18n/de.ts';
+import { en } from '../i18n/en.ts';
 
 function wrapper(language: 'de' | 'en') {
   return ({ children }: { children: ReactNode }) => (

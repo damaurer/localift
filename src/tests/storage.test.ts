@@ -27,7 +27,7 @@ const localStorageMock = {
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
 
 // Import after mocks are set up
-import { calcTotalVolume, calcTotalSets, generateId, loadSync, save, needsConsent, storage, DEFAULT_NUTRITION_GOALS } from './storage.ts';
+import { calcTotalVolume, calcTotalSets, generateId, loadSync, save, needsConsent, storage, DEFAULT_NUTRITION_GOALS } from '../data/storage.ts';
 
 beforeEach(() => {
   localStorageMap.clear();

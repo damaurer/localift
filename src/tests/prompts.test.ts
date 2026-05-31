@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSystemPrompt, formatChatPrompt, PLAN_GENERATOR_PROMPT } from './prompts.ts';
+import { buildSystemPrompt, formatChatPrompt, PLAN_GENERATOR_PROMPT } from '../ai/prompts.ts';
 import type { AiTool } from '../types/ai.types.ts';
 
 describe('buildSystemPrompt', () => {
