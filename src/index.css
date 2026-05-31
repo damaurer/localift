@@ -84,6 +84,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
   overflow-x: hidden;
+
+  /* Prevent content from floating behind the top status bar */
+  padding-top: env(safe-area-inset-top);
 }
 
 #root {

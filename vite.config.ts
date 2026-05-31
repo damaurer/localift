@@ -108,6 +108,10 @@ export default defineConfig({
     includeAssets: ['favicon.ico'],
   })],
 
+  test: {
+    setupFiles: ['./src/test-setup.ts'],
+  },
+
   server: {
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
