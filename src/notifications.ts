@@ -157,7 +157,7 @@ export async function getStorageEstimate(): Promise<StorageEstimate | null> {
     return {
       usedMB: Math.round((usage / 1024 / 1024) * 100) / 100,
       quotaMB: Math.round((quota / 1024 / 1024) * 100) / 100,
-      percentUsed: quota > 0 ? Math.round((usage / quota) * 100) : 0,
+      percentUsed: quota > 0 ? Math.round((usage / quota) * 10000) / 100 : 0,
     };
   } catch {
     return null;

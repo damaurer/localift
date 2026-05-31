@@ -3,13 +3,19 @@ import { useState, useMemo } from 'react';
 import { useHeader } from '../contexts/LayoutContext';
 import type { MealType, NutritionDay } from '../types/nutrition.types';
 import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
+import type {Translations} from "../i18n/types.ts";
+import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
+import {getLocale} from "../i18n/I18nContext.tsx";
 
-const MEAL_LABELS: Record<MealType, string> = {
-  fruehstueck: 'Frühstück',
-  mittagessen: 'Mittagessen',
-  abendessen: 'Abendessen',
-  snack: 'Snack',
-};
+function getMealLabels(t: Translations): Record<MealType, string> {
+  return {
+    fruehstueck: t.calories.breakfast,
+    mittagessen: t.calories.lunch,
+    abendessen: t.calories.dinner,
+    snack: t.calories.snack,
+  };
+}
 
 const MEAL_ICONS: Record<MealType, string> = {
   fruehstueck: 'wb_sunny',
@@ -50,6 +56,10 @@ export default function Calories() {
     nutritionGoals, nutritionDays, getTodayNutrition,
     addFoodEntry, removeFoodEntry, updateWater,
   } = useNutritionContext();
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
+  const MEAL_LABELS = getMealLabels(t);
 
   const todayNutrition = getTodayNutrition();
 
@@ -118,7 +128,7 @@ export default function Calories() {
             className="text-xs font-bold tracking-widest text-primary uppercase"
             style={{ fontFamily: 'Space Grotesk, sans-serif' }}
           >
-            Kalorien Tracking
+            {t.calories.tracking}
           </span>
           <h1
             className="text-5xl font-bold tracking-tighter leading-none"
@@ -156,13 +166,13 @@ export default function Calories() {
                 className="block text-xs font-bold tracking-widest text-primary uppercase mb-1"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Verbleibend
+                {t.calories.remaining}
               </span>
               <span
                 className="block text-6xl font-bold tracking-tighter text-on-surface"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                {remaining.toLocaleString('de')}
+                {remaining.toLocaleString(locale)}
               </span>
               <span className="block text-base text-outline font-bold uppercase tracking-widest">kcal</span>
             </div>
@@ -170,9 +180,9 @@ export default function Calories() {
 
           <div className="mt-8 grid grid-cols-3 gap-6 text-center w-full max-w-xs px-4">
             {[
-              { label: 'Ziel', value: nutritionGoals.calories.toLocaleString('de') },
-              { label: 'Gegessen', value: totals.calories.toLocaleString('de') },
-              { label: 'Übrig', value: remaining.toLocaleString('de'), accent: true },
+              { label: t.common.goal, value: nutritionGoals.calories.toLocaleString(locale) },
+              { label: t.common.eaten, value: totals.calories.toLocaleString(locale) },
+              { label: t.common.remaining, value: remaining.toLocaleString(locale), accent: true },
             ].map(stat => (
               <div key={stat.label}>
                 <span
@@ -195,13 +205,13 @@ export default function Calories() {
             className="text-sm font-bold tracking-widest text-on-surface uppercase mb-6"
             style={{ fontFamily: 'Space Grotesk, sans-serif' }}
           >
-            Makronährstoffe
+            {t.calories.macros}
           </h2>
           <div className="space-y-6">
             {[
-              { label: 'Protein', value: totals.protein, goal: nutritionGoals.protein, color: '#95aaff', gradFrom: '#3766ff', gradTo: '#95aaff' },
-              { label: 'Kohlenhydrate', value: totals.carbs, goal: nutritionGoals.carbs, color: '#ffaced', gradFrom: '#ffaced', gradTo: '#ffaced' },
-              { label: 'Fette', value: totals.fat, goal: nutritionGoals.fat, color: '#ffffff', gradFrom: '#ffffff', gradTo: '#adaaaa' },
+              { label: t.calories.protein, value: totals.protein, goal: nutritionGoals.protein, color: '#95aaff', gradFrom: '#3766ff', gradTo: '#95aaff' },
+              { label: t.calories.carbs, value: totals.carbs, goal: nutritionGoals.carbs, color: '#ffaced', gradFrom: '#ffaced', gradTo: '#ffaced' },
+              { label: t.calories.fats, value: totals.fat, goal: nutritionGoals.fat, color: '#ffffff', gradFrom: '#ffffff', gradTo: '#adaaaa' },
             ].map(macro => {
               const pct = Math.min(100, Math.round((macro.value / macro.goal) * 100));
               return (
@@ -257,7 +267,7 @@ export default function Calories() {
                 className="text-sm font-bold tracking-widest text-on-surface uppercase"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Hydration
+                {t.calories.hydration}
               </h3>
               <div className="flex items-center gap-2 mt-1">
                 <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(72,72,71,0.4)' }}>
@@ -295,13 +305,13 @@ export default function Calories() {
               className="text-xl font-bold tracking-tight uppercase"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              Tages-Timeline
+              {t.calories.dailyTimeline}
             </h2>
             <span
               className="text-[10px] font-bold tracking-widest text-outline uppercase"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
-              {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'short' })}
+              {new Date().toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'short' })}
             </span>
           </div>
 
@@ -349,7 +359,7 @@ export default function Calories() {
                         </div>
                       ))}
                       <div className="pt-1.5 flex justify-between items-center" style={{ borderTop: '1px solid rgba(72,72,71,0.15)' }}>
-                        <span className="text-[10px] text-outline font-bold uppercase tracking-wider">Gesamt</span>
+                        <span className="text-[10px] text-outline font-bold uppercase tracking-wider">{t.common.total}</span>
                         <span
                           className="text-base font-bold text-on-surface"
                           style={{ fontFamily: 'Space Grotesk, sans-serif' }}
@@ -374,7 +384,7 @@ export default function Calories() {
                         add
                       </span>
                       <span className="text-[10px] text-outline font-bold uppercase tracking-widest mt-1 group-hover:text-primary transition-colors">
-                        Eintragen
+                        {t.calories.logEntry}
                       </span>
                     </button>
                   )}
@@ -393,16 +403,16 @@ export default function Calories() {
             <span className="material-symbols-outlined" style={{ fontSize: '64px', color: 'rgba(149,170,255,0.1)', fontVariationSettings: "'FILL' 1" }}>monitoring</span>
           </div>
           <div className="space-y-3">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Tagesfortschritt</p>
+            <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{t.calories.dailyProgress}</p>
             <div className="flex items-end gap-2">
               <span
                 className="text-4xl font-bold tracking-tighter"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                {totals.calories.toLocaleString('de')}
+                {totals.calories.toLocaleString(locale)}
               </span>
               <span className="text-xs text-outline font-bold mb-1.5 uppercase">
-                / {nutritionGoals.calories.toLocaleString('de')} kcal
+                / {nutritionGoals.calories.toLocaleString(locale)} kcal
               </span>
             </div>
             <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
@@ -428,8 +438,8 @@ export default function Calories() {
                 track_changes
               </span>
               <div className="text-left">
-                <span className="font-bold text-lg block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Ziele anpassen</span>
-                <p className="text-xs text-on-surface-variant">Kalorien- & Makroziele</p>
+                <span className="font-bold text-lg block" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.calories.adjustGoals}</span>
+                <p className="text-xs text-on-surface-variant">{t.calories.caloriesMacroGoals}</p>
               </div>
             </div>
             <span className="material-symbols-outlined text-on-surface-variant transition-transform" style={{ transform: showGoals ? 'rotate(90deg)' : 'none' }}>
@@ -468,12 +478,12 @@ export default function Calories() {
         >
           <div
             className="w-full max-w-lg rounded-t-2xl p-6 space-y-6 pb-30"
-            style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.12)' }}
+            style={{ background: 'var(--color-surface)', border: '1px solid rgba(149,170,255,0.12)' }}
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Eintrag hinzufügen
+                {t.calories.addEntry}
               </h2>
               <button onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full" style={{ background: 'rgba(72,72,71,0.3)' }}>
                 <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '18px' }}>close</span>
@@ -482,12 +492,12 @@ export default function Calories() {
 
             {/* Name input */}
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Bezeichnung</label>
+              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">{t.calories.entryName}</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="z.B. Hähnchenbrust"
+                placeholder={t.calories.entryPlaceholder}
                 className="w-full bg-surface-container-high rounded-xl py-4 px-4 text-on-surface font-bold tracking-wide placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 autoFocus
@@ -497,10 +507,10 @@ export default function Calories() {
             {/* Macro inputs */}
             <div className="grid grid-cols-2 gap-6">
               {[
-                { key: 'calories' as const, label: 'Kalorien', accent: true },
-                { key: 'protein' as const, label: 'Protein (G)' },
-                { key: 'carbs' as const, label: 'Kohlenhydrate (G)' },
-                { key: 'fat' as const, label: 'Fette (G)' },
+                { key: 'calories' as const, label: t.calories.caloriesLabel, accent: true },
+                { key: 'protein' as const, label: t.calories.proteinG },
+                { key: 'carbs' as const, label: t.calories.carbsG },
+                { key: 'fat' as const, label: t.calories.fatsG },
               ].map(({ key, label, accent }) => (
                 <div key={key} className="space-y-1">
                   <label className="text-[10px] font-bold text-outline uppercase tracking-widest">{label}</label>
@@ -513,7 +523,7 @@ export default function Calories() {
                     className="w-full bg-transparent border-none p-0 text-5xl font-bold focus:outline-none focus:ring-0 placeholder:text-surface-container-highest"
                     style={{
                       fontFamily: 'Space Grotesk, sans-serif',
-                      color: accent ? '#95aaff' : '#ffffff',
+                      color: accent ? '#95aaff' : 'var(--color-on-surface)',
                     }}
                   />
                 </div>
@@ -522,7 +532,7 @@ export default function Calories() {
 
             {/* Meal type selector */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">Mahlzeit</label>
+              <label className="text-[10px] font-bold text-outline uppercase tracking-widest">{t.calories.meal}</label>
               <div className="grid grid-cols-4 gap-2">
                 {MEAL_ORDER.map(mt => (
                   <button
@@ -532,7 +542,7 @@ export default function Calories() {
                     style={
                       form.mealType === mt
                         ? { background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e' }
-                        : { background: '#262626', color: '#adaaaa' }
+                        : { background: 'var(--color-surface-variant)', color: 'var(--color-on-surface-variant)' }
                     }
                   >
                     {MEAL_LABELS[mt].slice(0, mt === 'mittagessen' || mt === 'abendessen' ? 6 : 8)}
@@ -548,7 +558,7 @@ export default function Calories() {
               className="w-full py-4 rounded-xl font-bold tracking-widest uppercase text-sm active:scale-[0.98] transition-all disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e' }}
             >
-              Eintrag speichern
+              {t.calories.saveEntry}
             </button>
           </div>
         </div>
@@ -575,12 +585,16 @@ function NutritionHistory({
   );
 
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
+  const MEAL_LABELS = getMealLabels(t);
 
   if (pastDays.length === 0) return null;
 
   function formatDate(dateStr: string) {
     const d = new Date(dateStr + 'T12:00:00');
-    return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+    return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
   }
 
   return (
@@ -589,7 +603,7 @@ function NutritionHistory({
         className="text-xl font-bold tracking-tight uppercase"
         style={{ fontFamily: 'Space Grotesk, sans-serif' }}
       >
-        Verlauf
+        {t.calories.historyTitle}
       </h2>
       <div className="space-y-2">
         {pastDays.map(day => {
@@ -623,14 +637,14 @@ function NutritionHistory({
                     {formatDate(day.date)}
                   </span>
                   <div className="flex items-center gap-2 mt-1.5">
-                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-variant)' }}>
                       <div
                         className="h-full rounded-full"
                         style={{ width: `${calPct}%`, background: 'linear-gradient(90deg, #3766ff, #95aaff)' }}
                       />
                     </div>
                     <span className="text-[10px] font-bold text-outline whitespace-nowrap">
-                      {totals.calories.toLocaleString('de')} kcal
+                      {totals.calories.toLocaleString(locale)} kcal
                     </span>
                   </div>
                 </div>
@@ -671,9 +685,9 @@ function NutritionHistory({
                   {/* Macros row (mobile) */}
                   <div className="flex gap-2 sm:hidden">
                     {[
-                      { label: 'Protein', value: Math.round(totals.protein), color: '#95aaff' },
-                      { label: 'Kohlenhydrate', value: Math.round(totals.carbs), color: '#ffaced' },
-                      { label: 'Fette', value: Math.round(totals.fat), color: '#ffffff' },
+                      { label: t.calories.protein, value: Math.round(totals.protein), color: '#95aaff' },
+                      { label: t.calories.carbs, value: Math.round(totals.carbs), color: '#ffaced' },
+                      { label: t.calories.fats, value: Math.round(totals.fat), color: '#ffffff' },
                     ].map(m => (
                       <span
                         key={m.label}
@@ -734,6 +748,7 @@ function NutritionHistory({
 function GoalsEditor({ goals }: { goals: import('../types/nutrition.types.ts').NutritionGoals }) {
   const { updateNutritionGoals } = useNutritionContext();
   const [local, setLocal] = useState(goals);
+  const t = useTranslation();
 
   function handleSave() {
     updateNutritionGoals(local);
@@ -744,11 +759,11 @@ function GoalsEditor({ goals }: { goals: import('../types/nutrition.types.ts').N
       <div className="grid grid-cols-2 gap-5">
         {(
           [
-            { key: 'calories' as const, label: 'Kalorien (kcal)' },
-            { key: 'protein' as const, label: 'Protein (g)' },
-            { key: 'carbs' as const, label: 'Kohlenhydrate (g)' },
-            { key: 'fat' as const, label: 'Fette (g)' },
-            { key: 'waterMl' as const, label: 'Wasser (ml)' },
+            { key: 'calories' as const, label: t.calories.caloriesKcal },
+            { key: 'protein' as const, label: t.calories.proteinG },
+            { key: 'carbs' as const, label: t.calories.carbsG },
+            { key: 'fat' as const, label: t.calories.fatsG },
+            { key: 'waterMl' as const, label: t.calories.waterMl },
           ] as const
         ).map(({ key, label }) => (
           <div key={key} className="space-y-1">
@@ -769,7 +784,7 @@ function GoalsEditor({ goals }: { goals: import('../types/nutrition.types.ts').N
         className="w-full py-3 rounded-xl font-bold tracking-widest uppercase text-sm active:scale-[0.98] transition-all"
         style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', color: '#00247e' }}
       >
-        Ziele speichern
+        {t.calories.saveGoals}
       </button>
     </div>
   );

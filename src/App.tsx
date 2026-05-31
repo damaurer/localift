@@ -10,7 +10,6 @@ import History from './screens/History';
 import Calories from './screens/Calories';
 import Settings from './screens/Settings';
 import AiChat from './screens/AiChat';
-import AiPlanGenerator from './screens/AiPlanGenerator';
 import PWABadge from './PWABadge.tsx';
 import InstallPrompt from './components/InstallPrompt';
 import ConsentModal from './components/ConsentModal';
@@ -32,7 +31,6 @@ export default function App() {
                         <Route path="/calories" element={<Calories/>}/>
                         <Route path="/settings" element={<Settings/>}/>
                         <Route path="/chat" element={<AiChat/>}/>
-                        <Route path="/ai-plan" element={<AiPlanGenerator/>}/>
                         <Route path="/workout" element={<ActiveWorkout/>}/>
                         <Route path="*" element={<Dashboard/>}/>
                     </Route>

@@ -1,11 +1,13 @@
 import React from 'react';
 import type {StorageEstimate} from '../../notifications';
+import {useTranslation} from "../../i18n/I18nContext.tsx";
 
 interface StorageUsageProps {
     storageInfo: StorageEstimate | null;
 }
 
 const StorageUsage: React.FC<StorageUsageProps> = ({ storageInfo }) => {
+    const t = useTranslation();
     if (!storageInfo) return null;
 
     return (
@@ -16,7 +18,7 @@ const StorageUsage: React.FC<StorageUsageProps> = ({ storageInfo }) => {
                         <span
                             className="material-symbols-outlined text-on-surface-variant text-base">storage</span>
                         <span
-                            className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Lokaler Speicher</span>
+                            className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{t.settings.localStorage}</span>
                     </div>
                     <span
                         className="text-xs font-bold text-primary">{storageInfo.usedMB} / {storageInfo.quotaMB} MB</span>
@@ -34,7 +36,7 @@ const StorageUsage: React.FC<StorageUsageProps> = ({ storageInfo }) => {
                     />
                 </div>
                 <p className="text-xs text-on-surface-variant mt-1.5" style={{opacity: 0.6}}>
-                    {storageInfo.percentUsed}% belegt · Daten werden lokal gesichert
+                    {storageInfo.percentUsed}% {t.settings.usedPercent}
                 </p>
             </div>
         </section>

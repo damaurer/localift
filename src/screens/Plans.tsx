@@ -8,6 +8,7 @@ import { useExerciseContext } from '../contexts/exercise/ExerciseContext.tsx';
 import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
 import { generateId } from '../data/storage.ts';
 import type { ShareablePlan } from '../types/workout.types.ts';
+import {useTranslation} from "../i18n/I18nContext.tsx";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ export default function Plans() {
   const [pendingImport, setPendingImport] = useState<ShareablePlan | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslation();
 
   // ── check for Web Share Target pending data on mount ──────────────────────
   useEffect(() => {
@@ -91,12 +93,12 @@ export default function Plans() {
       try {
         navigator.share({
           title: shareable.plan.name,
-          text: `Trainingsplan: ${shareable.plan.name}`,
+          text: `${t.plans.sharePlanText}: ${shareable.plan.name}`,
           files: [file],
         });
       } catch (err: unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
-          setShareError('Teilen fehlgeschlagen');
+          setShareError(t.plans.shareFailed);
           setTimeout(() => setShareError(null), 3000);
         }
       }
@@ -122,7 +124,7 @@ export default function Plans() {
       if (shareable) {
         setPendingImport(shareable);
       } else {
-        setShareError('Ungültige Datei');
+        setShareError(t.plans.invalidFile);
         setTimeout(() => setShareError(null), 3000);
       }
     };
@@ -163,9 +165,9 @@ export default function Plans() {
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto">
         <section className="mb-8">
           <h1 className="text-5xl font-black tracking-tighter uppercase mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            PLÄNE
+            {t.plans.title}
           </h1>
-          <p className="text-on-surface-variant text-sm tracking-widest uppercase">Dein strategisches Framework</p>
+          <p className="text-on-surface-variant text-sm tracking-widest uppercase">{t.plans.subtitle}</p>
         </section>
 
         {/* Search */}
@@ -174,7 +176,7 @@ export default function Plans() {
             <span className="material-symbols-outlined text-outline">search</span>
             <input
               className="bg-transparent border-none text-xs tracking-widest uppercase w-full placeholder:text-outline text-on-surface focus:outline-none"
-              placeholder="PLAN SUCHEN..."
+              placeholder={t.plans.searchPlaceholder}
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ fontFamily: 'Manrope, sans-serif' }}
@@ -189,7 +191,7 @@ export default function Plans() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className="w-10 h-10 mr-1 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
-            title="Plan importieren"
+            title={t.plans.importPlan}
           >
             <span className="material-symbols-outlined text-base">file_upload</span>
           </button>
@@ -222,7 +224,7 @@ export default function Plans() {
                 <span className="material-symbols-outlined text-primary" style={{ fontSize: '32px' }}>event_note</span>
               </div>
               <p className="text-on-surface-variant text-sm">
-                {search ? 'Keine Pläne gefunden' : 'Noch keine Pläne erstellt'}
+                {search ? t.plans.noPlansFound : t.plans.noPlansCreated}
               </p>
             </div>
           )}
@@ -249,7 +251,7 @@ export default function Plans() {
                     <div className="flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-primary text-base">fitness_center</span>
                       <span className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">
-                        {plan.exercises.length} ÜBUNGEN
+                        {plan.exercises.length} {t.common.exercises.toUpperCase()}
                       </span>
                     </div>
                     {plan.estimatedDuration > 0 && (
@@ -267,7 +269,7 @@ export default function Plans() {
                   <button
                     onClick={() => handleShare(plan.id)}
                     className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"
-                    title="Plan teilen"
+                    title={t.plans.sharePlanText}
                   >
                     <span className="material-symbols-outlined text-base">share</span>
                   </button>
@@ -302,13 +304,13 @@ export default function Plans() {
                     className="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-error"
                     style={{ background: 'rgba(255, 110, 132, 0.1)', border: '1px solid rgba(255, 110, 132, 0.3)' }}
                   >
-                    Löschen bestätigen
+                    {t.plans.confirmDelete}
                   </button>
                   <button
                     onClick={() => setConfirmDelete(null)}
                     className="flex-1 py-2 bg-surface-container rounded-lg text-xs font-bold uppercase tracking-widest text-on-surface-variant"
                   >
-                    Abbrechen
+                    {t.common.cancel}
                   </button>
                 </div>
               ) : (
@@ -316,7 +318,7 @@ export default function Plans() {
                   onClick={() => setConfirmDelete(plan.id)}
                   className="mt-3 text-xs font-bold text-outline hover:text-error transition-colors uppercase tracking-widest"
                 >
-                  Plan löschen
+                  {t.plans.deletePlan}
                 </button>
               )}
             </div>
@@ -325,25 +327,7 @@ export default function Plans() {
       </main>
 
       {/* FABs */}
-      <div className="fixed bottom-24 right-6 z-50 flex flex-col gap-3 items-end">
-        {/* AI Plan FAB — only visible when AI Trainer is enabled */}
-        {settings.aiTrainer.enabled && (
-          <button
-            onClick={() => navigate('/ai-plan')}
-            className="flex items-center gap-2 px-4 h-12 rounded-xl active:scale-95 transition-transform duration-200"
-            style={{
-              background: 'rgba(14,14,14,0.9)',
-              border: '1px solid rgba(149,170,255,0.3)',
-              boxShadow: '0 0 24px 0 rgba(149,170,255,0.15)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <span className="material-symbols-outlined text-primary text-xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-            <span className="text-xs font-black uppercase tracking-widest text-primary"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>KI Plan</span>
-          </button>
-        )}
+      <div className="fixed bottom-24 right-6 z-50 flex flex-row gap-3 items-center">
 
         {/* Standard new-plan FAB */}
         <button
@@ -364,7 +348,7 @@ export default function Plans() {
                 <span className="material-symbols-outlined text-primary">file_upload</span>
               </div>
               <div>
-                <p className="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-0.5">Plan importieren</p>
+                <p className="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-0.5">{t.plans.importPlan}</p>
                 <h3 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                   {pendingImport.plan.name}
                 </h3>
@@ -375,13 +359,13 @@ export default function Plans() {
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-primary text-base">fitness_center</span>
                 <span className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">
-                  {pendingImport.plan.exercises.length} Übungen
+                  {pendingImport.plan.exercises.length} {t.common.exercises}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-primary text-base">database</span>
                 <span className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">
-                  {pendingImport.exercises.length} Übungsdefinitionen
+                  {pendingImport.exercises.length} {t.plans.exerciseDefinitions}
                 </span>
               </div>
             </div>
@@ -401,13 +385,13 @@ export default function Plans() {
                 onClick={() => setPendingImport(null)}
                 className="flex-1 py-3 bg-surface-container rounded-xl text-sm font-bold uppercase tracking-widest text-on-surface-variant"
               >
-                Abbrechen
+                {t.common.cancel}
               </button>
               <button
                 onClick={confirmImport}
                 className="flex-1 py-3 locallift-gradient rounded-xl text-sm font-bold uppercase tracking-widest text-on-primary"
               >
-                Importieren
+                {t.common.import}
               </button>
             </div>
           </div>

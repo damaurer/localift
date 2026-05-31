@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import Header from './Header';
 import BottomNav from './BottomNav';
+import AiToast from './AiToast.tsx';
 import { LayoutContext } from '../contexts/LayoutContext';
 import { useStableLayoutContext } from '../contexts/LayoutContext';
 import type { HeaderConfig } from '../contexts/LayoutContext';
@@ -20,6 +21,7 @@ export default function Layout() {
       <Header {...headerConfig} />
       <Outlet />
       {showNav && <BottomNav />}
+      <AiToast />
     </LayoutContext.Provider>
   );
 }

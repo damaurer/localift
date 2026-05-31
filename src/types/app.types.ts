@@ -12,9 +12,11 @@ export interface AiTrainerSettings {
 
 export interface AppSettings {
   weightUnit: 'kg' | 'lbs';
+  language: 'de' | 'en';
+  theme: 'dark' | 'light';
   reminderEnabled: boolean;
   reminderTime: string;
-  reminderDays: boolean[];
+  reminderDays: [boolean, boolean, boolean, boolean, boolean, boolean, boolean];
   vibration: boolean;
   aiTrainer: AiTrainerSettings;
 }

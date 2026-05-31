@@ -20,7 +20,7 @@ export const SettingContext = createContext<SettingsContextValue | null>(null);
 export function useSettingsContext() {
     const context = useContext(SettingContext);
     if (!context) {
-        throw new Error('useSettingsContext must be used within an SettingsProvider');
+        throw new Error('useSettingsContext must be used within a SettingsProvider');
     }
     return context;
 }

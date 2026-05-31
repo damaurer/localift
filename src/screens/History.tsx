@@ -4,16 +4,19 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useHeader, useLayoutContext } from '../contexts/LayoutContext';
 import { calcTotalVolume, calcTotalSets } from '../data/storage.ts';
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
+import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
+import {getLocale} from "../i18n/I18nContext.tsx";
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   return `${m} MIN`;
 }
 
-function groupByMonth(sessions: ReturnType<typeof useWorkoutContext>['sessions']) {
+function groupByMonth(sessions: ReturnType<typeof useWorkoutContext>['sessions'], locale: string) {
   const groups: Record<string, typeof sessions> = {};
   sessions.forEach(s => {
-    const key = new Date(s.startedAt).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }).toUpperCase();
+    const key = new Date(s.startedAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' }).toUpperCase();
     if (!groups[key]) groups[key] = [];
     groups[key].push(s);
   });
@@ -26,6 +29,9 @@ interface HistoryDetailProps {
 
 function HistoryDetail({ sessionId }: HistoryDetailProps) {
   const { sessions } = useWorkoutContext();
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
   const session = sessions.find(s => s.id === sessionId);
 
   useHeader(
@@ -33,7 +39,7 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
       showBack: true,
       title: session?.planName ?? '',
       subtitle: session
-        ? new Date(session.startedAt).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+        ? new Date(session.startedAt).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
         : '',
     },
     [session?.id],
@@ -41,7 +47,7 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
 
   if (!session) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <p className="text-on-surface-variant">Einheit nicht gefunden</p>
+      <p className="text-on-surface-variant">{t.history.sessionNotFound}</p>
     </div>
   );
 
@@ -55,9 +61,9 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
         {/* Summary */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Dauer', value: session.durationSeconds ? formatDuration(session.durationSeconds) : '—' },
-            { label: 'Volumen', value: totalVolume > 0 ? `${Math.round(totalVolume).toLocaleString('de')} kg` : '—' },
-            { label: 'Sätze', value: String(totalSets) },
+            { label: t.common.duration, value: session.durationSeconds ? formatDuration(session.durationSeconds) : '—' },
+            { label: t.common.volume, value: totalVolume > 0 ? `${Math.round(totalVolume).toLocaleString(locale)} kg` : '—' },
+            { label: t.common.sets, value: String(totalSets) },
           ].map(stat => (
             <div key={stat.label} className="bg-surface-container-high rounded-xl p-4">
               <p className="text-xs font-black uppercase text-outline tracking-tighter">{stat.label}</p>
@@ -68,7 +74,7 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
 
         {/* Exercise breakdown */}
         <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-          ÜBUNGEN
+          {t.history.exercisesTitle}
         </h2>
         <div className="space-y-4">
           {session.exercises.map((ex, idx) => {
@@ -88,15 +94,15 @@ function HistoryDetail({ sessionId }: HistoryDetailProps) {
                 </h3>
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div>
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Sätze</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.sets}</span>
                     <p className="text-base font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{ex.loggedSets.length}</p>
                   </div>
                   <div className="border-l border-surface-container-high pl-3">
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Volumen</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.volume}</span>
                     <p className="text-base font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{Math.round(volume)} kg</p>
                   </div>
                   <div className="border-l border-surface-container-high pl-3">
-                    <span className="text-xs font-black uppercase text-outline tracking-tighter">Bestes Set</span>
+                    <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.history.bestSet}</span>
                     <p className="text-base font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {bestSet.weight}×{bestSet.reps}
                     </p>
@@ -128,6 +134,9 @@ export default function History() {
   const { sessions } = useWorkoutContext();
   const navigate = useNavigate();
   const { setHeaderConfig } = useLayoutContext();
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
 
   useEffect(() => {
     if (!sessionId) setHeaderConfig({});
@@ -137,7 +146,8 @@ export default function History() {
     return groupByMonth(
       [...sessions].sort(
         (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-      )
+      ),
+      locale
     );
   }, [sessions]);
 
@@ -155,7 +165,7 @@ export default function History() {
           <div className="text-center py-24">
             <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '64px' }}>history</span>
             <p className="text-on-surface-variant text-sm mt-4 tracking-widest uppercase">
-              Noch keine Trainingseinheiten
+              {t.history.noSessions}
             </p>
           </div>
         ) : (
@@ -190,7 +200,7 @@ export default function History() {
                       <div className="flex justify-between items-start mb-5">
                         <div>
                           <p className="text-outline font-bold text-xs tracking-widest uppercase mb-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {new Date(session.startedAt).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            {new Date(session.startedAt).toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' })}
                           </p>
                           <h3 className="text-2xl font-bold text-on-surface leading-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                             {session.planName}
@@ -202,21 +212,21 @@ export default function History() {
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="flex flex-col">
-                          <span className="text-xs font-black uppercase text-outline tracking-tighter">Dauer</span>
+                          <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.duration}</span>
                           <span className="text-lg font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                             {session.durationSeconds ? formatDuration(session.durationSeconds) : '—'}
                           </span>
                         </div>
                         <div className="flex flex-col border-l border-surface-container-high pl-4">
-                          <span className="text-xs font-black uppercase text-outline tracking-tighter">Volumen</span>
+                          <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.volume}</span>
                           <span className="text-lg font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {totalVol > 0 ? `${Math.round(totalVol).toLocaleString('de')} KG` : '—'}
+                            {totalVol > 0 ? `${Math.round(totalVol).toLocaleString(locale)} KG` : '—'}
                           </span>
                         </div>
                         <div className="flex flex-col border-l border-surface-container-high pl-4">
-                          <span className="text-xs font-black uppercase text-outline tracking-tighter">Sätze</span>
+                          <span className="text-xs font-black uppercase text-outline tracking-tighter">{t.common.sets}</span>
                           <span className="text-lg font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {totalS} SÄTZE
+                            {totalS} {t.common.sets.toUpperCase()}
                           </span>
                         </div>
                       </div>

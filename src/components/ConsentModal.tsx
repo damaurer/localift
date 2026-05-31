@@ -1,25 +1,7 @@
 import { useState } from 'react';
 import { storage, needsConsent } from '../data/storage';
 import { CURRENT_CONSENT_VERSION } from '../types/app.types';
-
-const INFO_ITEMS = [
-  {
-    icon: 'device_hub',
-    text: 'Deine Trainings-, Ernährungs- und Einstellungsdaten werden ausschließlich lokal auf deinem Gerät gespeichert.',
-  },
-  {
-    icon: 'cloud_off',
-    text: 'Es werden keine Daten an externe Server übertragen. Die App funktioniert vollständig offline.',
-  },
-  {
-    icon: 'smart_toy',
-    text: 'Die optionale KI-Funktion läuft ebenfalls lokal auf deinem Gerät – ohne Cloud-Verbindung.',
-  },
-  {
-    icon: 'notifications',
-    text: 'Erinnerungen sind optional und werden nur mit deiner Zustimmung aktiviert. Du kannst sie jederzeit in den Einstellungen anpassen.',
-  },
-];
+import { useTranslation } from '../i18n/I18nContext.tsx';
 
 interface ConsentModalProps {
   /** When provided, renders in info-only mode (no checkbox/buttons, shows a close button) */
@@ -29,6 +11,14 @@ interface ConsentModalProps {
 export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
   const [visible] = useState(() => onClose ? true : needsConsent());
   const [checked, setChecked] = useState(false);
+  const t = useTranslation();
+
+  const INFO_ITEMS = [
+    { icon: 'device_hub', text: t.consent.dataLocal },
+    { icon: 'cloud_off', text: t.consent.noServer },
+    { icon: 'smart_toy', text: t.consent.aiLocal },
+    { icon: 'notifications', text: t.consent.remindersOptional },
+  ];
 
   if (!visible) return null;
 
@@ -48,7 +38,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
     window.close();
     // Fallback for browsers that block window.close()
     document.body.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0e0e;color:#888;font-family:sans-serif;font-size:14px;">Die App wurde geschlossen. Du kannst dieses Fenster jetzt schließen.</div>';
+      `<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0e0e;color:#888;font-family:sans-serif;font-size:14px;">${t.consent.closedMessage}</div>`;
   }
 
   return (
@@ -58,6 +48,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
       aria-modal="true"
       role="dialog"
       aria-labelledby="consent-title"
+      aria-describedby="consent-description"
     >
       <div
         className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
@@ -77,24 +68,24 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
               className="text-lg font-bold flex-1"
               style={{ color: 'var(--color-text-primary)', fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              {onClose ? 'Datenschutzhinweise' : 'Willkommen bei LOCALlift'}
+              {onClose ? t.consent.privacyTitle : t.consent.welcomeTitle}
             </h2>
             {onClose && (
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-full transition-colors"
                 style={{ color: 'var(--color-text-secondary)', background: 'rgba(255,255,255,0.06)' }}
-                aria-label="Schließen"
+                aria-label={t.common.close}
               >
                 <span className="material-symbols-outlined text-base">close</span>
               </button>
             )}
           </div>
 
-          <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+          <p id="consent-description" className="text-sm leading-relaxed mb-4" style={{ color: 'var(--color-text-secondary)' }}>
             {onClose
-              ? 'Hier findest du alle Informationen darüber, wie diese App mit deinen Daten umgeht.'
-              : 'Bevor du startest, informieren wir dich kurz darüber, wie diese App mit deinen Daten umgeht.'}
+              ? t.consent.infoText
+              : t.consent.introText}
           </p>
 
           {/* Info list */}
@@ -145,7 +136,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
                 </div>
               </div>
               <span className="text-sm leading-relaxed font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                Ich habe die Hinweise gelesen und bin mit der lokalen Datenspeicherung einverstanden.
+                {t.consent.checkboxLabel}
               </span>
             </label>
           )}
@@ -163,7 +154,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
                 border: '1.5px solid rgba(255,255,255,0.15)',
               }}
             >
-              Ablehnen
+              {t.consent.decline}
             </button>
             <button
               onClick={handleAccept}
@@ -179,7 +170,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
                 cursor: checked ? 'pointer' : 'not-allowed',
               }}
             >
-              Bestätigen &amp; fortfahren
+              {t.consent.confirmAndContinue}
             </button>
           </div>
         )}
@@ -196,7 +187,7 @@ export default function ConsentModal({ onClose }: ConsentModalProps = {}) {
                 boxShadow: '0 4px 16px rgba(149,170,255,0.35)',
               }}
             >
-              Verstanden
+              {t.consent.understood}
             </button>
           </div>
         )}

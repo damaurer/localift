@@ -12,6 +12,7 @@ import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
 import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useAiContext} from "../contexts/ai/AiContext.tsx";
 import {requestPermission} from '../notifications';
+import {useTranslation} from "../i18n/I18nContext.tsx";
 
 // New sub-components
 import StatsSummary from '../components/settings/StatsSummary';
@@ -28,6 +29,7 @@ const GITHUB_ISSUES_URL = 'https://github.com/damaurer/localift/issues';
 export default function Settings() {
     useHeader({}, []);
     const navigate = useNavigate();
+    const t = useTranslation();
     const {settings, updateSettings, clearAllData, importBackup} = useSettingsContext();
     const {sessions} = useWorkoutContext();
     const {exercises} = useExerciseContext();
@@ -147,7 +149,7 @@ export default function Settings() {
                         style={{fontFamily: 'Space Grotesk, sans-serif'}}>
                         Settings
                     </h1>
-                    <p className="text-on-surface-variant font-medium opacity-60">Deine Localift-Einstellungen</p>
+                    <p className="text-on-surface-variant font-medium opacity-60">{t.settings.subtitle}</p>
                 </section>
 
                 <StatsSummary
@@ -183,6 +185,8 @@ export default function Settings() {
 
                 <GeneralSettings
                     weightUnit={settings.weightUnit}
+                    language={settings.language}
+                    theme={settings.theme}
                     vibration={settings.vibration}
                     showExportSuccess={showExportSuccess}
                     showImportSuccess={showImportSuccess}
@@ -206,10 +210,10 @@ export default function Settings() {
                 <section className="mt-10 text-center pb-4">
                     <p className="text-xs font-bold tracking-widest text-on-surface-variant uppercase"
                        style={{opacity: 0.4}}>
-                        LOCALIFT v1.0.0 · Offline-first PWA
+                        {t.settings.appInfo}
                     </p>
                     <p className="text-xs text-on-surface-variant mt-1" style={{opacity: 0.3}}>
-                        Keine Server · Keine Profile · Deine Daten
+                        {t.settings.appTagline}
                     </p>
                 </section>
             </main>

@@ -1,20 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useHeader } from '../contexts/LayoutContext';
 import { useAiContext } from '../contexts/ai/AiContext.tsx';
 import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
-
-const QUICK_ACTIONS = [
-  { label: 'Plan analysieren', icon: 'tune', prompt: 'Analysiere bitte meine letzten Trainingseinheiten und gib mir Feedback zu meinem Fortschritt.' },
-  { label: 'Trainingstipp', icon: 'lightbulb', prompt: 'Gib mir einen hilfreichen Tipp für mein heutiges Training.' },
-  { label: 'Regeneration', icon: 'self_improvement', prompt: 'Was empfiehlst du mir für eine optimale Regeneration nach intensivem Training?' },
-  { label: 'Neuer Plan', icon: 'event_note', prompt: 'Erstelle mir einen ausgewogenen Trainingsplan für die nächsten 4 Wochen.' },
-];
+import { useTranslation } from '../i18n/I18nContext.tsx';
+import { getLocale } from '../i18n/I18nContext.tsx';
+import ChatInput from '../components/ChatInput.tsx';
 
 export default function AiChat() {
   const navigate = useNavigate();
   const { settings } = useSettingsContext();
+  const t = useTranslation();
+  const locale = getLocale(settings.language);
+
+  const QUICK_ACTIONS = [
+    { label: t.aiChat.planAnalyze, icon: 'tune', prompt: t.aiChat.planAnalyzePrompt },
+    { label: t.aiChat.trainingTip, icon: 'lightbulb', prompt: t.aiChat.trainingTipPrompt },
+    { label: t.aiChat.regeneration, icon: 'self_improvement', prompt: t.aiChat.regenerationPrompt },
+    { label: t.aiChat.newPlan, icon: 'event_note', prompt: t.aiChat.newPlanPrompt },
+  ];
   const {
     messages,
     isGenerating,
@@ -34,13 +39,13 @@ export default function AiChat() {
       showBack: true,
       title: 'LOCALLIFT AI',
       subtitle: modelStatus === 'ready'
-        ? (isGenerating ? (activeToolName ? `⚙ ${activeToolName}…` : 'Schreibt…') : 'Bereit')
+        ? (isGenerating ? (activeToolName ? `⚙ ${activeToolName}…` : t.aiChat.writing) : t.aiChat.ready)
         : undefined,
       rightContent: modelStatus === 'ready' ? (
         <button
           onClick={clearChat}
           className="text-on-surface-variant hover:text-on-surface transition-colors active:scale-90"
-          title="Chat leeren"
+          title={t.aiChat.clearChat}
         >
           <span className="material-symbols-outlined text-base">delete_sweep</span>
         </button>
@@ -49,9 +54,7 @@ export default function AiChat() {
     [modelStatus, isGenerating, activeToolName, clearChat],
   );
 
-  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // AI not enabled guard — navigate in effect to avoid render-time side effect
   useEffect(() => {
@@ -67,22 +70,12 @@ export default function AiChat() {
 
   if (!settings.aiTrainer.enabled) return null;
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || isGenerating || modelStatus !== 'ready') return;
-    setInput('');
-    await sendMessage(text);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+  const handleSend = (text: string) => {
+    sendMessage(text);
   };
 
   const formatTimestamp = (iso: string) =>
-    new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
   // ── Model not loaded state ─────────────────────────────────────────────────
   if (modelStatus !== 'ready') {
@@ -114,12 +107,12 @@ export default function AiChat() {
               </p>
               <h2 className="text-3xl font-black tracking-tighter"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Kein Modell geladen
+                {t.aiChat.noModelLoaded}
               </h2>
               <p className="text-sm text-on-surface-variant leading-relaxed">
                 {modelStatus === 'error'
-                  ? 'Das Modell konnte nicht geladen werden. Überprüfe die Modell-URL in den Einstellungen.'
-                  : 'Installiere das KI-Modell in den Einstellungen um den Chat zu starten.'}
+                  ? t.aiChat.modelErrorDesc
+                  : t.aiChat.installModelDesc}
               </p>
             </div>
 
@@ -135,7 +128,7 @@ export default function AiChat() {
                     <span className="text-primary-dim">%</span>
                   </span>
                   <span className="text-xs uppercase tracking-widest text-on-surface-variant">
-                    {modelStatus === 'downloading' ? 'Herunterladen' : 'Wird geladen…'}
+                    {modelStatus === 'downloading' ? t.common.downloading : t.common.loading}
                   </span>
                 </div>
                 <div className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
@@ -149,7 +142,7 @@ export default function AiChat() {
                 </div>
                 {modelStatus === 'downloading' && (
                   <p className="text-xs text-on-surface-variant">
-                    Das Modell wird beim nächsten Start aus dem Cache geladen.
+                    {t.aiChat.modelCacheHint}
                   </p>
                 )}
               </div>
@@ -167,14 +160,14 @@ export default function AiChat() {
                     fontFamily: 'Space Grotesk, sans-serif',
                   }}
                 >
-                  Modell installieren
+                  {t.aiChat.installModel}
                 </button>
                 <button
                   onClick={() => navigate('/settings')}
                   className="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-on-surface-variant"
                   style={{ background: 'rgba(72,72,71,0.3)' }}
                 >
-                  Einstellungen öffnen
+                  {t.aiChat.openSettings}
                 </button>
               </div>
             )}
@@ -207,7 +200,7 @@ export default function AiChat() {
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}>LOCALLIFT AI</p>
             <p className="text-on-surface-variant text-sm max-w-xs leading-relaxed">
-              Dein persönlicher Trainer. Frag mich nach Trainingstipps, Fortschrittsanalysen oder lass mich einen Plan für dich erstellen.
+              {t.aiChat.welcomeDesc}
             </p>
           </div>
         )}
@@ -231,9 +224,9 @@ export default function AiChat() {
                 <span className="font-black text-[10px] tracking-widest uppercase"
                   style={{
                     fontFamily: 'Space Grotesk, sans-serif',
-                    color: msg.role === 'assistant' ? '#95aaff' : '#ffffff',
+                    color: msg.role === 'assistant' ? '#95aaff' : 'var(--color-on-surface)',
                   }}>
-                  {msg.role === 'assistant' ? 'LOCALLIFT AI' : 'DU'}
+                  {msg.role === 'assistant' ? 'LOCALLIFT AI' : t.aiChat.you}
                 </span>
                 <span className="text-[10px] text-outline">{formatTimestamp(msg.timestamp)}</span>
               </div>
@@ -243,14 +236,14 @@ export default function AiChat() {
                 className="rounded-xl p-4 text-sm leading-relaxed"
                 style={msg.role === 'assistant'
                   ? {
-                    background: '#20201f',
+                    background: 'var(--color-surface-container)',
                     borderLeft: '2px solid #95aaff',
-                    color: '#ffffff',
+                    color: 'var(--color-on-surface)',
                     whiteSpace: 'pre-wrap',
                   }
                   : {
-                    background: '#2c2c2c',
-                    color: '#ffffff',
+                    background: 'var(--color-surface-variant)',
+                    color: 'var(--color-on-surface)',
                     whiteSpace: 'pre-wrap',
                   }}
               >
@@ -282,8 +275,7 @@ export default function AiChat() {
       </main>
 
       {/* Input area (sticky) */}
-      <div className="fixed bottom-0 left-0 w-full px-4 pb-28"
-        style={{ background: 'linear-gradient(to top, #0e0e0e 60%, transparent)' }}>
+      <div className="fixed bottom-0 left-0 w-full px-4 pb-28">
         <div className="max-w-2xl mx-auto space-y-3">
           {/* Busy banner — plan generator is running */}
           {planIsRunning && (
@@ -291,7 +283,7 @@ export default function AiChat() {
               style={{ background: 'rgba(149,170,255,0.08)', border: '1px solid rgba(149,170,255,0.2)' }}>
               <span className="material-symbols-outlined text-primary text-base animate-spin">sync</span>
               <p className="text-xs font-bold uppercase tracking-widest text-primary">
-                KI erstellt gerade einen Trainingsplan…
+                {t.aiChat.aiCreatingPlan}
               </p>
             </div>
           )}
@@ -307,8 +299,8 @@ export default function AiChat() {
                       sendMessage(a.prompt);
                     }
                   }}
-                  className="whitespace-nowrap px-4 py-2.5 rounded-xl text-white text-xs font-bold tracking-widest uppercase transition-all active:scale-95 flex items-center gap-2 shrink-0"
-                  style={{ background: '#262626' }}
+                  className="whitespace-nowrap px-4 py-2.5 rounded-xl text-on-surface text-xs font-bold tracking-widest uppercase transition-all active:scale-95 flex items-center gap-2 shrink-0"
+                  style={{ background: 'var(--color-surface-variant)' }}
                 >
                   <span className="material-symbols-outlined text-primary text-base">{a.icon}</span>
                   {a.label}
@@ -318,32 +310,12 @@ export default function AiChat() {
           )}
 
           {/* Text input */}
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"
-              style={{ background: 'rgba(149,170,255,0.1)' }} />
-            <div className="relative flex items-center rounded-2xl p-2"
-              style={{ background: '#20201f', border: '1px solid rgba(72,72,71,0.1)' }}>
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Nachricht an LOCALLIFT AI…"
-                disabled={isGenerating}
-                className="flex-1 bg-transparent border-none focus:outline-none text-on-surface text-sm px-3 py-3 placeholder:text-outline/50"
-                style={{ fontFamily: 'Manrope, sans-serif' }}
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isGenerating}
-                className="w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition-transform shrink-0 disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)' }}
-              >
-                <span className="material-symbols-outlined text-sm" style={{ color: '#00247e' }}>send</span>
-              </button>
-            </div>
-          </div>
+          <ChatInput
+            onSend={handleSend}
+            isGenerating={isGenerating}
+            modelReady={modelStatus === 'ready'}
+            t={t}
+          />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import {type ReactNode, useCallback} from "react";
+import {type ReactNode, useCallback, useEffect} from "react";
 import type {AppSettings} from "../../types/app.types.ts";
 import type {Exercise, WorkoutPlan, WorkoutSession} from "../../types/workout.types.ts";
 import {storage} from "../../data/storage.ts";
@@ -35,6 +35,8 @@ export function SettingsProvider({children}: { children: ReactNode }) {
         });
         setSettings({
             weightUnit: 'kg',
+            language: 'de',
+            theme: 'dark',
             reminderEnabled: false,
             reminderTime: '07:00',
             reminderDays: [true, true, true, true, true, false, false],
@@ -59,6 +61,16 @@ export function SettingsProvider({children}: { children: ReactNode }) {
             return next;
         });
     }, []);
+
+    // Apply theme class to <html>
+    useEffect(() => {
+        const root = document.documentElement;
+        if (settings.theme === 'light') {
+            root.classList.add('light');
+        } else {
+            root.classList.remove('light');
+        }
+    }, [settings.theme]);
 
 
     const importBackup = useCallback((data: {
