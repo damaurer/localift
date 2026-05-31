@@ -165,8 +165,24 @@ export default function PlanDetail() {
     <div className="min-h-screen bg-background">
 
       <main className="pt-20 pb-32 px-6 max-w-2xl mx-auto space-y-8">
-        {/* Plan Meta */}
+        {/* ── STEP 1: Plan Info ── */}
         <section className="space-y-5">
+          {/* Step indicator */}
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black"
+              style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)', color: '#fff' }}
+            >
+              1
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase text-primary" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              {t.planDetail.stepPlanInfo}
+            </span>
+            {name.trim() && (
+              <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div className="relative">
               <label
@@ -228,8 +244,52 @@ export default function PlanDetail() {
           </div>
         </section>
 
-        {/* Exercise List */}
-        <section className="space-y-4">
+        {/* Divider between steps */}
+        <div className="relative flex items-center py-2">
+          <div className="flex-1 h-px" style={{ background: 'rgba(149, 170, 255, 0.15)' }} />
+          <span className="material-symbols-outlined mx-3 text-base" style={{ color: name.trim() ? '#95aaff' : 'rgba(149, 170, 255, 0.3)' }}>
+            {name.trim() ? 'lock_open' : 'lock'}
+          </span>
+          <div className="flex-1 h-px" style={{ background: 'rgba(149, 170, 255, 0.15)' }} />
+        </div>
+
+        {/* ── STEP 2: Exercises ── */}
+        <section
+          data-testid="step-exercises"
+          className={`space-y-4 relative transition-all duration-500 ${!name.trim() ? 'opacity-40 pointer-events-none select-none' : ''}`}
+        >
+          {/* Locked overlay hint */}
+          {!name.trim() && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl" style={{ background: 'rgba(14, 14, 14, 0.5)', backdropFilter: 'blur(2px)' }}>
+              <span className="material-symbols-outlined text-4xl mb-3" style={{ color: 'rgba(149, 170, 255, 0.6)' }}>lock</span>
+              <p className="text-sm font-bold tracking-widest uppercase text-center px-6" style={{ color: 'rgba(149, 170, 255, 0.8)', fontFamily: 'Manrope, sans-serif' }}>
+                {t.planDetail.unlockExercisesHint}
+              </p>
+            </div>
+          )}
+
+          {/* Step indicator */}
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black transition-all ${
+                name.trim() ? '' : 'grayscale'
+              }`}
+              style={{
+                background: name.trim()
+                  ? 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)'
+                  : 'rgba(149, 170, 255, 0.15)',
+                color: name.trim() ? '#fff' : 'rgba(149, 170, 255, 0.4)',
+              }}
+            >
+              2
+            </div>
+            <span
+              className={`text-xs font-bold tracking-widest uppercase transition-colors ${name.trim() ? 'text-primary' : 'text-on-surface-variant'}`}
+              style={{ fontFamily: 'Manrope, sans-serif' }}
+            >
+              {t.planDetail.stepExercises}
+            </span>
+          </div>
           <div className="flex items-baseline justify-between">
             <h2 className="text-3xl font-bold tracking-tighter" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               ÜBUNGEN
@@ -347,37 +407,44 @@ export default function PlanDetail() {
 
           {/* Add Exercise Button */}
           <button
-            onClick={() => setShowExercisePicker(true)}
-            className="w-full py-6 rounded-xl flex items-center justify-center gap-2 transition-all group hover:border-primary cursor-pointer"
+            onClick={() => name.trim() && setShowExercisePicker(true)}
+            disabled={!name.trim()}
+            className={`w-full py-6 rounded-xl flex flex-col items-center justify-center gap-2 transition-all ${
+              name.trim()
+                ? 'group hover:border-primary cursor-pointer'
+                : 'opacity-40 cursor-not-allowed'
+            }`}
             style={{ border: '2px dashed rgba(72, 72, 71, 0.15)' }}
           >
-            <span className="material-symbols-outlined transition-colors text-on-surface-variant group-hover:text-primary">
-              add_circle
-            </span>
-            <span
-              className="text-sm font-bold tracking-widest uppercase transition-colors text-on-surface-variant group-hover:text-primary"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              {t.planDetail.addExercise}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`material-symbols-outlined transition-colors ${name.trim() ? 'text-on-surface-variant group-hover:text-primary' : 'text-on-surface-variant'}`}>
+                add_circle
+              </span>
+              <span
+                className={`text-sm font-bold tracking-widest uppercase transition-colors ${name.trim() ? 'text-on-surface-variant group-hover:text-primary' : 'text-on-surface-variant'}`}
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              >
+                {t.planDetail.addExercise}
+              </span>
+            </div>
+            {!name.trim() && (
+              <span className="text-xs text-primary font-bold tracking-widest uppercase" style={{ opacity: 0.7 }}>
+                {t.planDetail.enterPlanNameFirst}
+              </span>
+            )}
           </button>
-        </section>
 
-        {/* Save button */}
-        <div>
-          <button
-            onClick={handleSave}
-            className={`w-full py-5 rounded-xl text-on-primary font-black text-lg tracking-widest uppercase active:scale-95 transition-all ${name.trim() ? '' : 'opacity-40 cursor-not-allowed'}`}
-            style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)', boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            {saved ? t.planDetail.saved : t.planDetail.savePlan}
-          </button>
-          {!name.trim() && (
-            <p className="text-center text-xs text-primary font-bold tracking-widest uppercase mt-2" style={{ opacity: 0.7 }}>
-              {t.planDetail.enterPlanNameFirst}
-            </p>
-          )}
-        </div>
+          {/* Save button */}
+          <div className="pt-4">
+            <button
+              onClick={handleSave}
+              className="w-full py-5 rounded-xl text-on-primary font-black text-lg tracking-widest uppercase active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(135deg, #95aaff 0%, #3766ff 100%)', boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              {saved ? t.planDetail.saved : t.planDetail.savePlan}
+            </button>
+          </div>
+        </section>
       </main>
 
       {/* Exercise Picker Modal */}

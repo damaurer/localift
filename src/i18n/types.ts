@@ -141,6 +141,9 @@ export interface Translations {
     savePlan: string;
     saved: string;
     enterPlanNameFirst: string;
+    stepPlanInfo: string;
+    stepExercises: string;
+    unlockExercisesHint: string;
     remove: string;
   };
 

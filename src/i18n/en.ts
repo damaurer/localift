@@ -134,6 +134,9 @@ export const en: Translations = {
     savePlan: 'SAVE PLAN',
     saved: '✓ SAVED',
     enterPlanNameFirst: 'Enter plan name first',
+    stepPlanInfo: 'Step 1 — Plan Info',
+    stepExercises: 'Step 2 — Exercises',
+    unlockExercisesHint: 'Enter a plan name to unlock exercises',
     remove: 'Remove',
   },
 

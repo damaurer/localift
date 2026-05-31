@@ -134,6 +134,9 @@ export const de: Translations = {
     savePlan: 'PLAN SPEICHERN',
     saved: '✓ GESPEICHERT',
     enterPlanNameFirst: 'Zuerst Planname eingeben',
+    stepPlanInfo: 'Schritt 1 — Plan-Info',
+    stepExercises: 'Schritt 2 — Übungen',
+    unlockExercisesHint: 'Gib einen Plannamen ein, um Übungen freizuschalten',
     remove: 'Entfernen',
   },
 
