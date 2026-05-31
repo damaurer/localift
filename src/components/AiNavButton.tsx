@@ -85,8 +85,9 @@ export default function AiNavButton() {
       longPressTimer.current = null;
       stopListening();
     }
-    navigate('/chat');
-
+    if (!isLongPress.current) {
+      navigate('/chat');
+    }
   }, [navigate, stopListening]);
 
   const handlePressLeave = useCallback(() => {
@@ -95,7 +96,7 @@ export default function AiNavButton() {
       longPressTimer.current = null;
       stopListening();
     }
-  }, [navigate, stopListening]);
+  }, [stopListening]);
 
   return (
     <button

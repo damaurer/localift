@@ -19,10 +19,6 @@ export default function BottomNav() {
         {tab: 'settings', icon: 'settings', label: t.nav.settings, path: '/settings'},
     ];
 
-    const ALL_ITEMS = settings.aiTrainer.enabled ? [...LEFT_ITEMS, ...RIGHT_ITEMS] : [
-        ...LEFT_ITEMS, ...RIGHT_ITEMS,
-    ];
-
     return (
         <nav
             className="fixed bottom-5 left-0 right-0 z-50 flex justify-around items-center mx-auto max-w-md px-4 py-2 w-[90%]"
