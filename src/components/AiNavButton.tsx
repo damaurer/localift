@@ -10,7 +10,7 @@ type SpeechRecognitionAny = any;
  * AI Trainer button for the bottom navigation bar.
  *
  * Shimmer colors:
- *  - Active (ready / generating): app primary gradient (blue)
+ *  - Active (generating):           app primary gradient (blue)
  *  - Error:                       reddish glow
  *  - Needs user action (idle/downloading/loading): yellowish glow
  *
@@ -27,7 +27,7 @@ export default function AiNavButton() {
 
   // ── Determine shimmer state ───────────────────────────────────────────────
   const hasError = modelStatus === 'error' || !!modelError;
-  const isActive = modelStatus === 'ready' || isGenerating;
+  const isActive = isGenerating;
 
   let shimmerClass = '';
   if (hasError) shimmerClass = 'ai-nav-shimmer ai-nav-shimmer--error';
