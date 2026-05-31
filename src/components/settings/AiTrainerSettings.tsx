@@ -68,7 +68,7 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                         className="relative inline-flex items-center cursor-pointer"
                     >
                         <div className="w-14 h-7 rounded-full transition-colors duration-200 relative"
-                             style={{ background: aiTrainer.enabled ? '#3766ff' : '#262626' }}>
+                             style={{ background: aiTrainer.enabled ? 'var(--color-secondary)' : 'var(--color-surface-variant)' }}>
                             <div className="absolute top-0.5 w-6 h-6 rounded-full bg-white transition-transform duration-200"
                                  style={{ transform: aiTrainer.enabled ? 'translateX(calc(100% + 4px))' : 'translateX(4px)' }} />
                         </div>

@@ -68,6 +68,7 @@ function createWrapper(path = '/plans/new') {
     settings: {
       weightUnit: 'kg',
       language: 'de',
+      theme: 'dark',
       reminderEnabled: false,
       reminderTime: '09:00',
       reminderDays: [false, false, false, false, false, false, false],

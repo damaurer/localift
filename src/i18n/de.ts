@@ -232,6 +232,10 @@ export const de: Translations = {
     appTagline: 'Keine Server · Keine Profile · Deine Daten',
     language: 'Sprache',
     languageDesc: 'App-Sprache ändern',
+    theme: 'Design',
+    themeDesc: 'Erscheinungsbild der App',
+    themeDark: 'Dunkel',
+    themeLight: 'Hell',
   },
 
   feedback: {

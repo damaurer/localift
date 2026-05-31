@@ -7,6 +7,7 @@ import type {Language} from "../../i18n/types.ts";
 interface GeneralSettingsProps {
     weightUnit: 'kg' | 'lbs';
     language: Language;
+    theme: 'dark' | 'light';
     vibration: boolean;
     showExportSuccess: boolean;
     showImportSuccess: boolean;
@@ -21,6 +22,7 @@ interface GeneralSettingsProps {
 const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     weightUnit,
     language,
+    theme,
     vibration,
     showExportSuccess,
     showImportSuccess,
@@ -63,6 +65,34 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                             aria-pressed={language === lang}
                         >
                             {LANGUAGE_LABELS[lang]}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Theme */}
+            <div className="bg-surface-container-low rounded-xl p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-on-surface-variant">palette</span>
+                    <div>
+                        <span className="font-bold text-lg"
+                              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.settings.theme}</span>
+                        <p className="text-xs text-on-surface-variant mt-0.5">{t.settings.themeDesc}</p>
+                    </div>
+                </div>
+                <div className="flex gap-1 bg-surface-container rounded-xl p-1">
+                    {(['dark', 'light'] as const).map(mode => (
+                        <button
+                            key={mode}
+                            onClick={() => updateSettings({ theme: mode })}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold tracking-widest transition-all ${
+                                theme === mode
+                                    ? 'bg-primary text-on-primary'
+                                    : 'text-on-surface-variant'
+                            }`}
+                            aria-pressed={theme === mode}
+                        >
+                            {mode === 'dark' ? t.settings.themeDark : t.settings.themeLight}
                         </button>
                     ))}
                 </div>
@@ -112,7 +142,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                 >
                     <div
                         className="w-12 h-6 rounded-full transition-colors duration-200 relative"
-                        style={{ background: vibration ? '#3766ff' : '#262626' }}
+                        style={{ background: vibration ? 'var(--color-secondary)' : 'var(--color-surface-variant)' }}
                     >
                         <div
                             className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200"

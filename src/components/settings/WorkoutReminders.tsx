@@ -71,7 +71,7 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
                     >
                         <div
                             className="w-14 h-7 rounded-full transition-colors duration-200 relative"
-                            style={{ background: reminderEnabled ? '#3766ff' : '#262626' }}
+                            style={{ background: reminderEnabled ? 'var(--color-secondary)' : 'var(--color-surface-variant)' }}
                         >
                             <div
                                 className="absolute top-0.5 w-6 h-6 rounded-full bg-white transition-transform duration-200"
@@ -112,7 +112,7 @@ const WorkoutReminders: React.FC<WorkoutRemindersProps> = ({
                                             background: 'linear-gradient(135deg, #95aaff, #3766ff)',
                                             color: '#00247e'
                                         }
-                                        : { background: '#262626', color: '#adaaaa' }
+                                        : { background: 'var(--color-surface-container)', color: '#adaaaa', border: '1px solid rgba(72, 72, 71, 0.1)' }
                                     }
                                 >
                                     {day}

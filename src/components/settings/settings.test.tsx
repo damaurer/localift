@@ -124,6 +124,7 @@ describe('GeneralSettings', () => {
   const defaultProps = {
     weightUnit: 'kg' as const,
     language: 'de' as const,
+    theme: 'dark' as const,
     vibration: true,
     showExportSuccess: false,
     showImportSuccess: false,

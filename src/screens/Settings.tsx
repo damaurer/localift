@@ -186,6 +186,7 @@ export default function Settings() {
                 <GeneralSettings
                     weightUnit={settings.weightUnit}
                     language={settings.language}
+                    theme={settings.theme}
                     vibration={settings.vibration}
                     showExportSuccess={showExportSuccess}
                     showImportSuccess={showImportSuccess}

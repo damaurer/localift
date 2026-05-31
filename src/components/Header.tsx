@@ -36,10 +36,10 @@ export default function Header({ title, subtitle, showBack = false, rightContent
     <header
       className="sticky top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-5 py-3"
       style={{
-        background: 'rgba(19, 19, 19, 0.95)',
+        background: 'var(--header-bg, rgba(19, 19, 19, 0.95))',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(72, 72, 71, 0.15)',
+        borderBottom: '1px solid var(--header-border, rgba(72, 72, 71, 0.15))',
       }}
     >
       <div className="flex items-center gap-3 min-w-0">

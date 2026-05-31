@@ -334,7 +334,7 @@ export default function Plans() {
             onClick={() => navigate('/ai-plan')}
             className="flex items-center justify-center w-30 h-14 gap-3 px-5 py-3 rounded-xl active:scale-95 transition-transform duration-200"
             style={{
-              background: 'rgba(14,14,14,0.9)',
+              background: 'var(--fab-ai-bg, rgba(14,14,14,0.9))',
               border: '1px solid rgba(149,170,255,0.3)',
               boxShadow: '0 0 24px 0 rgba(149,170,255,0.15)',
               backdropFilter: 'blur(12px)',

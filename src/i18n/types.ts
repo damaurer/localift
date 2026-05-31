@@ -242,6 +242,10 @@ export interface Translations {
     appTagline: string;
     language: string;
     languageDesc: string;
+    theme: string;
+    themeDesc: string;
+    themeDark: string;
+    themeLight: string;
   };
 
   // ── Feedback Dialog ──

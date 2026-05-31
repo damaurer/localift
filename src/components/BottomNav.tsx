@@ -17,11 +17,11 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-5 left-0 right-0 z-50 flex justify-around items-center mx-auto max-w-md px-4 py-2 w-[90%]"
       style={{
-        background: 'rgba(32, 32, 31, 0.85)',
+        background: 'var(--nav-bg, rgba(32, 32, 31, 0.85))',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: '16px',
-        boxShadow: '0 0 32px 0 rgba(255,255,255,0.06)',
+        boxShadow: 'var(--nav-shadow, 0 0 32px 0 rgba(255,255,255,0.06))',
       }}
     >
       {NAV_ITEMS.map(item => {
