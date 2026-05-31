@@ -33,7 +33,7 @@ export function LogoMark() {
 function AiHeaderShadow() {
   const { modelStatus, modelError, isGenerating } = useAiContext();
   const hasError = modelStatus === 'error' || !!modelError;
-  const isActive = modelStatus === 'ready' || isGenerating;
+  const isActive = isGenerating;
 
   let shadow: string | undefined;
   if (hasError) shadow = '0 2px 16px 25px rgba(255, 110, 132, 0.45)';

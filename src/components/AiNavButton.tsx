@@ -27,11 +27,10 @@ export default function AiNavButton() {
 
   // ── Determine shimmer state ───────────────────────────────────────────────
   const hasError = modelStatus === 'error' || !!modelError;
-  const isActive = isGenerating;
 
   let shimmerClass = '';
   if (hasError) shimmerClass = 'ai-nav-shimmer ai-nav-shimmer--error';
-  else if (isActive) shimmerClass = 'ai-nav-shimmer ai-nav-shimmer--active';
+  else if (isGenerating) shimmerClass = 'ai-nav-shimmer ai-nav-shimmer--active';
 
   // ── Speech-to-text helpers ────────────────────────────────────────────────
   const startListening = useCallback(() => {
