@@ -347,6 +347,14 @@ export const en: Translations = {
     download: 'Download',
   },
 
+  aiToast: {
+    responseReady: 'AI has responded',
+    responseReadyDesc: 'Tap here to read the response.',
+    aiError: 'AI Error',
+    openChat: 'Open chat',
+    dismiss: 'Dismiss',
+  },
+
   days: {
     mo: 'Mo',
     tu: 'Tu',

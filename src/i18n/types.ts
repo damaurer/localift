@@ -362,6 +362,15 @@ export interface Translations {
     download: string;
   };
 
+  // ── AI Toast ──
+  aiToast: {
+    responseReady: string;
+    responseReadyDesc: string;
+    aiError: string;
+    openChat: string;
+    dismiss: string;
+  };
+
   // ── Day labels ──
   days: {
     mo: string;

@@ -347,6 +347,14 @@ export const de: Translations = {
     download: 'Download',
   },
 
+  aiToast: {
+    responseReady: 'KI hat geantwortet',
+    responseReadyDesc: 'Tippe hier um die Antwort zu lesen.',
+    aiError: 'KI-Fehler',
+    openChat: 'Chat öffnen',
+    dismiss: 'Schließen',
+  },
+
   days: {
     mo: 'Mo',
     tu: 'Di',
