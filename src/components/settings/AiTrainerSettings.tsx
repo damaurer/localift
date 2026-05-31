@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type {AppSettings} from "../../types/app.types.ts";
-import {useTranslation} from "../../i18n/I18nContext.tsx";
+import type { AppSettings } from "../../types/app.types.ts";
+import { useTranslation } from "../../i18n/I18nContext.tsx";
 
 interface AiTrainerSettingsProps {
     aiTrainer: {
@@ -25,6 +25,8 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
 }) => {
     const navigate = useNavigate();
     const t = useTranslation();
+    const [showDesc, setShowDesc] = useState(false);
+    const [showColors, setShowColors] = useState(false);
 
     return (
         <section className="mb-10">
@@ -120,6 +122,75 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                             <div className="px-4 py-3 rounded-xl text-xs font-bold text-error"
                                  style={{ background: 'rgba(255,110,132,0.08)', border: '1px solid rgba(255,110,132,0.2)' }}>
                                 {modelError}
+                            </div>
+                        )}
+
+                        {/* Description toggle */}
+                        <button
+                            onClick={() => setShowDesc(prev => !prev)}
+                            className="flex items-center gap-2 text-xs font-bold text-on-surface-variant w-full active:scale-[0.98] transition-transform"
+                            style={{ opacity: 0.7 }}
+                        >
+                            <span className="material-symbols-outlined text-base transition-transform duration-200"
+                                  style={{ transform: showDesc ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                expand_more
+                            </span>
+                            {t.settings.aiTrainerDescTitle}
+                        </button>
+
+                        {showDesc && (
+                            <div className="px-4 py-3 rounded-xl text-sm text-on-surface-variant space-y-2"
+                                 style={{ background: 'rgba(149,170,255,0.05)' }}>
+                                <div className="flex items-start gap-2">
+                                    <span className="material-symbols-outlined text-base mt-0.5" style={{ color: '#95aaff' }}>tips_and_updates</span>
+                                    <span>{t.settings.aiTrainerDesc1}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="material-symbols-outlined text-base mt-0.5" style={{ color: '#95aaff' }}>trending_up</span>
+                                    <span>{t.settings.aiTrainerDesc2}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="material-symbols-outlined text-base mt-0.5" style={{ color: '#95aaff' }}>calendar_month</span>
+                                    <span>{t.settings.aiTrainerDesc3}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="material-symbols-outlined text-base mt-0.5" style={{ color: '#4ade80' }}>lock</span>
+                                    <span>{t.settings.aiTrainerDesc4}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Color scheme toggle */}
+                        <button
+                            onClick={() => setShowColors(prev => !prev)}
+                            className="flex items-center gap-2 text-xs font-bold text-on-surface-variant w-full active:scale-[0.98] transition-transform"
+                            style={{ opacity: 0.7 }}
+                        >
+                            <span className="material-symbols-outlined text-base transition-transform duration-200"
+                                  style={{ transform: showColors ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                                expand_more
+                            </span>
+                            {t.settings.aiTrainerColorTitle}
+                        </button>
+
+                        {showColors && (
+                            <div className="px-4 py-3 rounded-xl text-sm text-on-surface-variant space-y-2"
+                                 style={{ background: 'rgba(149,170,255,0.05)' }}>
+                                <div className="flex items-start gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5"
+                                          style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)', boxShadow: '0 0 8px rgba(149,170,255,0.6)' }} />
+                                    <span>{t.settings.aiTrainerColorBlue}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5"
+                                          style={{ background: '#ff6e84', boxShadow: '0 0 8px rgba(255,110,132,0.6)' }} />
+                                    <span>{t.settings.aiTrainerColorRed}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5"
+                                          style={{ background: '#fbbf24', boxShadow: '0 0 8px rgba(251,191,36,0.6)' }} />
+                                    <span>{t.settings.aiTrainerColorYellow}</span>
+                                </div>
                             </div>
                         )}
 

@@ -220,6 +220,15 @@ export interface Translations {
     modelLoading: string;
     modelError: string;
     openChat: string;
+    aiTrainerDescTitle: string;
+    aiTrainerDesc1: string;
+    aiTrainerDesc2: string;
+    aiTrainerDesc3: string;
+    aiTrainerDesc4: string;
+    aiTrainerColorTitle: string;
+    aiTrainerColorBlue: string;
+    aiTrainerColorRed: string;
+    aiTrainerColorYellow: string;
     appAndData: string;
     weightUnit: string;
     weightUnitDesc: string;
