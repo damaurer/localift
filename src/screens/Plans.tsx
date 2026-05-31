@@ -327,12 +327,12 @@ export default function Plans() {
       </main>
 
       {/* FABs */}
-      <div className="fixed bottom-24 right-6 z-50 flex flex-col gap-3 items-end">
+      <div className="fixed bottom-24 right-6 z-50 flex flex-row gap-3 items-center">
         {/* AI Plan FAB — only visible when AI Trainer is enabled */}
         {settings.aiTrainer.enabled && (
           <button
             onClick={() => navigate('/ai-plan')}
-            className="flex items-center gap-2 px-4 h-12 rounded-xl active:scale-95 transition-transform duration-200"
+            className="flex items-center justify-center w-30 h-14 gap-3 px-5 py-3 rounded-xl active:scale-95 transition-transform duration-200"
             style={{
               background: 'rgba(14,14,14,0.9)',
               border: '1px solid rgba(149,170,255,0.3)',

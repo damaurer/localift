@@ -353,14 +353,7 @@ export default function Dashboard() {
               <span className="material-symbols-outlined text-primary" style={{ fontSize: '40px' }}>fitness_center</span>
             </div>
             <h3 className="text-2xl font-bold tracking-tight mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.dashboard.welcomeTitle}</h3>
-            <p className="text-on-surface-variant text-sm mb-8">{t.dashboard.welcomeSubtitle}</p>
-            <button
-              onClick={() => navigate('/plans/new')}
-              className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              {t.dashboard.createPlan}
-            </button>
+            <p className="text-on-surface-variant text-sm">{t.dashboard.welcomeSubtitle}</p>
           </section>
         )}
       </main>
