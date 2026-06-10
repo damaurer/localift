@@ -36,15 +36,18 @@ function makeCtx(overrides?: Partial<ToolContext>): ToolContext {
     exercises: mockExercises,
     sessions: mockSessions,
     plans: mockPlans,
-    savePlan: vi.fn(),
+    savePlan: vi.fn((plan) => plan.id ?? 'new-plan-id'),
     saveExercise: vi.fn(),
+    addExerciseToPlan: vi.fn(() => 'pe1'),
+    updatePlanExerciseSets: vi.fn(),
+    getPlanById: vi.fn((id: string) => mockPlans.find(p => p.id === id)),
     ...overrides,
   };
 }
 
 describe('FITNESS_TOOLS', () => {
-  it('has 4 tools defined', () => {
-    expect(FITNESS_TOOLS).toHaveLength(4);
+  it('has 5 tools defined', () => {
+    expect(FITNESS_TOOLS).toHaveLength(5);
   });
 
   it('includes expected tool names', () => {
@@ -53,12 +56,17 @@ describe('FITNESS_TOOLS', () => {
     expect(names).toContain('get_workout_history');
     expect(names).toContain('get_existing_plans');
     expect(names).toContain('create_workout_plan');
+    expect(names).toContain('add_exercise_to_plan');
   });
 
-  it('create_workout_plan has required fields', () => {
+  it('create_workout_plan only requires name (built incrementally)', () => {
     const tool = FITNESS_TOOLS.find(t => t.name === 'create_workout_plan')!;
-    expect(tool.parameters.required).toContain('name');
-    expect(tool.parameters.required).toContain('exercises');
+    expect(tool.parameters.required).toEqual(['name']);
+  });
+
+  it('add_exercise_to_plan requires planId', () => {
+    const tool = FITNESS_TOOLS.find(t => t.name === 'add_exercise_to_plan')!;
+    expect(tool.parameters.required).toContain('planId');
   });
 });
 
@@ -264,6 +272,63 @@ describe('executeTool', () => {
       const newEx = (ctx.saveExercise as ReturnType<typeof vi.fn>).mock.calls[0][0];
       const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
       expect(savedPlan.exercises[0].exerciseId).toBe(newEx.id);
+    });
+  });
+
+  describe('add_exercise_to_plan', () => {
+    it('adds an existing library exercise and sets its sets', async () => {
+      const ctx = makeCtx();
+      const result = await executeTool({
+        name: 'add_exercise_to_plan',
+        arguments: { planId: 'p1', exerciseId: 'ex1', sets: [{ weight: 80, reps: 8 }] },
+      }, ctx);
+      const parsed = JSON.parse(result);
+      expect(parsed.success).toBe(true);
+      expect(parsed.added).toBe('Bench Press');
+      expect(parsed.exerciseCount).toBe(1); // mock plan started with 0 exercises
+      expect(ctx.addExerciseToPlan).toHaveBeenCalledWith('p1', 'ex1');
+      expect(ctx.updatePlanExerciseSets).toHaveBeenCalledOnce();
+      const setsArg = (ctx.updatePlanExerciseSets as ReturnType<typeof vi.fn>).mock.calls[0][2];
+      expect(setsArg[0].weight).toBe(80);
+      expect(setsArg[0].reps).toBe(8);
+    });
+
+    it('creates a missing exercise from name and links it', async () => {
+      const ctx = makeCtx();
+      const result = await executeTool({
+        name: 'add_exercise_to_plan',
+        arguments: {
+          planId: 'p1', name: 'Face Pull', muscleGroups: ['shoulders'],
+          equipment: 'cable', sets: [{ reps: 12 }],
+        },
+      }, ctx);
+      const parsed = JSON.parse(result);
+      expect(parsed.success).toBe(true);
+      expect(parsed.added).toBe('Face Pull');
+      expect(parsed.createdExercise).toBe(true);
+      expect(ctx.saveExercise).toHaveBeenCalledOnce();
+    });
+
+    it('returns error when planId is missing', async () => {
+      const result = await executeTool({
+        name: 'add_exercise_to_plan', arguments: { exerciseId: 'ex1' },
+      }, makeCtx());
+      expect(JSON.parse(result).error).toBeDefined();
+    });
+
+    it('returns error when neither exerciseId nor name is given', async () => {
+      const result = await executeTool({
+        name: 'add_exercise_to_plan', arguments: { planId: 'p1' },
+      }, makeCtx());
+      expect(JSON.parse(result).error).toBeDefined();
+    });
+
+    it('returns error when the plan does not exist', async () => {
+      const result = await executeTool({
+        name: 'add_exercise_to_plan', arguments: { planId: 'nope', exerciseId: 'ex1' },
+      }, makeCtx({ getPlanById: () => undefined }));
+      const parsed = JSON.parse(result);
+      expect(parsed.error).toContain('Kein Plan');
     });
   });
 

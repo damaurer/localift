@@ -17,7 +17,12 @@ export function AiProvider({ children }: { children: ReactNode }) {
   const { settings } = useSettingsContext();
   const { exercises, importExercises } = useExerciseContext();
   const { sessions } = useWorkoutContext();
-  const { plans, savePlan } = usePlanContext();
+  const { plans, savePlan, addExerciseToPlan, updatePlanExerciseSets } = usePlanContext();
+
+  // Always-current plans snapshot so tool calls within one agent turn (which
+  // run after awaits / re-renders) never read a stale plan list.
+  const plansRef = useRef<typeof plans>(plans);
+  plansRef.current = plans;
 
   const [modelStatus, setModelStatus] = useState<AiModelStatus>(() =>
     isModelLoaded() ? 'ready' : 'idle',
@@ -97,7 +102,11 @@ export function AiProvider({ children }: { children: ReactNode }) {
     // importExercises persists full Exercise objects (deduped by id) into the
     // library, so AI-created plans can reference brand-new exercises.
     saveExercise: (exercise) => { void importExercises([exercise]); },
-  }), [exercises, sessions, plans, savePlan, importExercises]);
+    addExerciseToPlan,
+    updatePlanExerciseSets,
+    // Read from the ref so a plan created earlier in the SAME turn is visible.
+    getPlanById: (id) => plansRef.current.find(p => p.id === id),
+  }), [exercises, sessions, plans, savePlan, importExercises, addExerciseToPlan, updatePlanExerciseSets]);
 
   // ── Core: run the agent and stream into messages ───────────────────────────
   const runAgentAndStream = useCallback(
@@ -143,8 +152,23 @@ export function AiProvider({ children }: { children: ReactNode }) {
             onToolStart: (toolName) => {
               setActiveToolName(toolName);
             },
-            onToolDone: () => {
+            onToolDone: (toolName, success) => {
               setActiveToolName(null);
+              // Append a persistent chip to the streaming message so the user
+              // sees right away which tool ran and whether it succeeded.
+              setMessages(prev =>
+                prev.map(m =>
+                  m.id === streamingId
+                    ? {
+                      ...m,
+                      toolInvocations: [
+                        ...(m.toolInvocations ?? []),
+                        { name: toolName, success },
+                      ],
+                    }
+                    : m,
+                ),
+              );
             },
           },
         );

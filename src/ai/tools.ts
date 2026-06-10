@@ -7,7 +7,7 @@
  */
 
 import type { AiTool, AiToolCall } from '../types/ai.types.ts';
-import type { Exercise, MuscleGroup, WorkoutPlan, WorkoutSession } from '../types/workout.types.ts';
+import type { Exercise, MuscleGroup, SetTemplate, WorkoutPlan, WorkoutSession } from '../types/workout.types.ts';
 import { generateId } from '../data/storage.ts';
 
 const VALID_MUSCLE_GROUPS: MuscleGroup[] = [
@@ -60,10 +60,10 @@ export const FITNESS_TOOLS: AiTool[] = [
   {
     name: 'create_workout_plan',
     description:
-      'Erstellt einen neuen Trainingsplan und speichert ihn in der App. ' +
-      'Bevorzuge exercise IDs aus get_exercise_library. Existiert eine gewünschte ' +
-      'Übung dort nicht, gib stattdessen ihren "name" an – sie wird automatisch in ' +
-      'der Übungsbibliothek angelegt.',
+      'Erstellt einen NEUEN, zunächst leeren Trainingsplan und speichert ihn. ' +
+      'Gibt eine "planId" zurück, die du danach für add_exercise_to_plan brauchst. ' +
+      'Füge die Übungen NICHT hier ein, sondern danach einzeln mit add_exercise_to_plan. ' +
+      'Rufe dieses Tool erneut auf, wenn du mehrere Pläne erstellen möchtest.',
     parameters: {
       type: 'object',
       properties: {
@@ -75,18 +75,48 @@ export const FITNESS_TOOLS: AiTool[] = [
           type: 'string',
           description: 'Kurze Beschreibung des Plans und seiner Ziele.',
         },
-        exercises: {
+      },
+      required: ['name'],
+    },
+  },
+  {
+    name: 'add_exercise_to_plan',
+    description:
+      'Fügt GENAU EINE Übung zu einem bestehenden Plan hinzu (planId aus create_workout_plan). ' +
+      'Rufe dieses Tool pro Übung einmal auf – so baust du den Plan Schritt für Schritt auf. ' +
+      'Bevorzuge exerciseId aus get_exercise_library. Fehlt die Übung dort, gib stattdessen ihren ' +
+      '"name" (plus optional muscleGroups/equipment) an – sie wird automatisch angelegt.',
+    parameters: {
+      type: 'object',
+      properties: {
+        planId: {
+          type: 'string',
+          description: 'Die planId aus create_workout_plan.',
+        },
+        exerciseId: {
+          type: 'string',
+          description: 'Optional: ID einer Übung aus get_exercise_library.',
+        },
+        name: {
+          type: 'string',
+          description: 'Name der Übung (Pflicht, wenn keine exerciseId angegeben ist).',
+        },
+        muscleGroups: {
           type: 'array',
-          description:
-            'Array von Übungsobjekten. Jedes Objekt hat: ' +
-            'exerciseId (string, optional – aus get_exercise_library), ' +
-            'name (string – Pflicht für neue Übungen, die nicht in der Bibliothek sind), ' +
-            'muscleGroups (array, optional – z.B. ["chest"]), ' +
-            'equipment (string, optional – barbell|dumbbell|machine|bodyweight|cable|other), ' +
-            'sets (array mit weight (kg), reps, restSeconds).',
+          description: 'Optional: Muskelgruppen für neue Übungen, z.B. ["chest"].',
+          items: { type: 'string' },
+        },
+        equipment: {
+          type: 'string',
+          description: 'Optional: barbell|dumbbell|machine|bodyweight|cable|other.',
+        },
+        sets: {
+          type: 'array',
+          description: 'Array von Sätzen, je mit weight (kg), reps und optional restSeconds.',
+          items: { type: 'object' },
         },
       },
-      required: ['name', 'exercises'],
+      required: ['planId'],
     },
   },
 ];
@@ -97,10 +127,69 @@ export interface ToolContext {
   exercises: Exercise[];
   sessions: WorkoutSession[];
   plans: WorkoutPlan[];
-  /** Saves a new plan; the context generates id / createdAt / updatedAt */
-  savePlan: (plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  /** Creates (or upserts) a plan and returns its id */
+  savePlan: (plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => string;
   /** Persists a fully-formed exercise (incl. id) into the library */
   saveExercise: (exercise: Exercise) => void;
+  /** Appends an exercise (default single set) to a plan, returns the new plan-exercise id */
+  addExerciseToPlan: (planId: string, exerciseId: string) => string;
+  /** Replaces the sets of a plan exercise */
+  updatePlanExerciseSets: (planId: string, planExerciseId: string, sets: SetTemplate[]) => void;
+  /** Looks up a plan by id (reads current state, not stale) */
+  getPlanById: (id: string) => WorkoutPlan | undefined;
+}
+
+/**
+ * Resolves an exercise reference (id or name) to a library exercise id,
+ * creating a new library exercise when neither matches so a plan never
+ * references a non-existent exercise.
+ */
+function resolveExerciseId(
+  ex: { exerciseId?: string; name?: string; muscleGroups?: string[]; equipment?: string },
+  ctx: ToolContext,
+  fallbackName: string,
+): { exerciseId: string; created: boolean } {
+  let resolved = ex.exerciseId
+    ? ctx.exercises.find(e => e.id === ex.exerciseId)
+    : undefined;
+
+  if (!resolved && ex.name) {
+    const wanted = ex.name.trim().toLowerCase();
+    resolved = ctx.exercises.find(e => e.name.toLowerCase() === wanted);
+  }
+
+  if (resolved) return { exerciseId: resolved.id, created: false };
+
+  const muscleGroups = (ex.muscleGroups ?? [])
+    .map(m => String(m).toLowerCase())
+    .filter((m): m is MuscleGroup => (VALID_MUSCLE_GROUPS as string[]).includes(m));
+  const equipment = (VALID_EQUIPMENT as string[]).includes(String(ex.equipment))
+    ? (ex.equipment as Exercise['equipment'])
+    : 'other';
+
+  const newExercise: Exercise = {
+    id: generateId(),
+    name: (ex.name ?? fallbackName).trim(),
+    equipment,
+    muscleGroups,
+    category: 'KI-generiert',
+    tags: ['KI-generiert'],
+  };
+  ctx.saveExercise(newExercise);
+  return { exerciseId: newExercise.id, created: true };
+}
+
+/** Maps loosely-typed set objects from the model to SetTemplate values. */
+function mapSets(
+  sets: Array<{ weight?: number; reps?: number; restSeconds?: number }> | undefined,
+): SetTemplate[] {
+  return (sets && sets.length ? sets : [{ weight: 0, reps: 10 }]).map(s => ({
+    id: generateId(),
+    weight: Number(s.weight) || 0,
+    weightUnit: 'kg' as const,
+    reps: Number(s.reps) || 10,
+    restSeconds: Number(s.restSeconds) || 90,
+  }));
 }
 
 // ── Tool executor ─────────────────────────────────────────────────────────────
@@ -171,7 +260,7 @@ export async function executeTool(
         const { name, description, exercises } = call.arguments as {
           name: string;
           description?: string;
-          exercises: Array<{
+          exercises?: Array<{
             exerciseId?: string;
             name?: string;
             muscleGroups?: string[];
@@ -180,68 +269,28 @@ export async function executeTool(
           }>;
         };
 
-        if (!name || !Array.isArray(exercises) || exercises.length === 0) {
-          return JSON.stringify({ error: 'name und exercises sind Pflichtfelder.' });
+        if (!name) {
+          return JSON.stringify({ error: 'name ist ein Pflichtfeld.' });
+        }
+        // exercises is optional, but if provided it must be an array. The plan
+        // is normally built incrementally via add_exercise_to_plan afterwards.
+        if (exercises !== undefined && !Array.isArray(exercises)) {
+          return JSON.stringify({ error: 'exercises muss ein Array sein.' });
         }
 
         let createdExerciseCount = 0;
-
-        const planExercises = exercises.map((ex, idx) => {
-          // Resolve the exercise to a library entry — by id, then by name —
-          // and create a new library exercise when neither matches so the
-          // plan never references a non-existent exercise.
-          let resolved = ex.exerciseId
-            ? ctx.exercises.find(e => e.id === ex.exerciseId)
-            : undefined;
-
-          if (!resolved && ex.name) {
-            const wanted = ex.name.trim().toLowerCase();
-            resolved = ctx.exercises.find(e => e.name.toLowerCase() === wanted);
-          }
-
-          let exerciseId: string;
-          if (resolved) {
-            exerciseId = resolved.id;
-          } else {
-            const muscleGroups = (ex.muscleGroups ?? [])
-              .map(m => String(m).toLowerCase())
-              .filter((m): m is MuscleGroup =>
-                (VALID_MUSCLE_GROUPS as string[]).includes(m),
-              );
-            const equipment = (VALID_EQUIPMENT as string[]).includes(
-              String(ex.equipment),
-            )
-              ? (ex.equipment as Exercise['equipment'])
-              : 'other';
-
-            const newExercise: Exercise = {
-              id: generateId(),
-              name: (ex.name ?? `Übung ${idx + 1}`).trim(),
-              equipment,
-              muscleGroups,
-              category: 'KI-generiert',
-              tags: ['KI-generiert'],
-            };
-            ctx.saveExercise(newExercise);
-            createdExerciseCount++;
-            exerciseId = newExercise.id;
-          }
-
+        const planExercises = (exercises ?? []).map((ex, idx) => {
+          const { exerciseId, created } = resolveExerciseId(ex, ctx, `Übung ${idx + 1}`);
+          if (created) createdExerciseCount++;
           return {
             id: generateId(),
             exerciseId,
             order: idx,
-            sets: (ex.sets ?? [{ weight: 0, reps: 10 }]).map(s => ({
-              id: generateId(),
-              weight: Number(s.weight) || 0,
-              weightUnit: 'kg' as const,
-              reps: Number(s.reps) || 10,
-              restSeconds: Number(s.restSeconds) || 90,
-            })),
+            sets: mapSets(ex.sets),
           };
         });
 
-        ctx.savePlan({
+        const planId = ctx.savePlan({
           name,
           description: description ?? '',
           tags: ['KI-generiert'],
@@ -251,9 +300,52 @@ export async function executeTool(
 
         return JSON.stringify({
           success: true,
+          planId,
           planName: name,
           exerciseCount: planExercises.length,
           createdExercises: createdExerciseCount,
+          hint: 'Füge Übungen jetzt einzeln mit add_exercise_to_plan (planId) hinzu.',
+        });
+      }
+
+      case 'add_exercise_to_plan': {
+        const args = call.arguments as {
+          planId?: string;
+          exerciseId?: string;
+          name?: string;
+          muscleGroups?: string[];
+          equipment?: string;
+          sets?: Array<{ weight?: number; reps?: number; restSeconds?: number }>;
+        };
+
+        if (!args.planId) {
+          return JSON.stringify({ error: 'planId ist ein Pflichtfeld.' });
+        }
+        if (!args.exerciseId && !args.name) {
+          return JSON.stringify({ error: 'Gib exerciseId oder name an.' });
+        }
+
+        const plan = ctx.getPlanById(args.planId);
+        if (!plan) {
+          return JSON.stringify({
+            error: `Kein Plan mit planId "${args.planId}". Erstelle zuerst create_workout_plan.`,
+          });
+        }
+
+        const { exerciseId, created } = resolveExerciseId(args, ctx, 'Übung');
+        const planExerciseId = ctx.addExerciseToPlan(args.planId, exerciseId);
+        ctx.updatePlanExerciseSets(args.planId, planExerciseId, mapSets(args.sets));
+
+        const exerciseName =
+          ctx.exercises.find(e => e.id === exerciseId)?.name ?? args.name ?? 'Übung';
+
+        return JSON.stringify({
+          success: true,
+          planId: args.planId,
+          added: exerciseName,
+          createdExercise: created,
+          // plan was read before the append, so +1 reflects the new total
+          exerciseCount: plan.exercises.length + 1,
         });
       }
 

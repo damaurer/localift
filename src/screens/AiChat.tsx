@@ -34,12 +34,16 @@ export default function AiChat() {
 
   const planIsRunning = isGenerating && generatingContext === 'plan';
 
+  // Human-readable label for a tool name, falling back to the raw name.
+  const toolLabel = (name: string) =>
+    t.aiChat.toolLabels[name] ?? name.replace(/_/g, ' ');
+
   useHeader(
     {
       showBack: true,
       title: 'LOCALLIFT AI',
       subtitle: modelStatus === 'ready'
-        ? (isGenerating ? (activeToolName ? `⚙ ${activeToolName}…` : t.aiChat.writing) : t.aiChat.ready)
+        ? (isGenerating ? (activeToolName ? `⚙ ${toolLabel(activeToolName)}…` : t.aiChat.writing) : t.aiChat.ready)
         : undefined,
       rightContent: modelStatus === 'ready' ? (
         <button
@@ -231,6 +235,32 @@ export default function AiChat() {
                 <span className="text-[10px] text-outline">{formatTimestamp(msg.timestamp)}</span>
               </div>
 
+              {/* Tool-execution chips (persistent record of what the AI did) */}
+              {msg.role === 'assistant' && msg.toolInvocations && msg.toolInvocations.length > 0 && (
+                <div className="flex flex-col gap-1.5 mb-2 w-full">
+                  {msg.toolInvocations.map((inv, i) => (
+                    <div
+                      key={`${inv.name}-${i}`}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wide"
+                      style={{
+                        background: inv.success ? 'rgba(149,170,255,0.08)' : 'rgba(255,107,107,0.08)',
+                        borderLeft: `2px solid ${inv.success ? 'rgba(149,170,255,0.4)' : 'rgba(255,107,107,0.5)'}`,
+                        color: inv.success ? '#95aaff' : '#ff7a7a',
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-sm"
+                        style={{ fontVariationSettings: "'FILL' 1" }}>
+                        {inv.success ? 'check_circle' : 'error'}
+                      </span>
+                      <span>{toolLabel(inv.name)}</span>
+                      <span className="opacity-60 normal-case font-medium tracking-normal">
+                        · {inv.success ? t.aiChat.toolSuccess : t.aiChat.toolFailed}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Bubble */}
               <div
                 className="rounded-xl p-4 text-sm leading-relaxed"
@@ -265,7 +295,7 @@ export default function AiChat() {
               </div>
               <div className="rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-widest text-primary"
                 style={{ background: 'rgba(149,170,255,0.08)', borderLeft: '2px solid rgba(149,170,255,0.3)' }}>
-                ⚙ {activeToolName.replace(/_/g, ' ')}…
+                ⚙ {toolLabel(activeToolName)}…
               </div>
             </div>
           )}

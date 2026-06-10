@@ -302,6 +302,15 @@ export const en: Translations = {
     newPlanPrompt: 'Create a balanced training plan for the next 4 weeks.',
     aiCreatingPlan: 'AI is creating a training plan…',
     modelCacheHint: 'The model will be loaded from cache on next start.',
+    toolSuccess: 'executed successfully',
+    toolFailed: 'failed',
+    toolLabels: {
+      get_exercise_library: 'Read exercise library',
+      get_workout_history: 'Read workout history',
+      get_existing_plans: 'Read plans',
+      create_workout_plan: 'Created training plan',
+      add_exercise_to_plan: 'Added exercise',
+    },
   },
 
   aiPlanGen: {

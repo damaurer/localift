@@ -316,6 +316,9 @@ export interface Translations {
     newPlanPrompt: string;
     aiCreatingPlan: string;
     modelCacheHint: string;
+    toolSuccess: string;
+    toolFailed: string;
+    toolLabels: Record<string, string>;
   };
 
   // ── AI Plan Generator ──

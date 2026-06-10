@@ -302,6 +302,15 @@ export const de: Translations = {
     newPlanPrompt: 'Erstelle mir einen ausgewogenen Trainingsplan für die nächsten 4 Wochen.',
     aiCreatingPlan: 'KI erstellt gerade einen Trainingsplan…',
     modelCacheHint: 'Das Modell wird beim nächsten Start aus dem Cache geladen.',
+    toolSuccess: 'erfolgreich ausgeführt',
+    toolFailed: 'fehlgeschlagen',
+    toolLabels: {
+      get_exercise_library: 'Übungsbibliothek gelesen',
+      get_workout_history: 'Trainingsverlauf gelesen',
+      get_existing_plans: 'Pläne gelesen',
+      create_workout_plan: 'Trainingsplan angelegt',
+      add_exercise_to_plan: 'Übung hinzugefügt',
+    },
   },
 
   aiPlanGen: {
