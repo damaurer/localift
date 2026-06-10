@@ -109,7 +109,7 @@ export default function ActiveWorkout() {
       {/* Header */}
       <header
         className="sticky top-0 z-50 flex flex-col w-full"
-        style={{ background: 'rgba(14, 14, 14, 0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(32, 32, 31, 0.8)' }}
+        style={{ background: 'var(--header-bg, rgba(14, 14, 14, 0.95))', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid var(--header-border, rgba(32, 32, 31, 0.8))' }}
       >
         {/* Progress bar */}
         <div className="h-0.5 bg-surface-container-high">
@@ -130,7 +130,7 @@ export default function ActiveWorkout() {
           </div>
           <div className="flex items-center gap-3">
             {/* Timer */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}>
               <span className="material-symbols-outlined text-primary animate-pulse" style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}>timer</span>
               <span className="text-xs font-bold text-on-surface tabular-nums" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 {formatTimer(elapsed)}
@@ -306,7 +306,7 @@ export default function ActiveWorkout() {
                     {!allDone && (
                       <div
                         className="flex flex-col p-4 rounded-xl"
-                        style={{ background: '#1a1a1a', borderLeft: '4px solid #95aaff', boxShadow: '0 0 0 1px rgba(149, 170, 255, 0.1)' }}
+                        style={{ background: 'var(--color-surface-container)', borderLeft: '4px solid var(--color-primary)', boxShadow: '0 0 0 1px rgba(149, 170, 255, 0.1)' }}
                       >
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -323,7 +323,7 @@ export default function ActiveWorkout() {
                           {/* Weight */}
                           <div
                             className="flex items-center rounded-xl p-1.5"
-                            style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}
+                            style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}
                           >
                             <button
                               className="w-9 h-9 flex items-center justify-center rounded active:scale-90 transition-transform bg-surface-container-lowest"
@@ -354,7 +354,7 @@ export default function ActiveWorkout() {
                           {/* Reps */}
                           <div
                             className="flex items-center rounded-xl p-1.5"
-                            style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}
+                            style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}
                           >
                             <button
                               className="w-9 h-9 flex items-center justify-center rounded active:scale-90 transition-transform bg-surface-container-lowest"
