@@ -22,6 +22,8 @@ const TOOL_OPEN = '<tool_call>';
 const TOOL_CLOSE = '</tool_call>';
 const RESULT_OPEN = '<tool_result>';
 const RESULT_CLOSE = '</tool_result>';
+/** ChatML end-of-turn marker — model output past this point is not for the user. */
+const IM_END = '<|im_end|>';
 const MAX_ITERATIONS = 6;
 
 export interface AgentCallbacks {
@@ -59,30 +61,56 @@ export async function runAgent(
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     let generatedInThisCall = '';
     let toolCallDetected = false;
+    let endOfTurn = false;
     let stopRequested = false;
+    // How much of THIS completion's text we have already streamed to the UI.
+    // Reset every iteration because runCompletion only returns the newly
+    // generated continuation, not the accumulated prompt.
+    let emittedLen = 0;
 
     await runCompletion(fullPrompt, {
       maxTokens: 1024,
       temperature: 0.7,
-      onToken: (piece, fullText) => {
+      onToken: (_piece, fullText) => {
         generatedInThisCall = fullText;
 
         if (stopRequested) return false;
 
         if (!toolCallDetected) {
           const toolStart = fullText.indexOf(TOOL_OPEN);
-          if (toolStart === -1) {
-            // Still generating regular text → stream to UI
-            callbacks.onVisibleToken(piece);
-            visibleText = fullText;
-          } else {
-            // Tool call beginning detected – show text up to the tag, then stop streaming
-            const newVisible = fullText.substring(0, toolStart);
-            if (newVisible.length > visibleText.length) {
-              callbacks.onVisibleToken(newVisible.substring(visibleText.length));
-              visibleText = newVisible;
-            }
+          const endStart = fullText.indexOf(IM_END);
+
+          // Determine how far we may safely stream. We must NOT emit any
+          // trailing characters that could turn out to be the start of a
+          // <tool_call> or <|im_end|> marker (these almost always span
+          // several tokens), because the UI can only append – never retract.
+          let safeEnd: number;
+          if (endStart !== -1 && (toolStart === -1 || endStart < toolStart)) {
+            // Model ended its turn before any tool call → stop after this text
+            safeEnd = endStart;
+            endOfTurn = true;
+          } else if (toolStart !== -1) {
+            safeEnd = toolStart;
             toolCallDetected = true;
+          } else {
+            safeEnd =
+              fullText.length -
+              Math.max(
+                pendingPrefixLen(fullText, TOOL_OPEN),
+                pendingPrefixLen(fullText, IM_END),
+              );
+          }
+
+          if (safeEnd > emittedLen) {
+            const delta = fullText.substring(emittedLen, safeEnd);
+            callbacks.onVisibleToken(delta);
+            visibleText += delta; // accumulate across iterations
+            emittedLen = safeEnd;
+          }
+
+          if (endOfTurn) {
+            stopRequested = true;
+            return false;
           }
         }
 
@@ -94,13 +122,17 @@ export async function runAgent(
       },
     });
 
+    // ── Model signalled end-of-turn → done ────────────────────────────────
+    if (endOfTurn) break;
+
     // ── No tool call → generation is complete ─────────────────────────────
     if (!toolCallDetected) {
-      // Append any trailing text we haven't streamed yet
-      if (generatedInThisCall.length > visibleText.length) {
-        const tail = generatedInThisCall.substring(visibleText.length);
+      // Flush any text held back by the partial-tag guard (a lone "<tool"
+      // that never completed into a real tag is safe to show now).
+      if (generatedInThisCall.length > emittedLen) {
+        const tail = generatedInThisCall.substring(emittedLen);
         callbacks.onVisibleToken(tail);
-        visibleText = generatedInThisCall;
+        visibleText += tail;
       }
       break;
     }
@@ -160,4 +192,19 @@ export async function runAgent(
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Length of the longest suffix of `s` that is a (proper) prefix of `tag`.
+ *
+ * Used to hold back trailing characters that could be the beginning of a
+ * `<tool_call>` tag still being streamed token-by-token. Returns 0 when no
+ * suffix of `s` could grow into `tag`.
+ */
+function pendingPrefixLen(s: string, tag: string): number {
+  const max = Math.min(s.length, tag.length - 1);
+  for (let n = max; n > 0; n--) {
+    if (s.endsWith(tag.slice(0, n))) return n;
+  }
+  return 0;
 }
