@@ -47,8 +47,9 @@ Warte auf das Ergebnis bevor du antwortest.
 
 ## Regeln für Trainingspläne
 1. Rufe IMMER zuerst get_exercise_library auf bevor du create_workout_plan verwendest
-2. Nutze nur exercise IDs aus dem Library-Ergebnis
-3. Erkläre den Plan kurz nach der Erstellung`;
+2. Bevorzuge exercise IDs aus dem Library-Ergebnis
+3. Fehlt eine passende Übung in der Bibliothek, gib im Übungsobjekt einen "name" (plus optional muscleGroups/equipment) an – sie wird automatisch angelegt. Erfinde KEINE exercise IDs.
+4. Erkläre den Plan kurz nach der Erstellung`;
 }
 
 // ── Chat prompt formatter (ChatML) ────────────────────────────────────────────

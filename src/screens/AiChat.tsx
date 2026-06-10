@@ -275,7 +275,7 @@ export default function AiChat() {
       </main>
 
       {/* Input area (sticky) */}
-      <div className="fixed bottom-0 left-0 w-full px-4 pb-28">
+      <div className="fixed bottom-0 left-0 w-full px-4 pb-10 ">
         <div className="max-w-2xl mx-auto space-y-3">
           {/* Busy banner — plan generator is running */}
           {planIsRunning && (

@@ -15,7 +15,7 @@ import { usePlanContext } from '../plan/PlanContext.tsx';
 
 export function AiProvider({ children }: { children: ReactNode }) {
   const { settings } = useSettingsContext();
-  const { exercises } = useExerciseContext();
+  const { exercises, importExercises } = useExerciseContext();
   const { sessions } = useWorkoutContext();
   const { plans, savePlan } = usePlanContext();
 
@@ -94,7 +94,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
     sessions,
     plans,
     savePlan,
-  }), [exercises, sessions, plans, savePlan]);
+    // importExercises persists full Exercise objects (deduped by id) into the
+    // library, so AI-created plans can reference brand-new exercises.
+    saveExercise: (exercise) => { void importExercises([exercise]); },
+  }), [exercises, sessions, plans, savePlan, importExercises]);
 
   // ── Core: run the agent and stream into messages ───────────────────────────
   const runAgentAndStream = useCallback(

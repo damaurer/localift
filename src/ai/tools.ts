@@ -7,8 +7,15 @@
  */
 
 import type { AiTool, AiToolCall } from '../types/ai.types.ts';
-import type { Exercise, WorkoutPlan, WorkoutSession } from '../types/workout.types.ts';
+import type { Exercise, MuscleGroup, WorkoutPlan, WorkoutSession } from '../types/workout.types.ts';
 import { generateId } from '../data/storage.ts';
+
+const VALID_MUSCLE_GROUPS: MuscleGroup[] = [
+  'chest', 'back', 'shoulders', 'biceps', 'triceps', 'abs', 'legs', 'glutes',
+];
+const VALID_EQUIPMENT: Exercise['equipment'][] = [
+  'barbell', 'dumbbell', 'machine', 'bodyweight', 'cable', 'other',
+];
 
 // ── Tool definitions (schema sent to the model) ──────────────────────────────
 
@@ -54,7 +61,9 @@ export const FITNESS_TOOLS: AiTool[] = [
     name: 'create_workout_plan',
     description:
       'Erstellt einen neuen Trainingsplan und speichert ihn in der App. ' +
-      'Verwende nur exercise IDs die du zuvor über get_exercise_library erhalten hast.',
+      'Bevorzuge exercise IDs aus get_exercise_library. Existiert eine gewünschte ' +
+      'Übung dort nicht, gib stattdessen ihren "name" an – sie wird automatisch in ' +
+      'der Übungsbibliothek angelegt.',
     parameters: {
       type: 'object',
       properties: {
@@ -70,7 +79,10 @@ export const FITNESS_TOOLS: AiTool[] = [
           type: 'array',
           description:
             'Array von Übungsobjekten. Jedes Objekt hat: ' +
-            'exerciseId (string, aus get_exercise_library), ' +
+            'exerciseId (string, optional – aus get_exercise_library), ' +
+            'name (string – Pflicht für neue Übungen, die nicht in der Bibliothek sind), ' +
+            'muscleGroups (array, optional – z.B. ["chest"]), ' +
+            'equipment (string, optional – barbell|dumbbell|machine|bodyweight|cable|other), ' +
             'sets (array mit weight (kg), reps, restSeconds).',
         },
       },
@@ -87,6 +99,8 @@ export interface ToolContext {
   plans: WorkoutPlan[];
   /** Saves a new plan; the context generates id / createdAt / updatedAt */
   savePlan: (plan: Omit<WorkoutPlan, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  /** Persists a fully-formed exercise (incl. id) into the library */
+  saveExercise: (exercise: Exercise) => void;
 }
 
 // ── Tool executor ─────────────────────────────────────────────────────────────
@@ -158,27 +172,74 @@ export async function executeTool(
           name: string;
           description?: string;
           exercises: Array<{
-            exerciseId: string;
-            sets: Array<{ weight?: number; reps?: number; restSeconds?: number }>;
+            exerciseId?: string;
+            name?: string;
+            muscleGroups?: string[];
+            equipment?: string;
+            sets?: Array<{ weight?: number; reps?: number; restSeconds?: number }>;
           }>;
         };
 
-        if (!name || !Array.isArray(exercises)) {
+        if (!name || !Array.isArray(exercises) || exercises.length === 0) {
           return JSON.stringify({ error: 'name und exercises sind Pflichtfelder.' });
         }
 
-        const planExercises = exercises.map((ex, idx) => ({
-          id: generateId(),
-          exerciseId: ex.exerciseId,
-          order: idx,
-          sets: (ex.sets ?? [{ weight: 0, reps: 10 }]).map(s => ({
+        let createdExerciseCount = 0;
+
+        const planExercises = exercises.map((ex, idx) => {
+          // Resolve the exercise to a library entry — by id, then by name —
+          // and create a new library exercise when neither matches so the
+          // plan never references a non-existent exercise.
+          let resolved = ex.exerciseId
+            ? ctx.exercises.find(e => e.id === ex.exerciseId)
+            : undefined;
+
+          if (!resolved && ex.name) {
+            const wanted = ex.name.trim().toLowerCase();
+            resolved = ctx.exercises.find(e => e.name.toLowerCase() === wanted);
+          }
+
+          let exerciseId: string;
+          if (resolved) {
+            exerciseId = resolved.id;
+          } else {
+            const muscleGroups = (ex.muscleGroups ?? [])
+              .map(m => String(m).toLowerCase())
+              .filter((m): m is MuscleGroup =>
+                (VALID_MUSCLE_GROUPS as string[]).includes(m),
+              );
+            const equipment = (VALID_EQUIPMENT as string[]).includes(
+              String(ex.equipment),
+            )
+              ? (ex.equipment as Exercise['equipment'])
+              : 'other';
+
+            const newExercise: Exercise = {
+              id: generateId(),
+              name: (ex.name ?? `Übung ${idx + 1}`).trim(),
+              equipment,
+              muscleGroups,
+              category: 'KI-generiert',
+              tags: ['KI-generiert'],
+            };
+            ctx.saveExercise(newExercise);
+            createdExerciseCount++;
+            exerciseId = newExercise.id;
+          }
+
+          return {
             id: generateId(),
-            weight: Number(s.weight) || 0,
-            weightUnit: 'kg' as const,
-            reps: Number(s.reps) || 10,
-            restSeconds: Number(s.restSeconds) || 90,
-          })),
-        }));
+            exerciseId,
+            order: idx,
+            sets: (ex.sets ?? [{ weight: 0, reps: 10 }]).map(s => ({
+              id: generateId(),
+              weight: Number(s.weight) || 0,
+              weightUnit: 'kg' as const,
+              reps: Number(s.reps) || 10,
+              restSeconds: Number(s.restSeconds) || 90,
+            })),
+          };
+        });
 
         ctx.savePlan({
           name,
@@ -192,6 +253,7 @@ export async function executeTool(
           success: true,
           planName: name,
           exerciseCount: planExercises.length,
+          createdExercises: createdExerciseCount,
         });
       }
 

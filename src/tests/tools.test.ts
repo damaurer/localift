@@ -37,6 +37,7 @@ function makeCtx(overrides?: Partial<ToolContext>): ToolContext {
     sessions: mockSessions,
     plans: mockPlans,
     savePlan: vi.fn(),
+    saveExercise: vi.fn(),
     ...overrides,
   };
 }
@@ -208,6 +209,61 @@ describe('executeTool', () => {
       }, ctx);
       const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
       expect(savedPlan.tags).toContain('KI-generiert');
+    });
+
+    it('creates a missing exercise from name and links it', async () => {
+      const ctx = makeCtx();
+      const result = await executeTool({
+        name: 'create_workout_plan',
+        arguments: {
+          name: 'Plan with new exercise',
+          exercises: [
+            { name: 'Face Pull', muscleGroups: ['shoulders'], equipment: 'cable', sets: [{ reps: 12 }] },
+          ],
+        },
+      }, ctx);
+      const parsed = JSON.parse(result);
+      expect(parsed.createdExercises).toBe(1);
+
+      const saveExercise = ctx.saveExercise as ReturnType<typeof vi.fn>;
+      expect(saveExercise).toHaveBeenCalledOnce();
+      const newEx = saveExercise.mock.calls[0][0];
+      expect(newEx.name).toBe('Face Pull');
+      expect(newEx.muscleGroups).toEqual(['shoulders']);
+      expect(newEx.equipment).toBe('cable');
+
+      // The plan must reference the freshly created exercise's id
+      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(savedPlan.exercises[0].exerciseId).toBe(newEx.id);
+    });
+
+    it('reuses an existing library exercise matched by name', async () => {
+      const ctx = makeCtx();
+      await executeTool({
+        name: 'create_workout_plan',
+        arguments: {
+          name: 'Reuse Plan',
+          exercises: [{ name: 'bench press', sets: [{ reps: 5 }] }],
+        },
+      }, ctx);
+      expect(ctx.saveExercise).not.toHaveBeenCalled();
+      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(savedPlan.exercises[0].exerciseId).toBe('ex1');
+    });
+
+    it('creates an exercise when exerciseId does not exist in the library', async () => {
+      const ctx = makeCtx();
+      await executeTool({
+        name: 'create_workout_plan',
+        arguments: {
+          name: 'Hallucinated id plan',
+          exercises: [{ exerciseId: 'does-not-exist', name: 'Cable Crossover', sets: [{ reps: 12 }] }],
+        },
+      }, ctx);
+      expect(ctx.saveExercise).toHaveBeenCalledOnce();
+      const newEx = (ctx.saveExercise as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(savedPlan.exercises[0].exerciseId).toBe(newEx.id);
     });
   });
 
