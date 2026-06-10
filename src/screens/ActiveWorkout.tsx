@@ -37,15 +37,15 @@ export default function ActiveWorkout() {
   const [restTimer, setRestTimer] = useState<{ active: boolean; seconds: number; total: number } | null>(null);
   const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
 
-  // Elapsed timer
+  // Elapsed timer — frozen while the finish dialog is open so the displayed duration matches the saved one
   useEffect(() => {
-    if (!activeWorkout) return;
+    if (!activeWorkout || showFinishConfirm) return;
     const start = new Date(activeWorkout.startedAt).getTime();
     const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [activeWorkout, activeWorkout?.startedAt]);
+  }, [activeWorkout, activeWorkout?.startedAt, showFinishConfirm]);
 
   // Rest timer countdown
   useEffect(() => {
@@ -462,7 +462,7 @@ export default function ActiveWorkout() {
           className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
+          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: 'var(--color-surface-container)' }}>
             <div className="text-center">
               <span className="material-symbols-outlined text-primary" style={{ fontSize: '48px', fontVariationSettings: "'FILL' 1" }}>
                 emoji_events
@@ -510,7 +510,7 @@ export default function ActiveWorkout() {
         >
           <div
             className="w-full max-w-lg rounded-t-2xl p-6 space-y-4 pb-10"
-            style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.1)', borderBottom: 'none' }}
+            style={{ background: 'var(--color-surface-container)', border: '1px solid rgba(149,170,255,0.1)', borderBottom: 'none' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
@@ -586,7 +586,7 @@ export default function ActiveWorkout() {
           className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
+          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: 'var(--color-surface-container)' }}>
             <div className="text-center">
               <h2 className="text-2xl font-black tracking-tight text-error" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 {t.workout.cancelTitle}
