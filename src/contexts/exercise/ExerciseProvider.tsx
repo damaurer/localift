@@ -65,6 +65,14 @@ export function ExerciseProvider({children}: { children: ReactNode }) {
         });
     }, []);
 
+    const updateExercise = useCallback((exercise: Exercise) => {
+        setExercises(prev => {
+            const next = prev.map(e => e.id === exercise.id ? exercise : e);
+            storage.saveExercises(next);
+            return next;
+        });
+    }, []);
+
     const deleteExercise = useCallback((id: string) => {
         setExercises(prev => {
             const next = prev.filter(e => e.id !== id);
@@ -88,7 +96,7 @@ export function ExerciseProvider({children}: { children: ReactNode }) {
 
     return (
         <ExerciseContext.Provider
-            value={{exercises, setExercises, addExercise, deleteExercise, getExerciseById, syncExercisesWithRepo, importExercises}}>
+            value={{exercises, setExercises, addExercise, updateExercise, deleteExercise, getExerciseById, syncExercisesWithRepo, importExercises}}>
             {children}
         </ExerciseContext.Provider>
     )

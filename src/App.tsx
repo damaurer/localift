@@ -9,6 +9,7 @@ import ActiveWorkout from './screens/ActiveWorkout';
 import History from './screens/History';
 import Calories from './screens/Calories';
 import Settings from './screens/Settings';
+import Exercises from './screens/Exercises';
 import AiChat from './screens/AiChat';
 import PWABadge from './PWABadge.tsx';
 import InstallPrompt from './components/InstallPrompt';
@@ -30,6 +31,7 @@ export default function App() {
                         <Route path="/history/:sessionId" element={<History/>}/>
                         <Route path="/calories" element={<Calories/>}/>
                         <Route path="/settings" element={<Settings/>}/>
+                        <Route path="/settings/exercises" element={<Exercises/>}/>
                         <Route path="/chat" element={<AiChat/>}/>
                         <Route path="/workout" element={<ActiveWorkout/>}/>
                         <Route path="*" element={<Dashboard/>}/>

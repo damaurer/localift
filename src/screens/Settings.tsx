@@ -158,6 +158,22 @@ export default function Settings() {
                     exercisesCount={exercises.length}
                 />
 
+                <button
+                    onClick={() => navigate('/settings/exercises')}
+                    className="w-full bg-surface-container-low hover:bg-surface-container transition-colors rounded-xl p-5 flex items-center justify-between group mb-8"
+                >
+                    <div className="flex items-center gap-4">
+                        <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">fitness_center</span>
+                        <div className="text-left">
+                            <span className="font-bold text-lg block" style={{fontFamily: 'Space Grotesk, sans-serif'}}>
+                                {t.settings.manageExercises}
+                            </span>
+                            <p className="text-xs text-on-surface-variant">{t.settings.manageExercisesDesc}</p>
+                        </div>
+                    </div>
+                    <span className="material-symbols-outlined text-on-surface-variant text-base">chevron_right</span>
+                </button>
+
                 <NotificationPermissionBanner
                     notifPermission={notifPermission}
                     handleRequestPermission={handleRequestPermission}

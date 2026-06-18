@@ -255,6 +255,35 @@ export interface Translations {
     themeDesc: string;
     themeDark: string;
     themeLight: string;
+    manageExercises: string;
+    manageExercisesDesc: string;
+  };
+
+  // ── Exercise Library ──
+  exercisesLibrary: {
+    title: string;
+    subtitle: string;
+    heroSubtitle: string;
+    searchPlaceholder: string;
+    newExercise: string;
+    addExercise: string;
+    editExercise: string;
+    formTitleFallback: string;
+    name: string;
+    namePlaceholder: string;
+    category: string;
+    categoryPlaceholder: string;
+    equipment: string;
+    muscles: string;
+    tags: string;
+    tagsPlaceholder: string;
+    description: string;
+    descriptionPlaceholder: string;
+    saved: string;
+    deleteHint: string;
+    deleteBlocked: string;
+    noMuscles: string;
+    noExercisesFound: string;
   };
 
   // ── Feedback Dialog ──

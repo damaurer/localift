@@ -45,6 +45,7 @@ function createWrapper(path = '/plans/new') {
     exercises: mockExercises as Exercise[],
     setExercises: vi.fn(),
     addExercise: vi.fn(),
+    updateExercise: vi.fn(),
     deleteExercise: vi.fn(),
     getExerciseById: (id: string) => mockExercises.find(e => e.id === id) as Exercise | undefined,
     syncExercisesWithRepo: vi.fn().mockResolvedValue([]),

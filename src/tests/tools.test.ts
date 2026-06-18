@@ -46,13 +46,14 @@ function makeCtx(overrides?: Partial<ToolContext>): ToolContext {
 }
 
 describe('FITNESS_TOOLS', () => {
-  it('has 5 tools defined', () => {
-    expect(FITNESS_TOOLS).toHaveLength(5);
+  it('has 6 tools defined', () => {
+    expect(FITNESS_TOOLS).toHaveLength(6);
   });
 
   it('includes expected tool names', () => {
     const names = FITNESS_TOOLS.map(t => t.name);
     expect(names).toContain('get_exercise_library');
+    expect(names).toContain('create_exercise');
     expect(names).toContain('get_workout_history');
     expect(names).toContain('get_existing_plans');
     expect(names).toContain('create_workout_plan');
@@ -107,6 +108,54 @@ describe('executeTool', () => {
         makeCtx({ exercises: manyExercises }),
       );
       expect(JSON.parse(result)).toHaveLength(50);
+    });
+  });
+
+  describe('create_exercise', () => {
+    it('creates a custom exercise', async () => {
+      const ctx = makeCtx();
+      const result = await executeTool({
+        name: 'create_exercise',
+        arguments: {
+          name: 'Bulgarian Split Squat',
+          muscleGroups: ['legs', 'glutes', 'invalid'],
+          equipment: 'dumbbell',
+          category: 'Legs',
+          tags: ['unilateral'],
+          description: 'Rear foot elevated split squat.',
+        },
+      }, ctx);
+
+      const parsed = JSON.parse(result);
+      expect(parsed.success).toBe(true);
+      expect(parsed.created).toBe(true);
+      expect(ctx.saveExercise).toHaveBeenCalledOnce();
+      const saved = (ctx.saveExercise as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(saved.name).toBe('Bulgarian Split Squat');
+      expect(saved.muscleGroups).toEqual(['legs', 'glutes']);
+      expect(saved.equipment).toBe('dumbbell');
+    });
+
+    it('reuses an existing exercise by name', async () => {
+      const ctx = makeCtx();
+      const result = await executeTool({
+        name: 'create_exercise',
+        arguments: { name: 'bench press' },
+      }, ctx);
+
+      const parsed = JSON.parse(result);
+      expect(parsed.success).toBe(true);
+      expect(parsed.created).toBe(false);
+      expect(parsed.exerciseId).toBe('ex1');
+      expect(ctx.saveExercise).not.toHaveBeenCalled();
+    });
+
+    it('returns error when name is missing', async () => {
+      const result = await executeTool({
+        name: 'create_exercise',
+        arguments: { equipment: 'cable' },
+      }, makeCtx());
+      expect(JSON.parse(result).error).toBeDefined();
     });
   });
 

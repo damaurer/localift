@@ -81,8 +81,45 @@ export function SettingsProvider({children}: { children: ReactNode }) {
     }) => {
         setExercises(prev => {
             const incoming = Array.isArray(data.exercises) ? data.exercises : [];
+            const incomingPlans = Array.isArray(data.plans) ? data.plans : [];
+            const incomingSessions = Array.isArray(data.sessions) ? data.sessions : [];
             const nextById = new Map(prev.map(ex => [ex.id, ex]));
-            incoming.forEach(ex => nextById.set(ex.id, ex));
+            incoming.forEach(ex => {
+                if (!nextById.has(ex.id)) {
+                    nextById.set(ex.id, ex);
+                }
+            });
+
+            incomingSessions.forEach(session => {
+                session.exercises.forEach(sessionExercise => {
+                    if (nextById.has(sessionExercise.exerciseId)) return;
+
+                    nextById.set(sessionExercise.exerciseId, {
+                        id: sessionExercise.exerciseId,
+                        name: sessionExercise.exerciseName || 'Importierte Übung',
+                        equipment: 'other',
+                        muscleGroups: [],
+                        category: 'Import',
+                        tags: ['Import'],
+                    });
+                });
+            });
+
+            incomingPlans.forEach(plan => {
+                plan.exercises.forEach(planExercise => {
+                    if (nextById.has(planExercise.exerciseId)) return;
+
+                    nextById.set(planExercise.exerciseId, {
+                        id: planExercise.exerciseId,
+                        name: 'Importierte Übung',
+                        equipment: 'other',
+                        muscleGroups: [],
+                        category: 'Import',
+                        tags: ['Import'],
+                    });
+                });
+            });
+
             const next = Array.from(nextById.values());
             storage.saveExercises(next);
             return next;

@@ -37,6 +37,45 @@ export const FITNESS_TOOLS: AiTool[] = [
     },
   },
   {
+    name: 'create_exercise',
+    description:
+      'Legt eine neue eigene Übung in der Übungsbibliothek an. ' +
+      'Nutze dieses Tool, wenn der Nutzer ausdrücklich eine Übung hinzufügen möchte oder eine fehlende Übung dauerhaft speichern will.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: 'Name der Übung, z.B. "Bulgarian Split Squat".',
+        },
+        muscleGroups: {
+          type: 'array',
+          description: 'Muskelgruppen, z.B. ["legs", "glutes"].',
+          items: { type: 'string' },
+        },
+        equipment: {
+          type: 'string',
+          description: 'barbell|dumbbell|machine|bodyweight|cable|other.',
+          enum: ['barbell', 'dumbbell', 'machine', 'bodyweight', 'cable', 'other'],
+        },
+        category: {
+          type: 'string',
+          description: 'Kategorie der Übung, z.B. "Beine" oder "Custom".',
+        },
+        tags: {
+          type: 'array',
+          description: 'Optionale Tags.',
+          items: { type: 'string' },
+        },
+        description: {
+          type: 'string',
+          description: 'Optionale Kurzbeschreibung oder Technikhinweise.',
+        },
+      },
+      required: ['name'],
+    },
+  },
+  {
     name: 'get_workout_history',
     description: 'Gibt die letzten abgeschlossenen Trainingseinheiten des Nutzers zurück.',
     parameters: {
@@ -216,6 +255,58 @@ export async function executeTool(
           equipment: e.equipment,
         }));
         return JSON.stringify(result);
+      }
+
+      case 'create_exercise': {
+        const args = call.arguments as {
+          name?: string;
+          muscleGroups?: string[];
+          equipment?: string;
+          category?: string;
+          tags?: string[];
+          description?: string;
+        };
+
+        const name = args.name?.trim();
+        if (!name) {
+          return JSON.stringify({ error: 'name ist ein Pflichtfeld.' });
+        }
+
+        const existing = ctx.exercises.find(e => e.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+          return JSON.stringify({
+            success: true,
+            exerciseId: existing.id,
+            exerciseName: existing.name,
+            created: false,
+            hint: 'Diese Übung existiert bereits in der Bibliothek.',
+          });
+        }
+
+        const muscleGroups = (args.muscleGroups ?? [])
+          .map(m => String(m).toLowerCase())
+          .filter((m): m is MuscleGroup => (VALID_MUSCLE_GROUPS as string[]).includes(m));
+        const equipment = (VALID_EQUIPMENT as string[]).includes(String(args.equipment))
+          ? (args.equipment as Exercise['equipment'])
+          : 'other';
+
+        const exercise: Exercise = {
+          id: generateId(),
+          name,
+          equipment,
+          muscleGroups,
+          category: args.category?.trim() || 'Custom',
+          tags: Array.isArray(args.tags) ? args.tags.map(tag => String(tag).trim()).filter(Boolean) : [],
+          description: args.description?.trim() || undefined,
+        };
+
+        ctx.saveExercise(exercise);
+        return JSON.stringify({
+          success: true,
+          exerciseId: exercise.id,
+          exerciseName: exercise.name,
+          created: true,
+        });
       }
 
       case 'get_workout_history': {
