@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 
 import type { AiMessage, AiModelStatus } from '../../types/ai.types.ts';
 import { AiContext } from './AiContext.tsx';
-import { loadModel, isModelLoaded, unloadModel } from '../../ai/wllama-service.ts';
+import { loadModel, isModelLoaded, runCompletion, unloadModel } from '../../ai/wllama-service.ts';
 import { runAgent } from '../../ai/agent.ts';
 import { PLAN_GENERATOR_PROMPT } from '../../ai/prompts.ts';
 import type { ToolContext } from '../../ai/tools.ts';
@@ -242,6 +242,43 @@ export function AiProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
+  const generateExerciseDescription = useCallback(async (input: {
+    name: string;
+    category: string;
+    equipment: string;
+    muscleGroups: string[];
+    tags: string[];
+  }): Promise<string> => {
+    if (modelStatus !== 'ready') {
+      throw new Error('Modell nicht geladen');
+    }
+
+    const language = settings.language === 'en' ? 'English' : 'German';
+    const prompt = [
+      'You are an experienced strength-training coach writing for a workout app.',
+      `Write one polished, natural exercise description in ${language}.`,
+      'Use complete sentences and one smooth flowing paragraph, not bullet points, labels, fragments, or keyword lists.',
+      'Explain what the exercise trains, how it is generally performed, and what the user should focus on during execution.',
+      'Use the provided fields as context, but do not mechanically repeat every field.',
+      '',
+      `Name: ${input.name || '-'}`,
+      `Category: ${input.category || '-'}`,
+      `Equipment: ${input.equipment || '-'}`,
+      `Muscle groups: ${input.muscleGroups.join(', ') || '-'}`,
+      `Tags: ${input.tags.join(', ') || '-'}`,
+    ].join('\n');
+
+    const completion = await runCompletion(prompt, {
+      maxTokens: 120,
+      temperature: 0.45,
+    });
+
+    return completion
+      .replace(/<\|endoftext\|>/g, '')
+      .replace(/^["'`\s]+|["'`\s]+$/g, '')
+      .trim();
+  }, [modelStatus, settings.language]);
+
   return (
     <AiContext.Provider
       value={{
@@ -257,6 +294,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
         swapModel,
         sendMessage,
         clearChat,
+        generateExerciseDescription,
         generatePlan,
       }}
     >

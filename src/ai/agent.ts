@@ -82,6 +82,7 @@ export async function runAgent(
   let createdPlanName: string | undefined;
   // Every tool the agent ran this turn — surfaced in the chat as chips.
   const toolInvocations: AiToolInvocation[] = [];
+  const toolCallCounts = new Map<string, number>();
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     // Stop before we overflow the context window. Plans are already saved
@@ -107,6 +108,35 @@ export async function runAgent(
     }
 
     const toolCall = step.call;
+    const callSignature = getToolCallSignature(toolCall);
+    const previousCallCount = toolCallCounts.get(callSignature) ?? 0;
+
+    if (toolCall.name === 'get_exercise_library' && previousCallCount > 0) {
+      toolCallCounts.set(callSignature, previousCallCount + 1);
+
+      if (previousCallCount >= 2) {
+        const note =
+          '\n\nIch habe die Übungsbibliothek bereits mit denselben Parametern gelesen. ' +
+          'Nutze bitte spezifischere Suchparameter oder fahre mit den vorhandenen Treffern fort.';
+        callbacks.onVisibleToken(note);
+        visibleText += note;
+        break;
+      }
+
+      const guardResult = JSON.stringify({
+        error: 'get_exercise_library wurde in diesem Agent-Durchlauf bereits mit denselben Parametern ausgeführt.',
+        hint:
+          'Wiederhole denselben Library-Aufruf nicht. Nutze die vorhandenen exercise IDs aus dem vorherigen tool_result. ' +
+          'Falls andere Übungen benötigt werden, rufe get_exercise_library mit query, muscleGroup oder equipment spezifischer auf. ' +
+          'Für Planerstellung fahre mit create_workout_plan oder add_exercise_to_plan fort.',
+      });
+      toolInvocations.push({ name: toolCall.name, success: false });
+      callbacks.onToolDone(toolCall.name, false);
+      fullPrompt += formatToolExchange(toolCall, guardResult);
+      continue;
+    }
+
+    toolCallCounts.set(callSignature, previousCallCount + 1);
     callbacks.onToolStart(toolCall.name);
     const toolResult = await executeTool(toolCall, toolCtx);
     const success = isToolSuccess(toolResult);
@@ -224,6 +254,25 @@ function formatToolExchange(toolCall: AiToolCall, toolResult: string): string {
     `<|im_start|>tool\n${normalizedResult}\n${IM_END}\n` +
     '<|im_start|>assistant\n'
   );
+}
+
+function getToolCallSignature(toolCall: AiToolCall): string {
+  return `${toolCall.name}:${stableStringify(toolCall.arguments)}`;
+}
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+
+  if (value && typeof value === 'object') {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableStringify(item)}`)
+      .join(',')}}`;
+  }
+
+  return JSON.stringify(value);
 }
 
 /**

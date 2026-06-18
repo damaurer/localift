@@ -11,6 +11,7 @@ const mockExercises: Exercise[] = [
   { id: 'ex1', name: 'Bench Press', equipment: 'barbell', muscleGroups: ['chest'], category: 'compound' },
   { id: 'ex2', name: 'Squat', equipment: 'barbell', muscleGroups: ['legs'], category: 'compound' },
   { id: 'ex3', name: 'Bicep Curl', equipment: 'dumbbell', muscleGroups: ['biceps'], category: 'isolation' },
+  { id: 'ex4', name: 'Cable Row', equipment: 'cable', muscleGroups: ['back', 'biceps'], category: 'pull', tags: ['row'] },
 ];
 
 const mockSessions: WorkoutSession[] = [
@@ -76,7 +77,7 @@ describe('executeTool', () => {
     it('returns all exercises without filter', async () => {
       const result = await executeTool({ name: 'get_exercise_library', arguments: {} }, makeCtx());
       const parsed = JSON.parse(result);
-      expect(parsed).toHaveLength(3);
+      expect(parsed).toHaveLength(4);
       expect(parsed[0]).toHaveProperty('id', 'ex1');
     });
 
@@ -88,6 +89,34 @@ describe('executeTool', () => {
       const parsed = JSON.parse(result);
       expect(parsed).toHaveLength(1);
       expect(parsed[0].name).toBe('Bench Press');
+    });
+
+    it('filters by search query', async () => {
+      const result = await executeTool(
+        { name: 'get_exercise_library', arguments: { query: 'row' } },
+        makeCtx(),
+      );
+      const parsed = JSON.parse(result);
+      expect(parsed).toHaveLength(1);
+      expect(parsed[0].name).toBe('Cable Row');
+    });
+
+    it('combines muscle group and equipment filters', async () => {
+      const result = await executeTool(
+        { name: 'get_exercise_library', arguments: { muscleGroup: 'biceps', equipment: 'cable' } },
+        makeCtx(),
+      );
+      const parsed = JSON.parse(result);
+      expect(parsed).toHaveLength(1);
+      expect(parsed[0].name).toBe('Cable Row');
+    });
+
+    it('respects a custom search limit', async () => {
+      const result = await executeTool(
+        { name: 'get_exercise_library', arguments: { query: 'compound', limit: 1 } },
+        makeCtx(),
+      );
+      expect(JSON.parse(result)).toHaveLength(1);
     });
 
     it('returns empty array for non-matching filter', async () => {

@@ -26,6 +26,14 @@ export interface AiContextValue {
   sendMessage: (content: string) => Promise<void>;
   /** Clear the chat history (model stays loaded) */
   clearChat: () => void;
+  /** Generate a short exercise description without adding a chat message. */
+  generateExerciseDescription: (input: {
+    name: string;
+    category: string;
+    equipment: string;
+    muscleGroups: string[];
+    tags: string[];
+  }) => Promise<string>;
   /**
    * High-level entry point for the Plan Generator screen.
    * Builds a goal prompt and runs the full agentic loop.

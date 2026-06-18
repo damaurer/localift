@@ -1,6 +1,7 @@
 import {useMemo, useState} from 'react';
 
 import {useHeader} from '../contexts/LayoutContext';
+import {useAiContext} from '../contexts/ai/AiContext.tsx';
 import {useExerciseContext} from '../contexts/exercise/ExerciseContext.tsx';
 import {usePlanContext} from '../contexts/plan/PlanContext.tsx';
 import {useTranslation} from '../i18n/I18nContext.tsx';
@@ -53,11 +54,14 @@ function normalizeDraft(draft: ExerciseDraft): Omit<Exercise, 'id'> {
 export default function Exercises() {
   const t = useTranslation();
   const {exercises, addExercise, updateExercise, deleteExercise} = useExerciseContext();
+  const {modelStatus, generateExerciseDescription} = useAiContext();
   const {plans} = usePlanContext();
   const [search, setSearch] = useState('');
   const [draft, setDraft] = useState<ExerciseDraft>(() => createDraft());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
 
@@ -101,6 +105,7 @@ export default function Exercises() {
     setEditingId(null);
     setDraft(createDraft());
     setDeleteCandidate(null);
+    setDescriptionError(null);
   };
 
   const openNewExerciseModal = () => {
@@ -136,6 +141,32 @@ export default function Exercises() {
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
     closeEditor();
+  };
+
+  const handleGenerateDescription = async () => {
+    if (modelStatus !== 'ready' || isGeneratingDescription || !draft.name.trim()) return;
+
+    setIsGeneratingDescription(true);
+    setDescriptionError(null);
+
+    try {
+      const description = await generateExerciseDescription({
+        name: draft.name.trim(),
+        category: draft.category.trim(),
+        equipment: draft.equipment,
+        muscleGroups: draft.muscleGroups,
+        tags: draft.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      });
+
+      if (description) {
+        setDraft(prev => ({...prev, description}));
+      }
+    } catch (error) {
+      console.error('Failed to generate exercise description', error);
+      setDescriptionError(t.exercisesLibrary.aiDescriptionFailed);
+    } finally {
+      setIsGeneratingDescription(false);
+    }
   };
 
   const handleDelete = (exerciseId: string) => {
@@ -361,16 +392,42 @@ export default function Exercises() {
               />
             </label>
 
-            <label className="block">
-              <span className="text-xs font-bold tracking-widest uppercase text-on-surface-variant">{t.exercisesLibrary.description}</span>
+            <div>
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-xs font-bold tracking-widest uppercase text-on-surface-variant" htmlFor="exercise-description">
+                  {t.exercisesLibrary.description}
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={modelStatus !== 'ready' || isGeneratingDescription || !draft.name.trim()}
+                  className={`h-8 px-3 rounded-lg flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase transition-colors ${
+                    modelStatus === 'ready' && draft.name.trim()
+                      ? 'text-primary bg-surface-container hover:bg-surface-container-high'
+                      : 'text-outline bg-surface-container opacity-50 cursor-not-allowed'
+                  }`}
+                  title={modelStatus === 'ready' ? t.exercisesLibrary.generateDescription : t.exercisesLibrary.aiModelRequired}
+                >
+                  <span className="material-symbols-outlined text-base">
+                    {isGeneratingDescription ? 'hourglass_top' : 'neurology'}
+                  </span>
+                  {isGeneratingDescription ? t.exercisesLibrary.generatingDescription : 'AI'}
+                </button>
+              </div>
               <textarea
+                id="exercise-description"
                 value={draft.description}
                 onChange={event => setDraft(prev => ({...prev, description: event.target.value}))}
                 className="mt-2 w-full bg-surface-container rounded-lg px-4 py-3 text-on-surface resize-none"
                 rows={4}
                 placeholder={t.exercisesLibrary.descriptionPlaceholder}
               />
-            </label>
+              {descriptionError && (
+                <p className="mt-2 text-xs font-bold tracking-widest uppercase text-error">
+                  {descriptionError}
+                </p>
+              )}
+            </div>
 
             <button
               onClick={handleSave}

@@ -279,6 +279,10 @@ export interface Translations {
     tagsPlaceholder: string;
     description: string;
     descriptionPlaceholder: string;
+    generateDescription: string;
+    generatingDescription: string;
+    aiModelRequired: string;
+    aiDescriptionFailed: string;
     saved: string;
     deleteHint: string;
     deleteBlocked: string;

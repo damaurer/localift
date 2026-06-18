@@ -23,15 +23,29 @@ export const FITNESS_TOOLS: AiTool[] = [
   {
     name: 'get_exercise_library',
     description:
-      'Gibt alle verfügbaren Übungen aus der Übungsbibliothek zurück. ' +
-      'Rufe dieses Tool auf bevor du einen Plan erstellst, damit du gültige exercise IDs verwendest.',
+      'Sucht Übungen in der Übungsbibliothek und gibt passende exercise IDs zurück. ' +
+      'Nutze möglichst spezifische Suchparameter (query, muscleGroup, equipment), statt die komplette Bibliothek mehrfach zu lesen. ' +
+      'Rufe dieses Tool vor dem Erstellen eines Plans auf, damit du gültige exercise IDs verwendest.',
     parameters: {
       type: 'object',
       properties: {
+        query: {
+          type: 'string',
+          description: 'Optional: Freitextsuche in Name, Kategorie, Tags, Muskelgruppen und Equipment, z.B. "bench", "pull" oder "legs".',
+        },
         muscleGroup: {
           type: 'string',
           description: 'Optional: Filtere nach Muskelgruppe.',
           enum: ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'abs', 'legs', 'glutes'],
+        },
+        equipment: {
+          type: 'string',
+          description: 'Optional: Filtere nach Equipment.',
+          enum: ['barbell', 'dumbbell', 'machine', 'bodyweight', 'cable', 'other'],
+        },
+        limit: {
+          type: 'number',
+          description: 'Optional: Maximale Anzahl Treffer (Standard: 20 bei Suche/Filter, sonst 50; max: 50).',
         },
       },
     },
@@ -241,18 +255,50 @@ export async function executeTool(
     switch (call.name) {
 
       case 'get_exercise_library': {
-        const mg = call.arguments.muscleGroup as string | undefined;
+        const args = call.arguments as {
+          query?: string;
+          muscleGroup?: string;
+          equipment?: string;
+          limit?: number;
+        };
+        const query = args.query?.trim().toLowerCase();
+        const mg = args.muscleGroup as string | undefined;
+        const equipment = args.equipment as string | undefined;
+        const hasSpecificFilter = Boolean(query || mg || equipment);
+        const limit = Math.min(
+          Math.max(Number(args.limit) || (hasSpecificFilter ? 20 : 50), 1),
+          50,
+        );
+
         let list = ctx.exercises;
         if (mg) {
           list = list.filter(e =>
             e.muscleGroups.includes(mg as Exercise['muscleGroups'][number]),
           );
         }
-        const result = list.slice(0, 50).map(e => ({
+        if (equipment) {
+          list = list.filter(e => e.equipment === equipment);
+        }
+        if (query) {
+          list = list.filter(e => {
+            const haystack = [
+              e.name,
+              e.category,
+              e.equipment,
+              e.description ?? '',
+              ...(e.tags ?? []),
+              ...e.muscleGroups,
+            ].join(' ').toLowerCase();
+            return haystack.includes(query);
+          });
+        }
+
+        const result = list.slice(0, limit).map(e => ({
           id: e.id,
           name: e.name,
           muscleGroups: e.muscleGroups,
           equipment: e.equipment,
+          category: e.category,
         }));
         return JSON.stringify(result);
       }
