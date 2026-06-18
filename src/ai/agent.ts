@@ -3,15 +3,14 @@
  *
  * Drives the back-and-forth between the LLM and the tool executor:
  *   1. Format prompt (system + history + user message)
- *   2. Run completion, streaming tokens to the UI
- *   3. Detect <tool_call> tags in the generated text
- *   4. If a tool call is found → execute it, inject <tool_result>, continue
+ *   2. Run completion and classify it as visible text or a tool call
+ *   3. If a tool call is found → execute it, append a tool result, continue
  *   5. Repeat up to MAX_ITERATIONS, then return the final visible response
  *
  * The "visible" text (shown to the user) excludes all XML tool-call markup.
  */
 
-import type { AiMessage, AiToolInvocation } from '../types/ai.types.ts';
+import type { AiMessage, AiToolCall, AiToolInvocation } from '../types/ai.types.ts';
 import type { ToolContext } from './tools.ts';
 import { executeTool, FITNESS_TOOLS } from './tools.ts';
 import { buildSystemPrompt, formatChatPrompt } from './prompts.ts';
@@ -35,8 +34,13 @@ const MAX_ITERATIONS = 24;
 /** Rough char budget to stay within the model's context window (n_ctx 4096). */
 const MAX_PROMPT_CHARS = 14000;
 
+type AgentStep =
+  | { kind: 'final'; text: string }
+  | { kind: 'tool'; call: AiToolCall }
+  | { kind: 'invalid_tool_call' };
+
 export interface AgentCallbacks {
-  /** Called with the newly decoded token (only visible text, no XML markup) */
+  /** Called with visible assistant text (never XML tool markup). */
   onVisibleToken: (piece: string) => void;
   /** Called when a tool call starts; toolName is e.g. "get_exercise_library" */
   onToolStart: (toolName: string) => void;
@@ -70,8 +74,7 @@ export async function runAgent(
   const systemPrompt = buildSystemPrompt(FITNESS_TOOLS);
   const historySlice = chatHistory.map(m => ({ role: m.role, content: m.content }));
 
-  // fullPrompt accumulates context across tool-call iterations (all within
-  // the *same* assistant turn in ChatML).
+  // fullPrompt accumulates context across tool-call iterations in ChatML.
   let fullPrompt = formatChatPrompt(systemPrompt, historySlice, userMessage);
 
   // visibleText is what we show in the UI (tool XML stripped out).
@@ -86,109 +89,24 @@ export async function runAgent(
     // iteration always runs so a turn never produces an empty response.
     if (iteration > 0 && fullPrompt.length > MAX_PROMPT_CHARS) break;
 
-    let generatedInThisCall = '';
-    let toolCallDetected = false;
-    let endOfTurn = false;
-    let stopRequested = false;
-    // How much of THIS completion's text we have already streamed to the UI.
-    // Reset every iteration because runCompletion only returns the newly
-    // generated continuation, not the accumulated prompt.
-    let emittedLen = 0;
-
-    await runCompletion(fullPrompt, {
-      maxTokens: 1024,
-      temperature: 0.4,
-      onToken: (_piece, fullText) => {
-        generatedInThisCall = fullText;
-
-        if (stopRequested) return false;
-
-        if (!toolCallDetected && !endOfTurn) {
-          // A tool call may arrive in several shapes (the local model is not
-          // reliable about the <tool_call> wrapper): a proper tag, a ```json
-          // fence, or bare JSON. Any of these means "stop streaming as text".
-          const tcOpen = fullText.indexOf(TOOL_OPEN);
-          const fenceAt = fullText.indexOf(FENCE);
-          const imEnd = fullText.indexOf(IM_END);
-          const leadBrace = fullText.trimStart().startsWith('{')
-            ? fullText.indexOf('{')
-            : -1;
-
-          const indicators = [tcOpen, fenceAt, leadBrace].filter(i => i !== -1);
-          const toolAt = indicators.length ? Math.min(...indicators) : -1;
-
-          // Determine how far we may safely stream. We must NOT emit any
-          // trailing characters that could turn out to be the start of a
-          // tool-call marker (these span several tokens) since the UI can only
-          // append – never retract.
-          let safeEnd: number;
-          if (imEnd !== -1 && (toolAt === -1 || imEnd < toolAt)) {
-            // Model ended its turn before any tool call → stop after this text
-            safeEnd = imEnd;
-            endOfTurn = true;
-          } else if (toolAt !== -1) {
-            safeEnd = toolAt;
-            toolCallDetected = true;
-          } else {
-            safeEnd =
-              fullText.length -
-              Math.max(
-                pendingPrefixLen(fullText, TOOL_OPEN),
-                pendingPrefixLen(fullText, IM_END),
-                pendingPrefixLen(fullText, FENCE),
-              );
-          }
-
-          if (safeEnd > emittedLen) {
-            const delta = fullText.substring(emittedLen, safeEnd);
-            callbacks.onVisibleToken(delta);
-            visibleText += delta; // accumulate across iterations
-            emittedLen = safeEnd;
-          }
-
-          if (endOfTurn) {
-            stopRequested = true;
-            return false;
-          }
-        }
-
-        // Once inside a tool call, abort as soon as it is complete (closing
-        // tag, end-of-turn marker, or a fully balanced JSON object).
-        if (
-          toolCallDetected &&
-          (fullText.includes(TOOL_CLOSE) ||
-            fullText.includes(IM_END) ||
-            extractFirstJsonObject(fullText) !== null)
-        ) {
-          stopRequested = true;
-          return false;
-        }
-      },
-    });
-
-    // ── Model signalled end-of-turn → done ────────────────────────────────
-    if (endOfTurn) break;
+    const step = await generateAgentStep(fullPrompt);
 
     // ── No tool call → generation is complete ─────────────────────────────
-    if (!toolCallDetected) {
-      // Flush any text held back by the partial-tag guard.
-      if (generatedInThisCall.length > emittedLen) {
-        const tail = generatedInThisCall.substring(emittedLen);
-        callbacks.onVisibleToken(tail);
-        visibleText += tail;
-      }
+    if (step.kind === 'final') {
+      emitVisible(step.text, callbacks);
+      visibleText += step.text;
       break;
     }
 
     // ── Extract and execute the tool call (robust to messy formatting) ────
-    const toolCall = extractToolCall(generatedInThisCall);
-    if (!toolCall) {
+    if (step.kind === 'invalid_tool_call') {
       const errNote = '\n\n[Tool-Aufruf konnte nicht verarbeitet werden]';
       callbacks.onVisibleToken(errNote);
       visibleText += errNote;
       break;
     }
 
+    const toolCall = step.call;
     callbacks.onToolStart(toolCall.name);
     const toolResult = await executeTool(toolCall, toolCtx);
     const success = isToolSuccess(toolResult);
@@ -203,14 +121,9 @@ export async function runAgent(
       } catch { /* ignore */ }
     }
 
-    // Continue the SAME assistant turn: keep any prose the model wrote, then a
-    // normalised tool-call block + its result. Normalising keeps the growing
-    // prompt small and well-formed regardless of how the model emitted it.
-    const prose = generatedInThisCall.substring(0, emittedLen);
-    fullPrompt +=
-      prose +
-      `${TOOL_OPEN}${JSON.stringify(toolCall)}${TOOL_CLOSE}\n` +
-      `${RESULT_OPEN}\n${toolResult}\n${RESULT_CLOSE}\n`;
+    // Continue the agent loop with a normalized assistant tool-call turn and
+    // a tool-result turn, mirroring LEAP's FunctionCalls -> tool messages flow.
+    fullPrompt += formatToolExchange(toolCall, toolResult);
   }
 
   return {
@@ -223,6 +136,94 @@ export async function runAgent(
     },
     createdPlanName,
   };
+}
+
+async function generateAgentStep(prompt: string): Promise<AgentStep> {
+  let generated = '';
+  let toolCallDetected = false;
+  let stopRequested = false;
+
+  const completion = await runCompletion(prompt, {
+    maxTokens: 1024,
+    temperature: 0.4,
+    onToken: (_piece, fullText) => {
+      generated = fullText;
+
+      if (stopRequested) return false;
+
+      const toolAt = findToolStart(fullText);
+      const imEnd = fullText.indexOf(IM_END);
+
+      if (imEnd !== -1 && (toolAt === -1 || imEnd < toolAt)) {
+        stopRequested = true;
+        return false;
+      }
+
+      if (toolAt !== -1) {
+        toolCallDetected = true;
+      }
+
+      // Once inside a tool call, abort as soon as it is complete (closing
+      // tag, end-of-turn marker, or a fully balanced JSON object).
+      if (
+        toolCallDetected &&
+        (fullText.includes(TOOL_CLOSE) ||
+          fullText.includes(IM_END) ||
+          extractFirstJsonObject(fullText) !== null)
+      ) {
+        stopRequested = true;
+        return false;
+      }
+    },
+  });
+  if (!generated) generated = completion;
+
+  if (!toolCallDetected) {
+    return { kind: 'final', text: stripAfterEndOfTurn(generated) };
+  }
+
+  const call = extractToolCall(generated);
+  return call ? { kind: 'tool', call } : { kind: 'invalid_tool_call' };
+}
+
+function emitVisible(text: string, callbacks: AgentCallbacks): void {
+  const visible = holdBackPartialMarker(text);
+  if (visible) callbacks.onVisibleToken(visible);
+}
+
+function findToolStart(text: string): number {
+  // A tool call may arrive in several shapes (the local model is not reliable
+  // about the <tool_call> wrapper): a proper tag, a ```json fence, or bare JSON.
+  const tcOpen = text.indexOf(TOOL_OPEN);
+  const fenceAt = text.indexOf(FENCE);
+  const leadBrace = text.trimStart().startsWith('{') ? text.indexOf('{') : -1;
+  const indicators = [tcOpen, fenceAt, leadBrace].filter(i => i !== -1);
+  return indicators.length ? Math.min(...indicators) : -1;
+}
+
+function stripAfterEndOfTurn(text: string): string {
+  const imEnd = text.indexOf(IM_END);
+  return imEnd === -1 ? text : text.slice(0, imEnd);
+}
+
+function holdBackPartialMarker(text: string): string {
+  const unsafeSuffixLen = Math.max(
+    pendingPrefixLen(text, TOOL_OPEN),
+    pendingPrefixLen(text, IM_END),
+    pendingPrefixLen(text, FENCE),
+  );
+  return unsafeSuffixLen > 0 ? text.slice(0, -unsafeSuffixLen) : text;
+}
+
+function formatToolExchange(toolCall: AiToolCall, toolResult: string): string {
+  const normalizedCall = `${TOOL_OPEN}${JSON.stringify(toolCall)}${TOOL_CLOSE}`;
+  const normalizedResult = `${RESULT_OPEN}\n${toolResult}\n${RESULT_CLOSE}`;
+
+  return (
+    `${normalizedCall}\n${IM_END}\n` +
+    `<|im_start|>tool\n${normalizedResult}\n${IM_END}\n` +
+    '<|im_start|>assistant\n'
+  );
 }
 
 /**
