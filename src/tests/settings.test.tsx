@@ -180,7 +180,7 @@ describe('GeneralSettings', () => {
 
 describe('AiTrainerSettings', () => {
   const defaultProps = {
-    aiTrainer: { enabled: false, modelUrl: 'https://example.com/model.gguf' },
+    aiTrainer: { enabled: false, debugOutput: false, modelUrl: 'https://example.com/model.gguf' },
     modelStatus: 'idle',
     downloadProgress: 0,
     modelError: null,
@@ -203,7 +203,7 @@ describe('AiTrainerSettings', () => {
 
   it('shows model status when enabled', () => {
     render(
-      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, modelUrl: 'url' }} modelStatus="ready" />,
+      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, debugOutput: false, modelUrl: 'url' }} modelStatus="ready" />,
       { wrapper: TestWrapper },
     );
     expect(screen.getByText('Modell bereit')).toBeDefined();
@@ -211,7 +211,7 @@ describe('AiTrainerSettings', () => {
 
   it('shows download progress when downloading', () => {
     render(
-      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, modelUrl: 'url' }} modelStatus="downloading" downloadProgress={0.5} />,
+      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, debugOutput: false, modelUrl: 'url' }} modelStatus="downloading" downloadProgress={0.5} />,
       { wrapper: TestWrapper },
     );
     expect(screen.getByText(/50%/)).toBeDefined();
@@ -219,7 +219,7 @@ describe('AiTrainerSettings', () => {
 
   it('shows error message when present', () => {
     render(
-      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, modelUrl: 'url' }} modelStatus="error" modelError="Load failed" />,
+      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, debugOutput: false, modelUrl: 'url' }} modelStatus="error" modelError="Load failed" />,
       { wrapper: TestWrapper },
     );
     expect(screen.getByText('Load failed')).toBeDefined();
@@ -227,7 +227,7 @@ describe('AiTrainerSettings', () => {
 
   it('shows loaded model URL filename', () => {
     render(
-      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, modelUrl: 'url' }} modelStatus="ready" loadedModelUrl="https://example.com/model.gguf" />,
+      <AiTrainerSettings {...defaultProps} aiTrainer={{ enabled: true, debugOutput: false, modelUrl: 'url' }} modelStatus="ready" loadedModelUrl="https://example.com/model.gguf" />,
       { wrapper: TestWrapper },
     );
     expect(screen.getByText('model.gguf')).toBeDefined();

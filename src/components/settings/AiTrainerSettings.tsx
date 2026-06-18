@@ -6,6 +6,7 @@ import { useTranslation } from "../../i18n/I18nContext.tsx";
 interface AiTrainerSettingsProps {
     aiTrainer: {
         enabled: boolean;
+        debugOutput: boolean;
         modelUrl: string;
     };
     modelStatus: string;
@@ -124,6 +125,39 @@ const AiTrainerSettings: React.FC<AiTrainerSettingsProps> = ({
                                 {modelError}
                             </div>
                         )}
+
+                        {/* Debug output toggle */}
+                        <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl"
+                             style={{ background: 'rgba(149,170,255,0.05)' }}>
+                            <div className="flex items-start gap-3 min-w-0">
+                                <span className="material-symbols-outlined text-base mt-0.5"
+                                      style={{ color: '#95aaff', fontVariationSettings: "'FILL' 1" }}>
+                                    bug_report
+                                </span>
+                                <div className="min-w-0">
+                                    <span className="text-sm font-bold block"
+                                          style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                                        {t.settings.aiDebugOutput}
+                                    </span>
+                                    <p className="text-xs text-on-surface-variant mt-0.5">
+                                        {t.settings.aiDebugOutputDesc}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => updateSettings({
+                                    aiTrainer: { ...aiTrainer, debugOutput: !aiTrainer.debugOutput }
+                                })}
+                                className="relative inline-flex items-center cursor-pointer shrink-0"
+                                aria-label={t.settings.aiDebugOutput}
+                            >
+                                <div className="w-12 h-6 rounded-full transition-colors duration-200 relative"
+                                     style={{ background: aiTrainer.debugOutput ? 'var(--color-secondary)' : 'var(--color-surface-variant)' }}>
+                                    <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform duration-200"
+                                         style={{ transform: aiTrainer.debugOutput ? 'translateX(calc(100% + 4px))' : 'translateX(4px)' }} />
+                                </div>
+                            </button>
+                        </div>
 
                         {/* Description toggle */}
                         <button

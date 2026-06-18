@@ -216,9 +216,11 @@ export default function AiChat() {
               <div className={`flex items-center gap-3 mb-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 {msg.role === 'assistant' ? (
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #95aaff, #3766ff)' }}>
+                    style={{ background: msg.isDebug ? 'rgba(251,191,36,0.14)' : 'linear-gradient(135deg, #95aaff, #3766ff)' }}>
                     <span className="material-symbols-outlined text-sm"
-                      style={{ color: '#00247e', fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                      style={{ color: msg.isDebug ? '#fbbf24' : '#00247e', fontVariationSettings: "'FILL' 1" }}>
+                      {msg.isDebug ? 'bug_report' : 'psychology'}
+                    </span>
                   </div>
                 ) : (
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-surface-bright">
@@ -228,9 +230,9 @@ export default function AiChat() {
                 <span className="font-black text-[10px] tracking-widest uppercase"
                   style={{
                     fontFamily: 'Space Grotesk, sans-serif',
-                    color: msg.role === 'assistant' ? '#95aaff' : 'var(--color-on-surface)',
+                    color: msg.isDebug ? '#fbbf24' : msg.role === 'assistant' ? '#95aaff' : 'var(--color-on-surface)',
                   }}>
-                  {msg.role === 'assistant' ? 'LOCALLIFT AI' : t.aiChat.you}
+                  {msg.isDebug ? 'AGENT DEBUG' : msg.role === 'assistant' ? 'LOCALLIFT AI' : t.aiChat.you}
                 </span>
                 <span className="text-[10px] text-outline">{formatTimestamp(msg.timestamp)}</span>
               </div>
@@ -263,8 +265,16 @@ export default function AiChat() {
 
               {/* Bubble */}
               <div
-                className="rounded-xl p-4 text-sm leading-relaxed"
-                style={msg.role === 'assistant'
+                className={`rounded-xl p-4 text-sm leading-relaxed ${msg.isDebug ? 'font-mono text-xs overflow-x-auto' : ''}`}
+                style={msg.isDebug
+                  ? {
+                    background: 'rgba(251,191,36,0.08)',
+                    borderLeft: '2px solid rgba(251,191,36,0.7)',
+                    color: 'var(--color-on-surface)',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }
+                  : msg.role === 'assistant'
                   ? {
                     background: 'var(--color-surface-container)',
                     borderLeft: '2px solid #95aaff',

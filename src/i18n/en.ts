@@ -210,6 +210,8 @@ export const en: Translations = {
     modelLoading: 'Loading…',
     modelError: 'Error loading model',
     openChat: 'Open chat',
+    aiDebugOutput: 'Agent debug in chat',
+    aiDebugOutputDesc: 'Shows raw agent output, tool calls, and tool results in the chat.',
     aiTrainerDescTitle: 'What can the AI Trainer do?',
     aiTrainerDesc1: 'Training tips and recommendations based on your data',
     aiTrainerDesc2: 'Progress analysis of your past sessions',

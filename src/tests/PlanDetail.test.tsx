@@ -75,7 +75,7 @@ function createWrapper(path = '/plans/new') {
       reminderTime: '09:00',
       reminderDays: [false, false, false, false, false, false, false],
       vibration: true,
-      aiTrainer: { enabled: false, modelUrl: '' },
+      aiTrainer: { enabled: false, debugOutput: false, modelUrl: '' },
     },
     updateSettings: vi.fn(),
     clearAllData: vi.fn(),

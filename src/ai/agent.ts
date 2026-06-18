@@ -39,6 +39,12 @@ type AgentStep =
   | { kind: 'tool'; call: AiToolCall }
   | { kind: 'invalid_tool_call' };
 
+export interface AgentDebugOutput {
+  kind: 'completion' | 'tool_call' | 'tool_result' | 'invalid_tool_call' | 'prompt_limit';
+  label: string;
+  content: string;
+}
+
 export interface AgentCallbacks {
   /** Called with visible assistant text (never XML tool markup). */
   onVisibleToken: (piece: string) => void;
@@ -46,6 +52,8 @@ export interface AgentCallbacks {
   onToolStart: (toolName: string) => void;
   /** Called after the tool has finished executing (success = no error result) */
   onToolDone: (toolName: string, success: boolean) => void;
+  /** Called with raw agent trace entries when AI debug output is enabled. */
+  onDebugOutput?: (output: AgentDebugOutput) => void;
 }
 
 export interface AgentResult {
@@ -88,9 +96,16 @@ export async function runAgent(
     // Stop before we overflow the context window. Plans are already saved
     // incrementally, so an early stop still leaves a usable result. The first
     // iteration always runs so a turn never produces an empty response.
-    if (iteration > 0 && fullPrompt.length > MAX_PROMPT_CHARS) break;
+    if (iteration > 0 && fullPrompt.length > MAX_PROMPT_CHARS) {
+      callbacks.onDebugOutput?.({
+        kind: 'prompt_limit',
+        label: `Prompt limit before iteration ${iteration + 1}`,
+        content: `Prompt length ${fullPrompt.length} exceeded ${MAX_PROMPT_CHARS} characters.`,
+      });
+      break;
+    }
 
-    const step = await generateAgentStep(fullPrompt);
+    const step = await generateAgentStep(fullPrompt, iteration, callbacks);
 
     // ── No tool call → generation is complete ─────────────────────────────
     if (step.kind === 'final') {
@@ -102,12 +117,22 @@ export async function runAgent(
     // ── Extract and execute the tool call (robust to messy formatting) ────
     if (step.kind === 'invalid_tool_call') {
       const errNote = '\n\n[Tool-Aufruf konnte nicht verarbeitet werden]';
+      callbacks.onDebugOutput?.({
+        kind: 'invalid_tool_call',
+        label: `Invalid tool call in iteration ${iteration + 1}`,
+        content: errNote.trim(),
+      });
       callbacks.onVisibleToken(errNote);
       visibleText += errNote;
       break;
     }
 
     const toolCall = step.call;
+    callbacks.onDebugOutput?.({
+      kind: 'tool_call',
+      label: `Tool call in iteration ${iteration + 1}`,
+      content: JSON.stringify(toolCall, null, 2),
+    });
     const callSignature = getToolCallSignature(toolCall);
     const previousCallCount = toolCallCounts.get(callSignature) ?? 0;
 
@@ -132,6 +157,11 @@ export async function runAgent(
       });
       toolInvocations.push({ name: toolCall.name, success: false });
       callbacks.onToolDone(toolCall.name, false);
+      callbacks.onDebugOutput?.({
+        kind: 'tool_result',
+        label: `Guard result for ${toolCall.name}`,
+        content: guardResult,
+      });
       fullPrompt += formatToolExchange(toolCall, guardResult);
       continue;
     }
@@ -142,6 +172,11 @@ export async function runAgent(
     const success = isToolSuccess(toolResult);
     toolInvocations.push({ name: toolCall.name, success });
     callbacks.onToolDone(toolCall.name, success);
+    callbacks.onDebugOutput?.({
+      kind: 'tool_result',
+      label: `Tool result for ${toolCall.name}`,
+      content: toolResult,
+    });
 
     // Track plan creation for UI feedback (last created plan wins).
     if (toolCall.name === 'create_workout_plan') {
@@ -168,7 +203,11 @@ export async function runAgent(
   };
 }
 
-async function generateAgentStep(prompt: string): Promise<AgentStep> {
+async function generateAgentStep(
+  prompt: string,
+  iteration: number,
+  callbacks: AgentCallbacks,
+): Promise<AgentStep> {
   let generated = '';
   let toolCallDetected = false;
   let stopRequested = false;
@@ -207,6 +246,12 @@ async function generateAgentStep(prompt: string): Promise<AgentStep> {
     },
   });
   if (!generated) generated = completion;
+
+  callbacks.onDebugOutput?.({
+    kind: 'completion',
+    label: `Raw completion ${iteration + 1}`,
+    content: generated,
+  });
 
   if (!toolCallDetected) {
     return { kind: 'final', text: stripAfterEndOfTurn(generated) };

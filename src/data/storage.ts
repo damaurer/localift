@@ -70,10 +70,22 @@ const DEFAULT_SETTINGS: AppSettings = {
   vibration: true,
   aiTrainer: {
     enabled: false,
+    debugOutput: false,
     modelUrl:
       DEFAULT_MODEL_URL,
   },
 };
+
+function normalizeSettings(settings: AppSettings): AppSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...settings,
+    aiTrainer: {
+      ...DEFAULT_SETTINGS.aiTrainer,
+      ...(settings.aiTrainer ?? {}),
+    },
+  };
+}
 
 export const storage = {
   getExercises: () => idbGet<Exercise[]>("exercises", DB_KEYS.exercises, []),
@@ -97,8 +109,8 @@ export const storage = {
   getNutritionGoals: () => idbGet<NutritionGoals>("nutritionGoals", DB_KEYS.nutritionGoals, DEFAULT_NUTRITION_GOALS),
   saveNutritionGoals: (v: NutritionGoals) => idbSet("nutritionGoals", DB_KEYS.nutritionGoals, v),
 
-  getSettings: () => Promise.resolve(loadSync<AppSettings>(KEYS.settings, DEFAULT_SETTINGS)),
-  getSettingsSync: (): AppSettings => loadSync<AppSettings>(KEYS.settings, DEFAULT_SETTINGS),
+  getSettings: () => Promise.resolve(normalizeSettings(loadSync<AppSettings>(KEYS.settings, DEFAULT_SETTINGS))),
+  getSettingsSync: (): AppSettings => normalizeSettings(loadSync<AppSettings>(KEYS.settings, DEFAULT_SETTINGS)),
   saveSettings: (v: AppSettings) => save(KEYS.settings, v),
 
   getRemoteSyncInfo: async () => ({

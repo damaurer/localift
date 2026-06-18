@@ -43,6 +43,7 @@ export function SettingsProvider({children}: { children: ReactNode }) {
             vibration: true,
             aiTrainer: {
                 enabled: false,
+                debugOutput: false,
                 modelUrl:
                     DEFAULT_MODEL_URL,
             },

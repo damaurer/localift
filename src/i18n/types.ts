@@ -220,6 +220,8 @@ export interface Translations {
     modelLoading: string;
     modelError: string;
     openChat: string;
+    aiDebugOutput: string;
+    aiDebugOutputDesc: string;
     aiTrainerDescTitle: string;
     aiTrainerDesc1: string;
     aiTrainerDesc2: string;

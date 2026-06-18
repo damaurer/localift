@@ -5,6 +5,8 @@ export interface AiMessage {
   timestamp: string;
   /** True while the AI is still streaming tokens for this message */
   isStreaming?: boolean;
+  /** Debug-only agent trace. Must not be sent back to the model as history. */
+  isDebug?: boolean;
   /** Tools the agent executed while producing this message (shown as chips) */
   toolInvocations?: AiToolInvocation[];
 }

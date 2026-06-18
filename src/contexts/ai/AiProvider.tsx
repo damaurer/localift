@@ -119,6 +119,22 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setGeneratingContext(ctx);
       setActiveToolName(null);
 
+      const appendDebugMessage = (label: string, content: string) => {
+        if (!settings.aiTrainer.debugOutput) return;
+
+        const debugContent = [`[Agent Debug] ${label}`, content].join('\n\n');
+        setMessages(prev => [
+          ...prev,
+          {
+            id: generateId(),
+            role: 'assistant',
+            content: debugContent,
+            timestamp: new Date().toISOString(),
+            isDebug: true,
+          },
+        ]);
+      };
+
       // Placeholder streaming message
       const streamingId = generateId();
       const streamingMsg: AiMessage = {
@@ -135,7 +151,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
       try {
         const result = await runAgent(
           userContent,
-          messagesRef.current.filter(m => !m.isStreaming),
+          messagesRef.current.filter(m => !m.isStreaming && !m.isDebug),
           buildToolContext(),
           {
             onVisibleToken: (_piece) => {
@@ -170,6 +186,9 @@ export function AiProvider({ children }: { children: ReactNode }) {
                 ),
               );
             },
+            onDebugOutput: (output) => {
+              appendDebugMessage(output.label, output.content);
+            },
           },
         );
 
@@ -203,7 +222,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
       return createdPlanName;
     },
-    [modelStatus, buildToolContext],
+    [modelStatus, buildToolContext, settings.aiTrainer.debugOutput],
   );
 
   // ── sendMessage ────────────────────────────────────────────────────────────

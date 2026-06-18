@@ -210,6 +210,8 @@ export const de: Translations = {
     modelLoading: 'Wird geladen…',
     modelError: 'Fehler beim Laden',
     openChat: 'Chat öffnen',
+    aiDebugOutput: 'Agent-Debug im Chat',
+    aiDebugOutputDesc: 'Zeigt rohe Agent-Ausgaben, Tool-Aufrufe und Tool-Ergebnisse im Chat an.',
     aiTrainerDescTitle: 'Was kann der KI Trainer?',
     aiTrainerDesc1: 'Trainingstipps und Empfehlungen basierend auf deinen Daten',
     aiTrainerDesc2: 'Fortschrittsanalyse deiner bisherigen Einheiten',

@@ -14,7 +14,7 @@ const DEFAULT_TEST_SETTINGS: AppSettings = {
   reminderTime: '07:00',
   reminderDays: [true, true, true, true, true, false, false],
   vibration: true,
-  aiTrainer: { enabled: false, modelUrl: '' },
+  aiTrainer: { enabled: false, debugOutput: false, modelUrl: '' },
 };
 
 function SettingsMock({ children }: { children: ReactNode }) {

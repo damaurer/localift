@@ -1,6 +1,8 @@
 export interface AiTrainerSettings {
   /** Whether the AI Trainer feature is enabled */
   enabled: boolean;
+  /** Show raw agent completions, tool calls, and tool results in the chat */
+  debugOutput: boolean;
   /**
    * GGUF model URL to download and run locally via WebAssembly.
    * Must be a publicly accessible URL (HuggingFace raw file, CDN, etc.).
