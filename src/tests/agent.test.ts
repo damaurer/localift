@@ -1,19 +1,33 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { extractToolCall } from '../ai/tool-parsing.ts';
-import { runAgent } from '../ai/agent.ts';
+import { isPlanRequest, runAgent } from '../ai/agent.ts';
 import type { ToolContext } from '../ai/tools.ts';
 
 const completionQueue = vi.hoisted(() => ({
-  values: [] as string[],
+  values: [] as (string | { text?: string; toolCalls: { name: string; arguments: Record<string, unknown> }[] })[],
+  messages: [] as unknown[][],
+  toolsPassed: [] as boolean[],
+  failNativeOnce: false,
 }));
 
 vi.mock('../ai/wllama-service.ts', () => ({
-  runCompletion: vi.fn(async (_prompt: string, options?: {
+  NativeToolsUnsupportedError: class NativeToolsUnsupportedError extends Error {},
+  supportsNativeTools: () => true,
+  runChatCompletion: vi.fn(async (messages: unknown[], options?: {
+    tools?: unknown[];
     onToken?: (piece: string, fullText: string) => boolean | void;
   }) => {
-    const text = completionQueue.values.shift() ?? 'Fertig.';
-    options?.onToken?.(text, text);
-    return text;
+    completionQueue.messages.push(structuredClone(messages));
+    completionQueue.toolsPassed.push(Boolean(options?.tools?.length));
+    if (completionQueue.failNativeOnce && options?.tools?.length) {
+      completionQueue.failNativeOnce = false;
+      const { NativeToolsUnsupportedError } = await import('../ai/wllama-service.ts');
+      throw new NativeToolsUnsupportedError();
+    }
+    const next = completionQueue.values.shift() ?? 'Fertig.';
+    const result = typeof next === 'string' ? { text: next, toolCalls: [] } : { text: next.text ?? '', toolCalls: next.toolCalls };
+    if (result.text) options?.onToken?.(result.text, result.text);
+    return result;
   }),
 }));
 
@@ -23,6 +37,9 @@ vi.mock('../data/storage.ts', () => ({
 
 beforeEach(() => {
   completionQueue.values = [];
+  completionQueue.messages = [];
+  completionQueue.toolsPassed = [];
+  completionQueue.failNativeOnce = false;
   vi.clearAllMocks();
 });
 
@@ -101,7 +118,7 @@ describe('runAgent', () => {
       getPlanById: vi.fn(),
     };
 
-    const result = await runAgent('Erstelle einen Plan', [], ctx, callbacks);
+    const result = await runAgent('Welche Übungen habe ich?', [], ctx, callbacks);
 
     expect(result.message.content).toBe('Fertig.');
     expect(result.message.toolInvocations).toEqual([
@@ -111,5 +128,143 @@ describe('runAgent', () => {
     expect(callbacks.onToolStart).toHaveBeenCalledTimes(1);
     expect(callbacks.onToolDone).toHaveBeenNthCalledWith(1, 'get_exercise_library', true);
     expect(callbacks.onToolDone).toHaveBeenNthCalledWith(2, 'get_exercise_library', false);
+  });
+
+  it('executes natively parsed tool calls and feeds results back as tool messages', async () => {
+    completionQueue.values = [
+      { toolCalls: [{ name: 'get_exercise_library', arguments: { muscleGroup: 'chest' } }] },
+      'Bankdrücken ist in deiner Bibliothek.',
+    ];
+
+    const callbacks = {
+      onVisibleToken: vi.fn(),
+      onToolStart: vi.fn(),
+      onToolDone: vi.fn(),
+    };
+    const ctx: ToolContext = {
+      exercises: [
+        { id: 'ex1', name: 'Bench Press', equipment: 'barbell', muscleGroups: ['chest'], category: 'compound' },
+      ],
+      sessions: [],
+      plans: [],
+      savePlan: vi.fn(() => 'plan-id'),
+      saveExercise: vi.fn(),
+      addExerciseToPlan: vi.fn(() => 'plan-exercise-id'),
+      updatePlanExerciseSets: vi.fn(),
+      getPlanById: vi.fn(),
+    };
+
+    const result = await runAgent('Welche Brustübungen habe ich?', [], ctx, callbacks);
+
+    expect(result.message.content).toBe('Bankdrücken ist in deiner Bibliothek.');
+    expect(result.message.toolInvocations).toEqual([{ name: 'get_exercise_library', success: true }]);
+
+    const secondCall = completionQueue.messages[1] as { role: string; tool_calls?: unknown[]; tool_call_id?: string; content?: string }[];
+    expect(secondCall.map(m => m.role)).toEqual(['system', 'user', 'assistant', 'tool']);
+    expect(secondCall[2].tool_calls).toHaveLength(1);
+    expect(secondCall[3].tool_call_id).toBe('call_0');
+    expect(secondCall[3].content).toContain('ex1');
+  });
+
+  it('falls back to the <tool_call> text protocol when native tools are unsupported', async () => {
+    completionQueue.failNativeOnce = true;
+    completionQueue.values = [
+      '<tool_call>{"name":"get_existing_plans","arguments":{}}</tool_call>',
+      'Du hast noch keine Pläne.',
+    ];
+
+    const callbacks = {
+      onVisibleToken: vi.fn(),
+      onToolStart: vi.fn(),
+      onToolDone: vi.fn(),
+    };
+    const ctx: ToolContext = {
+      exercises: [],
+      sessions: [],
+      plans: [],
+      savePlan: vi.fn(() => 'plan-id'),
+      saveExercise: vi.fn(),
+      addExerciseToPlan: vi.fn(() => 'plan-exercise-id'),
+      updatePlanExerciseSets: vi.fn(),
+      getPlanById: vi.fn(),
+    };
+
+    const result = await runAgent('Welche Pläne habe ich?', [], ctx, callbacks);
+
+    expect(result.message.content).toBe('Du hast noch keine Pläne.');
+    expect(result.message.toolInvocations).toEqual([{ name: 'get_existing_plans', success: true }]);
+    expect(completionQueue.toolsPassed).toEqual([true, false, false]);
+
+    const retry = completionQueue.messages[1] as { role: string; content: string }[];
+    expect(retry[0].content).toContain('<tool_call>');
+    const followUp = completionQueue.messages[2] as { role: string; content: string }[];
+    expect(followUp.map(m => m.role)).toEqual(['system', 'user', 'assistant', 'user']);
+    expect(followUp[3].content).toContain('<tool_result>');
+  });
+
+  it('passes the original user message to generate_workout_plan', async () => {
+    completionQueue.values = [
+      { toolCalls: [{ name: 'generate_workout_plan', arguments: { goal: 'Ganzkörper' } }] },
+      'Fertig.',
+    ];
+    const spy = vi.spyOn(await import('../ai/tools.ts'), 'executeTool');
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    await runAgent('Ganzkörper zu Hause ohne Geräte', [], ctx, callbacks);
+
+    expect(spy.mock.calls[0]?.[0]).toEqual({
+      name: 'generate_workout_plan',
+      arguments: { goal: 'Ganzkörper', userRequest: 'Ganzkörper zu Hause ohne Geräte' },
+    });
+  });
+});
+
+describe('isPlanRequest', () => {
+  it.each([
+    'Erstelle mir einen Push-Trainingsplan für Muskelaufbau.',
+    'Ich bin Anfänger und trainiere zu Hause ohne Geräte. Erstelle mir ein Ganzkörper-Workout.',
+    'Mach mir einen Beintag für Kraft.',
+    'Ich brauche einen Pull-Tag für Muskelaufbau.',
+    'Gib mir einen Trainingsplan für 3 Tage.',
+  ])('detects "%s"', message => {
+    expect(isPlanRequest(message)).toBe(true);
+  });
+
+  it.each([
+    'Wie oft pro Woche sollte ich als Anfänger trainieren?',
+    'Gib mir einen Tipp für den Beintag.',
+    'Was hältst du von meinem Trainingsplan?',
+    'Wie schütze ich beim Kreuzheben meinen unteren Rücken?',
+    'Erstelle mir einen Push/Pull/Beine Split.',
+  ])('ignores "%s"', message => {
+    expect(isPlanRequest(message)).toBe(false);
+  });
+});
+
+describe('runAgent plan requests', () => {
+  it('routes a plan request straight to generate_workout_plan and lets the model summarize', async () => {
+    completionQueue.values = ['Dein Beintag ist fertig.'];
+    const spy = vi.spyOn(await import('../ai/tools.ts'), 'executeTool').mockResolvedValueOnce(
+      JSON.stringify({ success: true, planId: 'p1', planName: 'Beintag', exercises: ['Kniebeuge 3x8'] }),
+    );
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    const result = await runAgent('Erstelle mir einen Beintag.', [], ctx, callbacks);
+
+    expect(spy.mock.calls[0][0]).toEqual({
+      name: 'generate_workout_plan',
+      arguments: { goal: 'Erstelle mir einen Beintag.', userRequest: 'Erstelle mir einen Beintag.' },
+    });
+    expect(completionQueue.messages).toHaveLength(1);
+    expect(result.createdPlanName).toBe('Beintag');
+    expect(result.message.content).toBe('Dein Beintag ist fertig.');
   });
 });

@@ -1,10 +1,10 @@
 ### Build & Run
 
-- **Install dependencies**: `npm install`
-- **Dev server**: `npm run dev` (Vite with HTTPS via `mkcert`, host `0.0.0.0`)
-- **Production build**: `npm run build` (runs `tsc -b && vite build`)
-- **Preview build**: `npm run preview`
-- **Lint**: `npm run lint`
+- **Install dependencies**: `pnpm install` (pnpm only — never npm/yarn; version pinned via `packageManager`)
+- **Dev server**: `pnpm dev` (Vite with HTTPS via `mkcert`, host `0.0.0.0`)
+- **Production build**: `pnpm build` (runs `tsc -b && vite build`)
+- **Preview build**: `pnpm preview`
+- **Lint**: `pnpm lint`
 - The `VITE_BASE_URL` env var controls the base path (defaults to `/`; set by CI for GitHub Pages).
 - COOP/COEP headers are configured in `vite.config.ts` for both `server` and `preview` — required by the WASM-based AI trainer (`@wllama/wllama`).
 - `@wllama/wllama` is excluded from `optimizeDeps` and has a custom `paths` mapping in `tsconfig.app.json` to use its pre-compiled ESM declarations.
@@ -15,17 +15,17 @@ Vitest and `@testing-library/react` are installed as dev dependencies. No specia
 
 **Run all tests:**
 ```
-npx vitest run
+pnpm test
 ```
 
 **Run in watch mode:**
 ```
-npx vitest
+pnpm exec vitest
 ```
 
 **Run a specific test file:**
 ```
-npx vitest run src/data/storage.test.ts
+pnpm exec vitest run src/data/storage.test.ts
 ```
 
 **Adding tests:** Place test files next to the source file using the `*.test.ts` / `*.test.tsx` naming convention. For React component tests, use `jsdom` environment via a `// @vitest-environment jsdom` comment at the top of the file or by adding `test: { environment: 'jsdom' }` to `vite.config.ts`.

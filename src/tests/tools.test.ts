@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { FITNESS_TOOLS, executeTool } from '../ai/tools.ts';
 import type { ToolContext } from '../ai/tools.ts';
 import type { Exercise, WorkoutSession, WorkoutPlan } from '../types/workout.types.ts';
@@ -6,6 +6,9 @@ import type { Exercise, WorkoutSession, WorkoutPlan } from '../types/workout.typ
 vi.mock('../data/storage.ts', () => ({
   generateId: vi.fn(() => `mock-${Math.random().toString(36).slice(2, 7)}`),
 }));
+
+const generateWorkoutPlan = vi.hoisted(() => vi.fn());
+vi.mock('../ai/plan-generator.ts', () => ({ generateWorkoutPlan }));
 
 const mockExercises: Exercise[] = [
   { id: 'ex1', name: 'Bench Press', equipment: 'barbell', muscleGroups: ['chest'], category: 'compound' },
@@ -57,13 +60,13 @@ describe('FITNESS_TOOLS', () => {
     expect(names).toContain('create_exercise');
     expect(names).toContain('get_workout_history');
     expect(names).toContain('get_existing_plans');
-    expect(names).toContain('create_workout_plan');
+    expect(names).toContain('generate_workout_plan');
     expect(names).toContain('add_exercise_to_plan');
   });
 
-  it('create_workout_plan only requires name (built incrementally)', () => {
-    const tool = FITNESS_TOOLS.find(t => t.name === 'create_workout_plan')!;
-    expect(tool.parameters.required).toEqual(['name']);
+  it('generate_workout_plan only requires the goal', () => {
+    const tool = FITNESS_TOOLS.find(t => t.name === 'generate_workout_plan')!;
+    expect(tool.parameters.required).toEqual(['goal']);
   });
 
   it('add_exercise_to_plan requires planId', () => {
@@ -137,6 +140,44 @@ describe('executeTool', () => {
         makeCtx({ exercises: manyExercises }),
       );
       expect(JSON.parse(result)).toHaveLength(50);
+    });
+
+    it('matches English muscle groups against the German library names', async () => {
+      const german = [
+        { id: 'g1', name: 'Bankdrücken', equipment: 'barbell', muscleGroups: ['Brust', 'Trizeps'], category: 'Drücken' },
+        { id: 'g2', name: 'Kniebeuge', equipment: 'barbell', muscleGroups: ['Oberschenkel', 'Gesäß'], category: 'Beine' },
+      ] as unknown as Exercise[];
+      const ctx = makeCtx({ exercises: german });
+
+      const chest = JSON.parse(await executeTool({ name: 'get_exercise_library', arguments: { muscleGroup: 'chest' } }, ctx));
+      expect(chest.map((e: Exercise) => e.id)).toEqual(['g1']);
+
+      const legs = JSON.parse(await executeTool({ name: 'get_exercise_library', arguments: { muscleGroup: 'Oberschenkel' } }, ctx));
+      expect(legs.map((e: Exercise) => e.id)).toEqual(['g2']);
+    });
+
+    it('matches multi-word queries word by word and ranks by matches', async () => {
+      const result = JSON.parse(await executeTool(
+        { name: 'get_exercise_library', arguments: { query: 'row back cable' } },
+        makeCtx(),
+      ));
+      expect(result[0].name).toBe('Cable Row');
+      expect(result.map((e: Exercise) => e.name)).not.toContain('Squat');
+    });
+
+    it('finds push exercises in the bundled exercises.json', async () => {
+      const { readFileSync } = await import('node:fs');
+      const bundled = JSON.parse(readFileSync('public/exercises.json', 'utf8')).exercises as Exercise[];
+      const ctx = makeCtx({ exercises: bundled });
+
+      const chest = JSON.parse(await executeTool({ name: 'get_exercise_library', arguments: { muscleGroup: 'chest' } }, ctx));
+      expect(chest.length).toBeGreaterThan(0);
+
+      const push = JSON.parse(await executeTool(
+        { name: 'get_exercise_library', arguments: { query: 'push chest shoulders triceps' } },
+        ctx,
+      ));
+      expect(push.length).toBeGreaterThan(5);
     });
   });
 
@@ -233,123 +274,49 @@ describe('executeTool', () => {
     });
   });
 
-  describe('create_workout_plan', () => {
-    it('creates a plan and calls savePlan', async () => {
+  describe('generate_workout_plan', () => {
+    beforeEach(() => generateWorkoutPlan.mockReset());
+
+    it('generates the whole plan in one call and saves it', async () => {
+      generateWorkoutPlan.mockResolvedValueOnce({
+        name: 'Push A',
+        description: 'Brust, Schultern, Trizeps',
+        exercises: [
+          { exerciseId: 'ex1', sets: 4, reps: 8, restSeconds: 120 },
+          { exerciseId: 'ex3', sets: 3, reps: 12, restSeconds: 60 },
+        ],
+      });
       const ctx = makeCtx();
-      const result = await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'New Plan',
-          description: 'Test plan',
-          exercises: [
-            { exerciseId: 'ex1', sets: [{ weight: 80, reps: 8, restSeconds: 90 }] },
-          ],
-        },
-      }, ctx);
-      const parsed = JSON.parse(result);
-      expect(parsed.success).toBe(true);
-      expect(parsed.planName).toBe('New Plan');
-      expect(ctx.savePlan).toHaveBeenCalledOnce();
+      const result = JSON.parse(await executeTool({
+        name: 'generate_workout_plan',
+        arguments: { goal: 'Push-Tag', muscleGroups: ['chest'], equipment: ['barbell'], exerciseCount: 2 },
+      }, ctx));
+
+      expect(generateWorkoutPlan).toHaveBeenCalledWith(
+        { goal: 'Push-Tag', muscleGroups: ['chest'], equipment: ['barbell'], exerciseCount: 2 },
+        mockExercises,
+      );
+      expect(result).toMatchObject({ success: true, planName: 'Push A', exercises: ['Bench Press 4x8', 'Bicep Curl 3x12'] });
+
+      const saved = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(saved.tags).toContain('KI-generiert');
+      expect(saved.exercises.map((e: { exerciseId: string }) => e.exerciseId)).toEqual(['ex1', 'ex3']);
+      expect(saved.exercises[0].sets).toHaveLength(4);
+      expect(saved.exercises[0].sets[0]).toMatchObject({ reps: 8, restSeconds: 120 });
     });
 
-    it('returns error when name is missing', async () => {
-      const result = await executeTool({
-        name: 'create_workout_plan',
-        arguments: { exercises: [] },
-      }, makeCtx());
-      const parsed = JSON.parse(result);
-      expect(parsed.error).toBeDefined();
+    it('returns an error when the goal is missing', async () => {
+      const result = JSON.parse(await executeTool({ name: 'generate_workout_plan', arguments: {} }, makeCtx()));
+      expect(result.error).toBeDefined();
+      expect(generateWorkoutPlan).not.toHaveBeenCalled();
     });
 
-    it('returns error when exercises is not an array', async () => {
-      const result = await executeTool({
-        name: 'create_workout_plan',
-        arguments: { name: 'Plan', exercises: 'invalid' },
-      }, makeCtx());
-      const parsed = JSON.parse(result);
-      expect(parsed.error).toBeDefined();
-    });
-
-    it('uses default set values when not provided', async () => {
+    it('reports generator failures as tool errors', async () => {
+      generateWorkoutPlan.mockRejectedValueOnce(new Error('kaputt'));
       const ctx = makeCtx();
-      await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'Default Plan',
-          exercises: [{ exerciseId: 'ex1', sets: [{}] }],
-        },
-      }, ctx);
-      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(savedPlan.exercises[0].sets[0].reps).toBe(10);
-      expect(savedPlan.exercises[0].sets[0].restSeconds).toBe(90);
-    });
-
-    it('tags plan as KI-generiert', async () => {
-      const ctx = makeCtx();
-      await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'AI Plan',
-          exercises: [{ exerciseId: 'ex1', sets: [{ weight: 60, reps: 10 }] }],
-        },
-      }, ctx);
-      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(savedPlan.tags).toContain('KI-generiert');
-    });
-
-    it('creates a missing exercise from name and links it', async () => {
-      const ctx = makeCtx();
-      const result = await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'Plan with new exercise',
-          exercises: [
-            { name: 'Face Pull', muscleGroups: ['shoulders'], equipment: 'cable', sets: [{ reps: 12 }] },
-          ],
-        },
-      }, ctx);
-      const parsed = JSON.parse(result);
-      expect(parsed.createdExercises).toBe(1);
-
-      const saveExercise = ctx.saveExercise as ReturnType<typeof vi.fn>;
-      expect(saveExercise).toHaveBeenCalledOnce();
-      const newEx = saveExercise.mock.calls[0][0];
-      expect(newEx.name).toBe('Face Pull');
-      expect(newEx.muscleGroups).toEqual(['shoulders']);
-      expect(newEx.equipment).toBe('cable');
-
-      // The plan must reference the freshly created exercise's id
-      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(savedPlan.exercises[0].exerciseId).toBe(newEx.id);
-    });
-
-    it('reuses an existing library exercise matched by name', async () => {
-      const ctx = makeCtx();
-      await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'Reuse Plan',
-          exercises: [{ name: 'bench press', sets: [{ reps: 5 }] }],
-        },
-      }, ctx);
-      expect(ctx.saveExercise).not.toHaveBeenCalled();
-      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(savedPlan.exercises[0].exerciseId).toBe('ex1');
-    });
-
-    it('creates an exercise when exerciseId does not exist in the library', async () => {
-      const ctx = makeCtx();
-      await executeTool({
-        name: 'create_workout_plan',
-        arguments: {
-          name: 'Hallucinated id plan',
-          exercises: [{ exerciseId: 'does-not-exist', name: 'Cable Crossover', sets: [{ reps: 12 }] }],
-        },
-      }, ctx);
-      expect(ctx.saveExercise).toHaveBeenCalledOnce();
-      const newEx = (ctx.saveExercise as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      const savedPlan = (ctx.savePlan as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(savedPlan.exercises[0].exerciseId).toBe(newEx.id);
+      const result = JSON.parse(await executeTool({ name: 'generate_workout_plan', arguments: { goal: 'Beine' } }, ctx));
+      expect(result.error).toContain('kaputt');
+      expect(ctx.savePlan).not.toHaveBeenCalled();
     });
   });
 

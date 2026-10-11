@@ -2,9 +2,9 @@ import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 
 import type { AiMessage, AiModelStatus } from '../../types/ai.types.ts';
 import { AiContext } from './AiContext.tsx';
-import { loadModel, isModelLoaded, runCompletion, unloadModel } from '../../ai/wllama-service.ts';
+import { loadModel, isModelLoaded, runChatCompletion, unloadModel, deleteCachedModel } from '../../ai/wllama-service.ts';
+import { fetchRemoteModelUrl } from '../../ai/model-manifest.ts';
 import { runAgent } from '../../ai/agent.ts';
-import { PLAN_GENERATOR_PROMPT } from '../../ai/prompts.ts';
 import type { ToolContext } from '../../ai/tools.ts';
 import { generateId } from '../../data/storage.ts';
 
@@ -14,7 +14,7 @@ import { useWorkoutContext } from '../workout/WorkoutContext.tsx';
 import { usePlanContext } from '../plan/PlanContext.tsx';
 
 export function AiProvider({ children }: { children: ReactNode }) {
-  const { settings } = useSettingsContext();
+  const { settings, updateSettings } = useSettingsContext();
   const { exercises, importExercises } = useExerciseContext();
   const { sessions } = useWorkoutContext();
   const { plans, savePlan, addExerciseToPlan, updatePlanExerciseSets } = usePlanContext();
@@ -40,14 +40,8 @@ export function AiProvider({ children }: { children: ReactNode }) {
   const messagesRef = useRef<AiMessage[]>([]);
   messagesRef.current = messages;
 
-  // ── Install model ──────────────────────────────────────────────────────────
-  const installModel = useCallback(async () => {
-    const { modelUrl } = settings.aiTrainer;
-    if (!modelUrl) {
-      setModelError('Keine Modell-URL konfiguriert.');
-      return;
-    }
-
+  // ── Load a model by URL ────────────────────────────────────────────────────
+  const loadModelByUrl = useCallback(async (modelUrl: string): Promise<boolean> => {
     try {
       setModelError(null);
       setModelStatus('downloading');
@@ -61,9 +55,10 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
       setModelStatus('ready');
       setLoadedModelUrl(modelUrl);
+      return true;
     } catch (err) {
         if(err instanceof Error && err.message.toLowerCase() === 'module is already initialized'){
-            return
+            return true
         }
 
       console.error('[AiProvider] loadModel error:', err);
@@ -71,8 +66,44 @@ export function AiProvider({ children }: { children: ReactNode }) {
         err instanceof Error ? err.message : 'Modell konnte nicht geladen werden.',
       );
       setModelStatus('error');
+      return false;
     }
-  }, [settings.aiTrainer]);
+  }, []);
+
+  // ── Install model ──────────────────────────────────────────────────────────
+  const installModel = useCallback(async () => {
+    const { modelUrl } = settings.aiTrainer;
+    if (!modelUrl) {
+      setModelError('Keine Modell-URL konfiguriert.');
+      return;
+    }
+    await loadModelByUrl(modelUrl);
+  }, [settings.aiTrainer, loadModelByUrl]);
+
+  // ── Check GitHub manifest for a newer model, then load ─────────────────────
+  // If the repo's model.json names a different HuggingFace model, download it.
+  // The setting is only switched (and the old file evicted from the cache)
+  // after the new model loaded successfully; otherwise the old one is kept.
+  const checkForModelUpdateAndLoad = useCallback(async (isCancelled: () => boolean) => {
+    const currentUrl = settings.aiTrainer.modelUrl;
+    const remoteUrl = await fetchRemoteModelUrl();
+    if (isCancelled()) return;
+
+    if (!remoteUrl || remoteUrl === currentUrl) {
+      if (currentUrl) await loadModelByUrl(currentUrl);
+      return;
+    }
+
+    await unloadModel();
+    if (await loadModelByUrl(remoteUrl)) {
+      updateSettings({ aiTrainer: { ...settings.aiTrainer, modelUrl: remoteUrl } });
+      if (currentUrl) await deleteCachedModel(currentUrl);
+    } else if (currentUrl) {
+      console.warn('[AiProvider] new model failed to load, falling back to', currentUrl);
+      await unloadModel();
+      await loadModelByUrl(currentUrl);
+    }
+  }, [settings.aiTrainer, loadModelByUrl, updateSettings]);
 
   // ── Swap model (unload current, return to idle) ────────────────────────────
   const swapModel = useCallback(async () => {
@@ -83,13 +114,14 @@ export function AiProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
-  // ── Auto-load from cache when AI is enabled ────────────────────────────────
-  // Fires on mount and when the user enables the AI toggle.
-  // wllama's useCache:true means subsequent loads skip the download.
+  // ── Auto-load (with update check) when AI is enabled ───────────────────────
+  // Fires on every app start and when the user enables the AI toggle.
+  // wllama's useCache:true means loads of an unchanged model skip the download.
   useEffect(() => {
-    if (settings.aiTrainer.enabled && modelStatus === 'idle') {
-      void installModel();
-    }
+    if (!settings.aiTrainer.enabled || modelStatus !== 'idle') return;
+    let cancelled = false;
+    void checkForModelUpdateAndLoad(() => cancelled);
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.aiTrainer.enabled]);
 
@@ -243,7 +275,9 @@ export function AiProvider({ children }: { children: ReactNode }) {
   // ── generatePlan ───────────────────────────────────────────────────────────
   const generatePlan = useCallback(
     async (userGoal: string): Promise<string | undefined> => {
-      const goalPrompt = PLAN_GENERATOR_PROMPT(userGoal);
+      // The agent picks generate_workout_plan, which builds the whole plan in
+      // one grammar-constrained completion.
+      const goalPrompt = `Erstelle mir einen Trainingsplan: ${userGoal}`;
       const userMsg: AiMessage = {
         id: generateId(),
         role: 'user',
@@ -287,13 +321,12 @@ export function AiProvider({ children }: { children: ReactNode }) {
       `Tags: ${input.tags.join(', ') || '-'}`,
     ].join('\n');
 
-    const completion = await runCompletion(prompt, {
+    const completion = await runChatCompletion([{ role: 'user', content: prompt }], {
       maxTokens: 120,
       temperature: 0.45,
     });
 
-    return completion
-      .replace(/<\|endoftext\|>/g, '')
+    return completion.text
       .replace(/^["'`\s]+|["'`\s]+$/g, '')
       .trim();
   }, [modelStatus, settings.language]);

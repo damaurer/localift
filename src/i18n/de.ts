@@ -343,7 +343,7 @@ export const de: Translations = {
       create_exercise: 'Übung angelegt',
       get_workout_history: 'Trainingsverlauf gelesen',
       get_existing_plans: 'Pläne gelesen',
-      create_workout_plan: 'Trainingsplan angelegt',
+      generate_workout_plan: 'Trainingsplan erstellt',
       add_exercise_to_plan: 'Übung hinzugefügt',
     },
   },
