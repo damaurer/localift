@@ -343,7 +343,7 @@ export const en: Translations = {
       create_exercise: 'Created exercise',
       get_workout_history: 'Read workout history',
       get_existing_plans: 'Read plans',
-      create_workout_plan: 'Created training plan',
+      generate_workout_plan: 'Created training plan',
       add_exercise_to_plan: 'Added exercise',
     },
   },

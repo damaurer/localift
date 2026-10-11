@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSystemPrompt, formatChatPrompt, PLAN_GENERATOR_PROMPT } from '../ai/prompts.ts';
+import { buildSystemPrompt } from '../ai/prompts.ts';
 import type { AiTool } from '../types/ai.types.ts';
 
 describe('buildSystemPrompt', () => {
@@ -17,15 +17,9 @@ describe('buildSystemPrompt', () => {
     },
   ];
 
-  it('includes tool name and description', () => {
+  it('names the available tools (schemas are passed natively)', () => {
     const prompt = buildSystemPrompt(tools);
     expect(prompt).toContain('test_tool');
-    expect(prompt).toContain('A test tool');
-  });
-
-  it('includes required fields', () => {
-    const prompt = buildSystemPrompt(tools);
-    expect(prompt).toContain('Pflichtfelder: param1');
   });
 
   it('includes system instructions in German', () => {
@@ -34,10 +28,17 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('Deutsch');
   });
 
-  it('includes tool call format instructions', () => {
-    const prompt = buildSystemPrompt(tools);
+  it('spells out schemas and the <tool_call> format in text mode', () => {
+    const prompt = buildSystemPrompt(tools, 'text');
+    expect(prompt).toContain('A test tool');
+    expect(prompt).toContain('Pflichtfelder: param1');
     expect(prompt).toContain('<tool_call>');
-    expect(prompt).toContain('</tool_call>');
+  });
+
+  it('does not hard-code a model-specific tool call format', () => {
+    const prompt = buildSystemPrompt(tools);
+    expect(prompt).not.toContain('<tool_call>');
+    expect(prompt).not.toContain('<|im_start|>');
   });
 
   it('handles tools without required fields', () => {
@@ -48,7 +49,6 @@ describe('buildSystemPrompt', () => {
     }];
     const prompt = buildSystemPrompt(toolsNoReq);
     expect(prompt).toContain('no_req');
-    expect(prompt).not.toContain('Pflichtfelder');
   });
 
   it('handles multiple tools', () => {
@@ -59,47 +59,5 @@ describe('buildSystemPrompt', () => {
     const prompt = buildSystemPrompt(multiTools);
     expect(prompt).toContain('tool_a');
     expect(prompt).toContain('tool_b');
-  });
-});
-
-describe('formatChatPrompt', () => {
-  it('formats a basic prompt with system, history, and user message', () => {
-    const result = formatChatPrompt('System prompt', [], 'Hello');
-    expect(result).toContain('<|im_start|>system\nSystem prompt\n<|im_end|>');
-    expect(result).toContain('<|im_start|>user\nHello\n<|im_end|>');
-    expect(result).toContain('<|im_start|>assistant\n');
-  });
-
-  it('includes history messages', () => {
-    const history = [
-      { role: 'user' as const, content: 'Hi' },
-      { role: 'assistant' as const, content: 'Hello!' },
-    ];
-    const result = formatChatPrompt('sys', history, 'Next');
-    expect(result).toContain('<|im_start|>user\nHi\n<|im_end|>');
-    expect(result).toContain('<|im_start|>assistant\nHello!\n<|im_end|>');
-    expect(result).toContain('<|im_start|>user\nNext\n<|im_end|>');
-  });
-
-  it('ends with assistant start tag', () => {
-    const result = formatChatPrompt('sys', [], 'msg');
-    expect(result).toMatch(/<\|im_start\|>assistant\n$/);
-  });
-});
-
-describe('PLAN_GENERATOR_PROMPT', () => {
-  it('includes the user goal', () => {
-    const prompt = PLAN_GENERATOR_PROMPT('Muskelaufbau');
-    expect(prompt).toContain('Muskelaufbau');
-  });
-
-  it('mentions get_exercise_library', () => {
-    const prompt = PLAN_GENERATOR_PROMPT('test');
-    expect(prompt).toContain('get_exercise_library');
-  });
-
-  it('mentions create_workout_plan', () => {
-    const prompt = PLAN_GENERATOR_PROMPT('test');
-    expect(prompt).toContain('create_workout_plan');
   });
 });
