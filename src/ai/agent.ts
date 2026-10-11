@@ -42,6 +42,23 @@ const MAX_ITERATIONS = 12;
 /** Rough char budget to stay within the model's context window (n_ctx 4096). */
 const MAX_PROMPT_CHARS = 14000;
 
+/**
+ * True when the user asks for ONE new plan/workout. Small models often answer
+ * such requests with a plan written as chat text (nothing gets saved) or call
+ * the wrong tool, so the agent routes them straight to generate_workout_plan.
+ * Requests naming several splits ("Push/Pull/Beine") stay with the model,
+ * which then calls the tool once per plan.
+ */
+export function isPlanRequest(message: string): boolean {
+  const m = message.toLowerCase();
+  if (/\b(tipps?|warum|wieso|weshalb|wie oft|wie viel|wie lange|erklär)/.test(m)) return false;
+  const splits = [/\bpush\b/, /\bpull\b/, /beintag|\bbeine?\b|\blegs?\b/, /oberkörper/, /unterkörper/];
+  if (splits.filter(re => re.test(m)).length > 1) return false;
+  const create = /\b(erstell|mach|bau|generier|schreib|stell|plan)\w*|\bgib mir\b|\bich (brauche|möchte|will|hätte gern)\b/.test(m);
+  const plan = /plan|workout|training\b|trainingseinheit|routine|\w+-?tag\b|\btag für\b/.test(m);
+  return create && plan;
+}
+
 type AgentStep =
   | { kind: 'final'; text: string }
   | { kind: 'tool'; call: AiToolCall }
@@ -88,6 +105,7 @@ export async function runAgent(
   callbacks: AgentCallbacks,
 ): Promise<AgentResult> {
   let toolMode: ToolPromptMode = supportsNativeTools() ? 'native' : 'text';
+  const planRequest = isPlanRequest(userMessage);
   const systemPrompt = buildSystemPrompt(FITNESS_TOOLS, toolMode);
   // messages accumulates context across tool-call iterations; the model's own
   // chat template renders it into the final prompt.
@@ -119,20 +137,26 @@ export async function runAgent(
     }
 
     let step: AgentStep;
-    try {
-      step = await generateAgentStep(messages, iteration, callbacks, toolMode);
-    } catch (err) {
-      if (!(err instanceof NativeToolsUnsupportedError) || toolMode === 'text') throw err;
-      // The model's chat template has no usable native tool grammar — switch
-      // to the text protocol (<tool_call> JSON spelled out in the prompt).
-      toolMode = 'text';
-      messages[0] = { role: 'system', content: buildSystemPrompt(FITNESS_TOOLS, toolMode) };
-      callbacks.onDebugOutput?.({
-        kind: 'tool_mode',
-        label: 'Tool mode',
-        content: 'Native tool calling failed for this model, falling back to the <tool_call> text protocol.',
-      });
-      step = await generateAgentStep(messages, iteration, callbacks, toolMode);
+    if (planRequest && iteration === 0) {
+      // The generator reads muscles, equipment, level and focus from the
+      // user's own words — no need to let the model pick the tool.
+      step = { kind: 'tool', call: { name: 'generate_workout_plan', arguments: { goal: userMessage } } };
+    } else {
+      try {
+        step = await generateAgentStep(messages, iteration, callbacks, toolMode);
+      } catch (err) {
+        if (!(err instanceof NativeToolsUnsupportedError) || toolMode === 'text') throw err;
+        // The model's chat template has no usable native tool grammar — switch
+        // to the text protocol (<tool_call> JSON spelled out in the prompt).
+        toolMode = 'text';
+        messages[0] = { role: 'system', content: buildSystemPrompt(FITNESS_TOOLS, toolMode) };
+        callbacks.onDebugOutput?.({
+          kind: 'tool_mode',
+          label: 'Tool mode',
+          content: 'Native tool calling failed for this model, falling back to the <tool_call> text protocol.',
+        });
+        step = await generateAgentStep(messages, iteration, callbacks, toolMode);
+      }
     }
 
     // ── No tool call → generation is complete ─────────────────────────────

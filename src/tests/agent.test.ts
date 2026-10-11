@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { extractToolCall } from '../ai/tool-parsing.ts';
-import { runAgent } from '../ai/agent.ts';
+import { isPlanRequest, runAgent } from '../ai/agent.ts';
 import type { ToolContext } from '../ai/tools.ts';
 
 const completionQueue = vi.hoisted(() => ({
@@ -118,7 +118,7 @@ describe('runAgent', () => {
       getPlanById: vi.fn(),
     };
 
-    const result = await runAgent('Erstelle einen Plan', [], ctx, callbacks);
+    const result = await runAgent('Welche Übungen habe ich?', [], ctx, callbacks);
 
     expect(result.message.content).toBe('Fertig.');
     expect(result.message.toolInvocations).toEqual([
@@ -220,5 +220,51 @@ describe('runAgent', () => {
       name: 'generate_workout_plan',
       arguments: { goal: 'Ganzkörper', userRequest: 'Ganzkörper zu Hause ohne Geräte' },
     });
+  });
+});
+
+describe('isPlanRequest', () => {
+  it.each([
+    'Erstelle mir einen Push-Trainingsplan für Muskelaufbau.',
+    'Ich bin Anfänger und trainiere zu Hause ohne Geräte. Erstelle mir ein Ganzkörper-Workout.',
+    'Mach mir einen Beintag für Kraft.',
+    'Ich brauche einen Pull-Tag für Muskelaufbau.',
+    'Gib mir einen Trainingsplan für 3 Tage.',
+  ])('detects "%s"', message => {
+    expect(isPlanRequest(message)).toBe(true);
+  });
+
+  it.each([
+    'Wie oft pro Woche sollte ich als Anfänger trainieren?',
+    'Gib mir einen Tipp für den Beintag.',
+    'Was hältst du von meinem Trainingsplan?',
+    'Wie schütze ich beim Kreuzheben meinen unteren Rücken?',
+    'Erstelle mir einen Push/Pull/Beine Split.',
+  ])('ignores "%s"', message => {
+    expect(isPlanRequest(message)).toBe(false);
+  });
+});
+
+describe('runAgent plan requests', () => {
+  it('routes a plan request straight to generate_workout_plan and lets the model summarize', async () => {
+    completionQueue.values = ['Dein Beintag ist fertig.'];
+    const spy = vi.spyOn(await import('../ai/tools.ts'), 'executeTool').mockResolvedValueOnce(
+      JSON.stringify({ success: true, planId: 'p1', planName: 'Beintag', exercises: ['Kniebeuge 3x8'] }),
+    );
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    const result = await runAgent('Erstelle mir einen Beintag.', [], ctx, callbacks);
+
+    expect(spy.mock.calls[0][0]).toEqual({
+      name: 'generate_workout_plan',
+      arguments: { goal: 'Erstelle mir einen Beintag.', userRequest: 'Erstelle mir einen Beintag.' },
+    });
+    expect(completionQueue.messages).toHaveLength(1);
+    expect(result.createdPlanName).toBe('Beintag');
+    expect(result.message.content).toBe('Dein Beintag ist fertig.');
   });
 });

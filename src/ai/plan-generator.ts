@@ -86,6 +86,15 @@ const NAMED_MUSCLES: [RegExp, string[]][] = [
 ];
 const FULL_BODY = ['legs', 'chest', 'back', 'shoulders', 'abs'];
 
+/** Equipment named in the request → library equipment value. */
+const EQUIPMENT_WORDS: [RegExp, string][] = [
+  [/kurzhantel|dumbbell/, 'dumbbell'],
+  [/langhantel|barbell/, 'barbell'],
+  [/kabel/, 'cable'],
+  [/maschine/, 'machine'],
+  [/kettlebell/, 'other'],
+];
+
 /** Lower-cased goal plus original user message, for keyword detection. */
 const requestText = (req: PlanRequest) => `${req.goal} ${req.userRequest ?? ''}`.toLowerCase();
 
@@ -126,9 +135,13 @@ export function resolveRequest(req: PlanRequest): PlanRequest {
   const chosen = [...new Set(split.length ? [...split, ...named] : [...explicit, ...named])];
   const muscleGroups = fullBody ? FULL_BODY : chosen.length ? chosen : FULL_BODY;
   // What the user said beats what the chat model passed on.
-  const bodyweightOnly = /ohne (geräte|equipment|hantel)|eigengewicht|bodyweight|zu ?hause|daheim|calisthenics/.test(text);
-  const equipment = bodyweightOnly ? ['bodyweight'] : req.equipment ?? [];
-  return { ...req, muscleGroups, equipment };
+  const namedEquipment = [...new Set(EQUIPMENT_WORDS.filter(([re]) => re.test(text)).map(([, eq]) => eq))];
+  const bodyweightOnly = /ohne (geräte|equipment|hantel)|eigengewicht|körpergewicht|bodyweight|calisthenics/.test(text)
+    || (/zu ?hause|daheim/.test(text) && !namedEquipment.length && !req.equipment?.length);
+  const equipment = bodyweightOnly ? ['bodyweight'] : namedEquipment.length ? namedEquipment : req.equipment ?? [];
+  const countInText = /(\d+)\s*(übungen|exercises)/.exec(text);
+  const exerciseCount = req.exerciseCount ?? (countInText ? Number(countInText[1]) : undefined);
+  return { ...req, muscleGroups, equipment, exerciseCount };
 }
 
 /**
@@ -148,12 +161,17 @@ export function selectCatalog(library: Exercise[], req: PlanRequest): Exercise[]
   };
 
   if (!wantsMobility(goal)) keep(e => !labels(e).some(t => t === 'mobilität' || t === 'dehnen'));
-  if (!wantsCardio(goal)) keep(e => !labels(e).includes('cardio'));
+  if (!wantsCardio(goal)) keep(e => !labels(e).some(t => t === 'cardio' || t === 'hiit' || t === 'plyometrie'));
   if (isBeginner(goal)) keep(e => !labels(e).some(t => t === 'experte' || t === 'fortgeschritten'));
   else if (!isAdvanced(goal)) keep(e => !labels(e).includes('experte'));
 
   const equipment = (req.equipment ?? []).map(e => e.toLowerCase());
-  if (equipment.length) keep(e => equipment.includes(e.equipment) || e.equipment === 'bodyweight');
+  if (equipment.length) {
+    // Prefer exactly the named equipment; bodyweight only fills in when needed.
+    const before = catalog;
+    keep(e => equipment.includes(e.equipment));
+    if (catalog === before) keep(e => equipment.includes(e.equipment) || e.equipment === 'bodyweight');
+  }
 
   const muscles = req.muscleGroups ?? [];
   if (muscles.length) keep(e => muscles.some(m => trainsMuscle(e, m)));
