@@ -8,6 +8,8 @@ import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
 import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
+import {getLocale} from "../i18n/I18nContext.tsx";
 
 export default function ExerciseConfigurator() {
     const {planId, planExerciseId} = useParams<{ planId: string; planExerciseId: string }>();
@@ -16,6 +18,8 @@ export default function ExerciseConfigurator() {
     const {sessions} = useWorkoutContext();
     const {getExerciseById} = useExerciseContext();
     const {settings} = useSettingsContext();
+    const t = useTranslation();
+    const locale = getLocale(settings.language);
 
     const plan = plans.find(p => p.id === planId);
     const planExercise = plan?.exercises.find(pe => pe.id === planExerciseId);
@@ -50,6 +54,10 @@ export default function ExerciseConfigurator() {
     );
 
     const updateSet = (idx: number, field: keyof SetTemplate, value: number | string) => {
+        if (typeof value === 'number') {
+            if (field === 'reps') value = Math.max(1, Math.round(value));
+            else value = Math.max(0, value);
+        }
         setSets(prev => prev.map((s, i) => i === idx ? {...s, [field]: value} : s));
     };
 
@@ -82,7 +90,7 @@ export default function ExerciseConfigurator() {
     if (!planExercise || !exercise) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
-                <p className="text-on-surface-variant">Übung nicht gefunden</p>
+                <p className="text-on-surface-variant">{t.exerciseConfig.exerciseNotFound}</p>
             </div>
         );
     }
@@ -95,9 +103,9 @@ export default function ExerciseConfigurator() {
                 <section className="space-y-4">
                     <div className="flex items-baseline justify-between mb-3">
                         <h2 className="text-3xl font-bold tracking-tighter"
-                            style={{fontFamily: 'Space Grotesk, sans-serif'}}>SÄTZE</h2>
+                            style={{fontFamily: 'Space Grotesk, sans-serif'}}>{t.exerciseConfig.setsTitle}</h2>
                         <span
-                            className="text-xs font-bold text-on-surface-variant tracking-widest uppercase">Ziel: {sets.length} Sätze</span>
+                            className="text-xs font-bold text-on-surface-variant tracking-widest uppercase">{t.workout.targetLabel}: {sets.length} {t.exerciseConfig.targetSets}</span>
                     </div>
 
                     {sets.map((set, idx) => (
@@ -130,7 +138,7 @@ export default function ExerciseConfigurator() {
                                     <label
                                         className="absolute -top-1 left-0 text-xs font-extrabold text-on-surface-variant tracking-widest uppercase"
                                         style={{fontFamily: 'Manrope, sans-serif'}}>
-                                        {exercise.equipment === 'bodyweight' ? 'Zusatz (KG)' : 'Gewicht (KG)'}
+                                        {exercise.equipment === 'bodyweight' ? t.exerciseConfig.extraWeightLabel : t.exerciseConfig.weightLabel}
                                     </label>
                                     <input
                                         className="w-full bg-transparent border-none p-0 pt-5 text-5xl font-bold text-on-surface focus:outline-none"
@@ -147,7 +155,7 @@ export default function ExerciseConfigurator() {
                                     <label
                                         className="absolute -top-1 left-0 text-xs font-extrabold text-on-surface-variant tracking-widest uppercase"
                                         style={{fontFamily: 'Manrope, sans-serif'}}>
-                                        Wiederh.
+                                        {t.exerciseConfig.repsLabel}
                                     </label>
                                     <input
                                         className="w-full bg-transparent border-none p-0 pt-5 text-5xl font-bold text-on-surface focus:outline-none"
@@ -163,7 +171,7 @@ export default function ExerciseConfigurator() {
                                     <label
                                         className="absolute -top-1 left-0 text-xs font-extrabold text-on-surface-variant tracking-widest uppercase"
                                         style={{fontFamily: 'Manrope, sans-serif'}}>
-                                        Pause (S)
+                                        {t.exerciseConfig.restLabel}
                                     </label>
                                     <input
                                         className="w-full bg-transparent border-none p-0 pt-5 text-5xl font-bold text-primary focus:outline-none"
@@ -190,7 +198,7 @@ export default function ExerciseConfigurator() {
                         <span
                             className="text-sm font-bold tracking-widest uppercase text-on-surface-variant group-hover:text-primary transition-colors"
                             style={{fontFamily: 'Space Grotesk, sans-serif'}}>
-              Satz hinzufügen
+              {t.exerciseConfig.addSet}
             </span>
                     </button>
                 </section>
@@ -210,13 +218,13 @@ export default function ExerciseConfigurator() {
                             <div>
                                 <h3 className="font-bold text-lg text-primary tracking-tight"
                                     style={{fontFamily: 'Space Grotesk, sans-serif'}}>
-                                    LETZTES TRAINING
+                                    {t.exerciseConfig.lastTraining}
                                 </h3>
                                 <p className="text-sm text-on-surface-variant leading-relaxed mt-1">
-                                    Bestes Set: <span
-                                    className="text-on-surface font-bold">{lastBestSet.weight} kg × {lastBestSet.reps} Wdh.</span>
+                                    {t.exerciseConfig.bestSetLabel}: <span
+                                    className="text-on-surface font-bold">{lastBestSet.weight} kg × {lastBestSet.reps} {t.common.reps}</span>
                                     {lastSession && (
-                                        <> — {new Date(lastSession.startedAt).toLocaleDateString('de-DE', {
+                                        <> — {new Date(lastSession.startedAt).toLocaleDateString(locale, {
                                             day: 'numeric',
                                             month: 'short'
                                         })}</>
@@ -238,7 +246,7 @@ export default function ExerciseConfigurator() {
                             fontFamily: 'Space Grotesk, sans-serif'
                         }}
                     >
-                        {saved ? '✓ GESPEICHERT' : 'KONFIGURATION SPEICHERN'}
+                        {saved ? t.exerciseConfig.configSaved : t.exerciseConfig.saveConfig}
                     </button>
                 </div>
             </main>

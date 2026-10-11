@@ -38,17 +38,41 @@ Du hast Zugriff auf folgende Tools um auf Nutzerdaten zuzugreifen oder Aktionen 
 
 ${toolBlock}
 
-## Tool-Aufruf-Format
-Wenn du ein Tool benötigst, füge GENAU diesen Block in deine Antwort ein (nichts davor/danach):
-<tool_call>{"name": "tool_name", "arguments": {"param": "value"}}</tool_call>
+## Tool-Aufruf-Format (SEHR WICHTIG)
+Wenn du ein Tool brauchst, besteht deine Antwort AUSSCHLIESSLICH aus genau EINEM Block in exakt diesem Format – kein Text davor, kein Text danach, KEIN Markdown, KEINE Code-Blöcke:
+<tool_call>{"name": "tool_name", "arguments": {"param": "wert"}}</tool_call>
 
-Das System führt das Tool aus und gibt dir das Ergebnis im nächsten <tool_result> Block.
-Warte auf das Ergebnis bevor du antwortest.
+Beispiel:
+<tool_call>{"name": "get_exercise_library", "arguments": {"query": "squat", "muscleGroup": "legs"}}</tool_call>
 
-## Regeln für Trainingspläne
-1. Rufe IMMER zuerst get_exercise_library auf bevor du create_workout_plan verwendest
-2. Nutze nur exercise IDs aus dem Library-Ergebnis
-3. Erkläre den Plan kurz nach der Erstellung`;
+Das System führt das Tool aus und liefert dir das Ergebnis im nächsten <tool_result> Block.
+Rufe pro Antwort immer nur EIN Tool auf und warte auf das Ergebnis, bevor du weitermachst.
+Nachdem du ein <tool_result> erhalten hast, wiederhole denselben Tool-Aufruf NICHT mit denselben Parametern.
+
+## Grundregel: Tools haben IMMER Vorrang
+- Nutze IMMER ein Tool, sobald eine Frage echte Nutzerdaten betrifft (Pläne, Trainingsverlauf, Übungen, Fortschritt).
+- Rate, schätze oder erfinde NIEMALS Daten, die du per Tool abrufen könntest. Im Zweifel: Tool aufrufen.
+- Beantworte datenbezogene Fragen erst, NACHDEM du das passende Tool aufgerufen und das <tool_result> erhalten hast.
+- Konkrete Zuordnung:
+  - Fragen zu vergangenem Training/Fortschritt → get_workout_history
+  - Fragen zu vorhandenen Plänen → get_existing_plans
+  - Fragen zu verfügbaren Übungen → get_exercise_library mit query, muscleGroup oder equipment, wenn der Nutzer etwas Spezifisches sucht
+  - Wunsch nach einem (neuen) Plan → siehe Plan-Workflow unten
+- Nur reine Allgemein- oder Motivationsfragen ohne Bezug zu Nutzerdaten beantwortest du direkt ohne Tool.
+
+## Plan-Workflow (Pläne werden Schritt für Schritt aufgebaut)
+Ein Plan kann NICHT in einem einzigen Aufruf erstellt werden. Gehe IMMER in dieser Reihenfolge vor, ein Tool pro Antwort:
+1. get_exercise_library – suche gezielt nach passenden Übungen. Nutze query, muscleGroup und/oder equipment aus dem Nutzerziel; nur ohne klare Vorgaben darfst du arguments: {} verwenden.
+2. create_workout_plan – lege den (zunächst leeren) Plan mit name + description an. Du erhältst eine "planId".
+3. add_exercise_to_plan – füge mit dieser planId die Übungen EINZELN hinzu, eine Übung pro Aufruf (mit sets: weight, reps, restSeconds).
+4. Wiederhole Schritt 3, bis der Plan vollständig ist (i.d.R. 4–7 Übungen).
+5. Erst danach: kurze Zusammenfassung als normaler Text (ohne Tool).
+
+Regeln dazu:
+- Bevorzuge exerciseId aus dem get_exercise_library-Ergebnis. Erfinde KEINE exercise IDs.
+- Fehlt eine Übung in der Bibliothek, gib bei add_exercise_to_plan stattdessen "name" (plus optional muscleGroups/equipment) an – sie wird automatisch angelegt.
+- Wiederhole get_exercise_library nicht mit denselben Parametern. Wenn die Treffer nicht passen, suche spezifischer mit query, muscleGroup oder equipment.
+- Du darfst in einem Gespräch MEHRERE Pläne erstellen: starte dafür einfach erneut mit create_workout_plan (neue planId) und füge wieder Übungen hinzu.`;
 }
 
 // ── Chat prompt formatter (ChatML) ────────────────────────────────────────────
@@ -73,9 +97,11 @@ export function formatChatPrompt(
 export const PLAN_GENERATOR_PROMPT = (userGoal: string): string =>
   `Erstelle einen optimalen Trainingsplan für dieses Ziel: "${userGoal}".
 
-Gehe systematisch vor:
-1. Hole die Übungsliste (get_exercise_library)
-2. Erstelle den Plan mit passenden Übungen (create_workout_plan)
-3. Gib eine kurze Zusammenfassung des erstellten Plans
+Gehe Schritt für Schritt vor, ein Tool pro Antwort:
+1. get_exercise_library – suche gezielt nach passenden Übungen mit query, muscleGroup und/oder equipment; nur ohne klare Vorgaben nutze arguments: {}.
+2. create_workout_plan – lege den leeren Plan an (du bekommst eine planId).
+3. add_exercise_to_plan – füge die Übungen einzeln mit dieser planId hinzu (eine pro Aufruf).
+4. Wiederhole 3, bis der Plan vollständig ist (4–7 Übungen).
+5. Gib zum Schluss eine kurze Zusammenfassung als normalen Text.
 
 Halte dich an die Übungen aus der Bibliothek.`;

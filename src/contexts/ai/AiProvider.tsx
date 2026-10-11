@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 
 import type { AiMessage, AiModelStatus } from '../../types/ai.types.ts';
 import { AiContext } from './AiContext.tsx';
-import { loadModel, isModelLoaded, unloadModel } from '../../ai/wllama-service.ts';
+import { loadModel, isModelLoaded, runCompletion, unloadModel } from '../../ai/wllama-service.ts';
 import { runAgent } from '../../ai/agent.ts';
 import { PLAN_GENERATOR_PROMPT } from '../../ai/prompts.ts';
 import type { ToolContext } from '../../ai/tools.ts';
@@ -15,9 +15,14 @@ import { usePlanContext } from '../plan/PlanContext.tsx';
 
 export function AiProvider({ children }: { children: ReactNode }) {
   const { settings } = useSettingsContext();
-  const { exercises } = useExerciseContext();
+  const { exercises, importExercises } = useExerciseContext();
   const { sessions } = useWorkoutContext();
-  const { plans, savePlan } = usePlanContext();
+  const { plans, savePlan, addExerciseToPlan, updatePlanExerciseSets } = usePlanContext();
+
+  // Always-current plans snapshot so tool calls within one agent turn (which
+  // run after awaits / re-renders) never read a stale plan list.
+  const plansRef = useRef<typeof plans>(plans);
+  plansRef.current = plans;
 
   const [modelStatus, setModelStatus] = useState<AiModelStatus>(() =>
     isModelLoaded() ? 'ready' : 'idle',
@@ -94,7 +99,14 @@ export function AiProvider({ children }: { children: ReactNode }) {
     sessions,
     plans,
     savePlan,
-  }), [exercises, sessions, plans, savePlan]);
+    // importExercises persists full Exercise objects (deduped by id) into the
+    // library, so AI-created plans can reference brand-new exercises.
+    saveExercise: (exercise) => { void importExercises([exercise]); },
+    addExerciseToPlan,
+    updatePlanExerciseSets,
+    // Read from the ref so a plan created earlier in the SAME turn is visible.
+    getPlanById: (id) => plansRef.current.find(p => p.id === id),
+  }), [exercises, sessions, plans, savePlan, importExercises, addExerciseToPlan, updatePlanExerciseSets]);
 
   // ── Core: run the agent and stream into messages ───────────────────────────
   const runAgentAndStream = useCallback(
@@ -106,6 +118,22 @@ export function AiProvider({ children }: { children: ReactNode }) {
       setIsGenerating(true);
       setGeneratingContext(ctx);
       setActiveToolName(null);
+
+      const appendDebugMessage = (label: string, content: string) => {
+        if (!settings.aiTrainer.debugOutput) return;
+
+        const debugContent = [`[Agent Debug] ${label}`, content].join('\n\n');
+        setMessages(prev => [
+          ...prev,
+          {
+            id: generateId(),
+            role: 'assistant',
+            content: debugContent,
+            timestamp: new Date().toISOString(),
+            isDebug: true,
+          },
+        ]);
+      };
 
       // Placeholder streaming message
       const streamingId = generateId();
@@ -123,7 +151,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
       try {
         const result = await runAgent(
           userContent,
-          messagesRef.current.filter(m => !m.isStreaming),
+          messagesRef.current.filter(m => !m.isStreaming && !m.isDebug),
           buildToolContext(),
           {
             onVisibleToken: (_piece) => {
@@ -140,8 +168,26 @@ export function AiProvider({ children }: { children: ReactNode }) {
             onToolStart: (toolName) => {
               setActiveToolName(toolName);
             },
-            onToolDone: () => {
+            onToolDone: (toolName, success) => {
               setActiveToolName(null);
+              // Append a persistent chip to the streaming message so the user
+              // sees right away which tool ran and whether it succeeded.
+              setMessages(prev =>
+                prev.map(m =>
+                  m.id === streamingId
+                    ? {
+                      ...m,
+                      toolInvocations: [
+                        ...(m.toolInvocations ?? []),
+                        { name: toolName, success },
+                      ],
+                    }
+                    : m,
+                ),
+              );
+            },
+            onDebugOutput: (output) => {
+              appendDebugMessage(output.label, output.content);
             },
           },
         );
@@ -176,7 +222,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
       return createdPlanName;
     },
-    [modelStatus, buildToolContext],
+    [modelStatus, buildToolContext, settings.aiTrainer.debugOutput],
   );
 
   // ── sendMessage ────────────────────────────────────────────────────────────
@@ -215,6 +261,43 @@ export function AiProvider({ children }: { children: ReactNode }) {
     setMessages([]);
   }, []);
 
+  const generateExerciseDescription = useCallback(async (input: {
+    name: string;
+    category: string;
+    equipment: string;
+    muscleGroups: string[];
+    tags: string[];
+  }): Promise<string> => {
+    if (modelStatus !== 'ready') {
+      throw new Error('Modell nicht geladen');
+    }
+
+    const language = settings.language === 'en' ? 'English' : 'German';
+    const prompt = [
+      'You are an experienced strength-training coach writing for a workout app.',
+      `Write one polished, natural exercise description in ${language}.`,
+      'Use complete sentences and one smooth flowing paragraph, not bullet points, labels, fragments, or keyword lists.',
+      'Explain what the exercise trains, how it is generally performed, and what the user should focus on during execution.',
+      'Use the provided fields as context, but do not mechanically repeat every field.',
+      '',
+      `Name: ${input.name || '-'}`,
+      `Category: ${input.category || '-'}`,
+      `Equipment: ${input.equipment || '-'}`,
+      `Muscle groups: ${input.muscleGroups.join(', ') || '-'}`,
+      `Tags: ${input.tags.join(', ') || '-'}`,
+    ].join('\n');
+
+    const completion = await runCompletion(prompt, {
+      maxTokens: 120,
+      temperature: 0.45,
+    });
+
+    return completion
+      .replace(/<\|endoftext\|>/g, '')
+      .replace(/^["'`\s]+|["'`\s]+$/g, '')
+      .trim();
+  }, [modelStatus, settings.language]);
+
   return (
     <AiContext.Provider
       value={{
@@ -230,6 +313,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
         swapModel,
         sendMessage,
         clearChat,
+        generateExerciseDescription,
         generatePlan,
       }}
     >

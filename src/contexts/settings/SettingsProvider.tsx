@@ -1,4 +1,4 @@
-import {type ReactNode, useCallback} from "react";
+import {type ReactNode, useCallback, useEffect} from "react";
 import type {AppSettings} from "../../types/app.types.ts";
 import type {Exercise, WorkoutPlan, WorkoutSession} from "../../types/workout.types.ts";
 import {storage} from "../../data/storage.ts";
@@ -35,12 +35,15 @@ export function SettingsProvider({children}: { children: ReactNode }) {
         });
         setSettings({
             weightUnit: 'kg',
+            language: 'de',
+            theme: 'dark',
             reminderEnabled: false,
             reminderTime: '07:00',
             reminderDays: [true, true, true, true, true, false, false],
             vibration: true,
             aiTrainer: {
                 enabled: false,
+                debugOutput: false,
                 modelUrl:
                     DEFAULT_MODEL_URL,
             },
@@ -60,6 +63,16 @@ export function SettingsProvider({children}: { children: ReactNode }) {
         });
     }, []);
 
+    // Apply theme class to <html>
+    useEffect(() => {
+        const root = document.documentElement;
+        if (settings.theme === 'light') {
+            root.classList.add('light');
+        } else {
+            root.classList.remove('light');
+        }
+    }, [settings.theme]);
+
 
     const importBackup = useCallback((data: {
         plans?: WorkoutPlan[];
@@ -69,8 +82,45 @@ export function SettingsProvider({children}: { children: ReactNode }) {
     }) => {
         setExercises(prev => {
             const incoming = Array.isArray(data.exercises) ? data.exercises : [];
+            const incomingPlans = Array.isArray(data.plans) ? data.plans : [];
+            const incomingSessions = Array.isArray(data.sessions) ? data.sessions : [];
             const nextById = new Map(prev.map(ex => [ex.id, ex]));
-            incoming.forEach(ex => nextById.set(ex.id, ex));
+            incoming.forEach(ex => {
+                if (!nextById.has(ex.id)) {
+                    nextById.set(ex.id, ex);
+                }
+            });
+
+            incomingSessions.forEach(session => {
+                session.exercises.forEach(sessionExercise => {
+                    if (nextById.has(sessionExercise.exerciseId)) return;
+
+                    nextById.set(sessionExercise.exerciseId, {
+                        id: sessionExercise.exerciseId,
+                        name: sessionExercise.exerciseName || 'Importierte Übung',
+                        equipment: 'other',
+                        muscleGroups: [],
+                        category: 'Import',
+                        tags: ['Import'],
+                    });
+                });
+            });
+
+            incomingPlans.forEach(plan => {
+                plan.exercises.forEach(planExercise => {
+                    if (nextById.has(planExercise.exerciseId)) return;
+
+                    nextById.set(planExercise.exerciseId, {
+                        id: planExercise.exerciseId,
+                        name: 'Importierte Übung',
+                        equipment: 'other',
+                        muscleGroups: [],
+                        category: 'Import',
+                        tags: ['Import'],
+                    });
+                });
+            });
+
             const next = Array.from(nextById.values());
             storage.saveExercises(next);
             return next;

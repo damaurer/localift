@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import type { Exercise } from '../types/workout.types.ts';
 import {useWorkoutContext} from "../contexts/workout/WorkoutContext.tsx";
 import {useExerciseContext} from "../contexts/exercise/ExerciseContext.tsx";
+import {useTranslation} from "../i18n/I18nContext.tsx";
+import {useSettingsContext} from "../contexts/settings/SettingsContext.tsx";
+import {getLocale} from "../i18n/I18nContext.tsx";
 
 function formatTimer(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -24,6 +27,9 @@ export default function ActiveWorkout() {
     cancelWorkout
   } = useWorkoutContext();
   const { getExerciseById } = useExerciseContext();
+  const t = useTranslation();
+  const { settings } = useSettingsContext();
+  const locale = getLocale(settings.language);
 
   const [elapsed, setElapsed] = useState(0);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
@@ -31,15 +37,15 @@ export default function ActiveWorkout() {
   const [restTimer, setRestTimer] = useState<{ active: boolean; seconds: number; total: number } | null>(null);
   const [infoExercise, setInfoExercise] = useState<Exercise | null>(null);
 
-  // Elapsed timer
+  // Elapsed timer — frozen while the finish dialog is open so the displayed duration matches the saved one
   useEffect(() => {
-    if (!activeWorkout) return;
+    if (!activeWorkout || showFinishConfirm) return;
     const start = new Date(activeWorkout.startedAt).getTime();
     const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [activeWorkout, activeWorkout?.startedAt]);
+  }, [activeWorkout, activeWorkout?.startedAt, showFinishConfirm]);
 
   // Rest timer countdown
   useEffect(() => {
@@ -70,13 +76,13 @@ export default function ActiveWorkout() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
         <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: '64px' }}>fitness_center</span>
-        <p className="text-on-surface-variant text-sm tracking-widest uppercase">Kein aktives Training</p>
+        <p className="text-on-surface-variant text-sm tracking-widest uppercase">{t.workout.noActiveWorkout}</p>
         <button
           onClick={() => navigate('/plans')}
           className="locallift-gradient text-on-primary px-8 py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all"
           style={{ fontFamily: 'Space Grotesk, sans-serif' }}
         >
-          Plan wählen
+          {t.workout.choosePlan}
         </button>
       </div>
     );
@@ -103,7 +109,7 @@ export default function ActiveWorkout() {
       {/* Header */}
       <header
         className="sticky top-0 z-50 flex flex-col w-full"
-        style={{ background: 'rgba(14, 14, 14, 0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(32, 32, 31, 0.8)' }}
+        style={{ background: 'var(--header-bg, rgba(14, 14, 14, 0.95))', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid var(--header-border, rgba(32, 32, 31, 0.8))' }}
       >
         {/* Progress bar */}
         <div className="h-0.5 bg-surface-container-high">
@@ -124,7 +130,7 @@ export default function ActiveWorkout() {
           </div>
           <div className="flex items-center gap-3">
             {/* Timer */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}>
               <span className="material-symbols-outlined text-primary animate-pulse" style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}>timer</span>
               <span className="text-xs font-bold text-on-surface tabular-nums" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 {formatTimer(elapsed)}
@@ -141,7 +147,7 @@ export default function ActiveWorkout() {
               style={{ border: '1px solid rgba(255, 110, 132, 0.3)', background: 'rgba(255, 110, 132, 0.05)' }}
             >
               <span className="text-xs font-black text-error uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Beenden
+                {t.workout.finishWorkout}
               </span>
             </button>
           </div>
@@ -150,7 +156,7 @@ export default function ActiveWorkout() {
 
       <main className="px-4 py-4 space-y-3 pb-8">
         <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant px-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-          Übungen
+          {t.workout.exercisesLabel}
         </h3>
 
         {/* Rest Timer */}
@@ -162,7 +168,7 @@ export default function ActiveWorkout() {
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-primary animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
               <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-widest">PAUSE</p>
+                <p className="text-xs font-bold text-primary uppercase tracking-widest">{t.workout.pause}</p>
                 <p className="text-2xl font-black text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                   {formatTimer(restTimer.seconds)}
                 </p>
@@ -172,7 +178,7 @@ export default function ActiveWorkout() {
               onClick={() => setRestTimer(null)}
               className="px-3 py-1.5 rounded-lg text-xs font-bold text-on-surface-variant bg-surface-container uppercase tracking-wider"
             >
-              Überspringen
+              {t.workout.skipRest}
             </button>
           </div>
         )}
@@ -207,17 +213,17 @@ export default function ActiveWorkout() {
                     </span>
                   </div>
                   <span className="text-xs text-on-surface-variant font-medium" style={{ opacity: 0.6 }}>
-                    {ex.loggedSets.length}/{ex.targetSets.length} Sätze
+                    {ex.loggedSets.length}/{ex.targetSets.length} {t.common.sets}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   {allDone ? (
                     <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                   ) : isExpanded ? (
-                    <span className="text-xs font-black text-primary uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Aktiv</span>
+                    <span className="text-xs font-black text-primary uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t.common.active}</span>
                   ) : (
                     <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      {exIdx > expanded ? 'Nächste' : '—'}
+                      {exIdx > expanded ? t.common.next : '—'}
                     </span>
                   )}
                   <span
@@ -240,7 +246,7 @@ export default function ActiveWorkout() {
                         }}
                         className="flex items-center justify-center h-5 rounded-full shrink-0"
                         style={{ background: 'rgba(149, 170, 255, 0.15)', color: '#95aaff', padding: '12px' }}
-                        aria-label="Übungsbeschreibung"
+                        aria-label={t.workout.exerciseDescription}
                     >
                       <span className="pr-2.5">Info</span>
                       <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>info</span>
@@ -251,7 +257,7 @@ export default function ActiveWorkout() {
                     <div className="flex gap-6">
                       {ex.targetSets[0] && (
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Ziel</span>
+                          <span className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">{t.workout.targetLabel}</span>
                           <span className="text-sm font-bold italic text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                             {ex.targetSets[0].weight}kg × {ex.targetSets[0].reps}
                           </span>
@@ -259,15 +265,15 @@ export default function ActiveWorkout() {
                       )}
                       {ex.loggedSets.length > 0 && (
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">Volumen</span>
+                          <span className="text-xs font-bold uppercase text-on-surface-variant tracking-widest">{t.common.volume}</span>
                           <span className="text-sm font-bold text-on-surface" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            {Math.round(ex.loggedSets.reduce((s, ls) => s + ls.weight * ls.reps, 0)).toLocaleString('de')} kg
+                            {Math.round(ex.loggedSets.reduce((s, ls) => s + ls.weight * ls.reps, 0)).toLocaleString(locale)} kg
                           </span>
                         </div>
                       )}
                     </div>
                     <span className="text-2xl font-black text-on-surface leading-none tracking-tighter" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      SATZ {Math.min(currentSetIdx + 1, ex.targetSets.length)}
+                      {t.workout.set} {Math.min(currentSetIdx + 1, ex.targetSets.length)}
                       <span className="text-on-surface opacity-40 font-black">/{ex.targetSets.length}</span>
                     </span>
                   </div>
@@ -300,7 +306,7 @@ export default function ActiveWorkout() {
                     {!allDone && (
                       <div
                         className="flex flex-col p-4 rounded-xl"
-                        style={{ background: '#1a1a1a', borderLeft: '4px solid #95aaff', boxShadow: '0 0 0 1px rgba(149, 170, 255, 0.1)' }}
+                        style={{ background: 'var(--color-surface-container)', borderLeft: '4px solid var(--color-primary)', boxShadow: '0 0 0 1px rgba(149, 170, 255, 0.1)' }}
                       >
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -309,7 +315,7 @@ export default function ActiveWorkout() {
                             </span>
                           </div>
                           <span className="text-sm font-black uppercase tracking-widest text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            Aktiver Satz
+                            {t.workout.activeSet}
                           </span>
                         </div>
 
@@ -317,7 +323,7 @@ export default function ActiveWorkout() {
                           {/* Weight */}
                           <div
                             className="flex items-center rounded-xl p-1.5"
-                            style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}
+                            style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}
                           >
                             <button
                               className="w-9 h-9 flex items-center justify-center rounded active:scale-90 transition-transform bg-surface-container-lowest"
@@ -348,7 +354,7 @@ export default function ActiveWorkout() {
                           {/* Reps */}
                           <div
                             className="flex items-center rounded-xl p-1.5"
-                            style={{ background: '#20201f', border: '1px solid rgba(72, 72, 71, 0.1)' }}
+                            style={{ background: 'var(--color-surface-container-high)', border: '1px solid var(--color-outline-variant)' }}
                           >
                             <button
                               className="w-9 h-9 flex items-center justify-center rounded active:scale-90 transition-transform bg-surface-container-lowest"
@@ -365,7 +371,7 @@ export default function ActiveWorkout() {
                                 onChange={e => updateActiveSet(exIdx, 'reps', Number(e.target.value))}
                                 min={1}
                               />
-                              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest -mt-1">Wdh.</span>
+                              <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest -mt-1">{t.common.reps}</span>
                             </div>
                             <button
                               className="w-9 h-9 flex items-center justify-center rounded active:scale-90 transition-transform bg-surface-container-lowest"
@@ -383,7 +389,7 @@ export default function ActiveWorkout() {
                           style={{ boxShadow: '0 4px 20px -5px rgba(149, 170, 255, 0.3)' }}
                         >
                           <span className="text-base font-black text-on-primary uppercase tracking-widest" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                            Satz abschließen
+                            {t.workout.completeSet}
                           </span>
                           <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                         </button>
@@ -410,7 +416,7 @@ export default function ActiveWorkout() {
                           </div>
                           <div className="flex items-center justify-between px-3 py-1.5 bg-surface-container-high rounded-lg">
                             <span className="text-sm font-bold text-on-surface opacity-60" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                              {ts.reps} Wdh.
+                              {ts.reps} {t.common.reps}
                             </span>
                           </div>
                         </div>
@@ -420,7 +426,7 @@ export default function ActiveWorkout() {
                     {allDone && (
                       <div className="text-center py-4">
                         <span className="text-xs font-bold uppercase tracking-widest text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                          ✓ Alle Sätze abgeschlossen
+                          {t.workout.allSetsCompleted}
                         </span>
                       </div>
                     )}
@@ -434,9 +440,9 @@ export default function ActiveWorkout() {
         {/* Summary stats during workout */}
         <div className="mt-4 grid grid-cols-3 gap-3">
           {[
-            { label: 'Sätze', value: `${doneSets}/${totalSets}` },
-            { label: 'Zeit', value: formatTimer(elapsed) },
-            { label: 'Übungen', value: `${exercises.filter(e => e.loggedSets.length >= e.targetSets.length).length}/${exercises.length}` },
+            { label: t.common.sets, value: `${doneSets}/${totalSets}` },
+            { label: t.workout.time, value: formatTimer(elapsed) },
+            { label: t.common.exercises, value: `${exercises.filter(e => e.loggedSets.length >= e.targetSets.length).length}/${exercises.length}` },
           ].map(stat => (
             <div key={stat.label} className="bg-surface-container rounded-xl p-3 text-center">
               <p className="text-xs font-bold text-outline uppercase tracking-widest">{stat.label}</p>
@@ -456,16 +462,16 @@ export default function ActiveWorkout() {
           className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
+          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: 'var(--color-surface-container)' }}>
             <div className="text-center">
               <span className="material-symbols-outlined text-primary" style={{ fontSize: '48px', fontVariationSettings: "'FILL' 1" }}>
                 emoji_events
               </span>
               <h2 className="text-2xl font-black tracking-tight mt-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                TRAINING BEENDEN?
+                {t.workout.finishTitle}
               </h2>
               <p className="text-on-surface-variant text-sm mt-2">
-                {doneSets} von {totalSets} Sätzen · {formatTimer(elapsed)}
+                {doneSets} {t.workout.setsOfTotal} {totalSets} {t.common.sets} · {formatTimer(elapsed)}
               </p>
             </div>
             <div className="space-y-3">
@@ -474,21 +480,21 @@ export default function ActiveWorkout() {
                 className="w-full py-4 rounded-xl text-on-primary font-black text-base tracking-widest uppercase active:scale-95 transition-all locallift-gradient"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Training speichern
+                {t.workout.saveTraining}
               </button>
               <button
                 onClick={() => setShowFinishConfirm(false)}
                 className="w-full py-4 rounded-xl text-on-surface font-bold text-sm tracking-widest uppercase bg-surface-container"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Weitertrainieren
+                {t.workout.continueTraining}
               </button>
               <button
                 onClick={() => { setShowFinishConfirm(false); setShowCancelConfirm(true); }}
                 className="w-full py-3 text-error font-bold text-xs tracking-widest uppercase"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Training abbrechen
+                {t.workout.cancelTraining}
               </button>
             </div>
           </div>
@@ -504,7 +510,7 @@ export default function ActiveWorkout() {
         >
           <div
             className="w-full max-w-lg rounded-t-2xl p-6 space-y-4 pb-10"
-            style={{ background: '#1a1a1a', border: '1px solid rgba(149,170,255,0.1)', borderBottom: 'none' }}
+            style={{ background: 'var(--color-surface-container)', border: '1px solid rgba(149,170,255,0.1)', borderBottom: 'none' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
@@ -552,7 +558,7 @@ export default function ActiveWorkout() {
               </p>
             ) : (
               <p className="text-sm text-on-surface-variant opacity-50 italic">
-                Keine Beschreibung verfügbar.
+                {t.common.noDescription}
               </p>
             )}
 
@@ -580,12 +586,12 @@ export default function ActiveWorkout() {
           className="fixed inset-0 z-100 flex items-center justify-center p-6"
           style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: '#1a1a1a' }}>
+          <div className="w-full max-w-sm rounded-2xl p-8 space-y-6" style={{ background: 'var(--color-surface-container)' }}>
             <div className="text-center">
               <h2 className="text-2xl font-black tracking-tight text-error" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                WIRKLICH ABBRECHEN?
+                {t.workout.cancelTitle}
               </h2>
-              <p className="text-on-surface-variant text-sm mt-2">Alle Fortschritte gehen verloren.</p>
+              <p className="text-on-surface-variant text-sm mt-2">{t.workout.cancelWarning}</p>
             </div>
             <div className="space-y-3">
               <button
@@ -593,13 +599,13 @@ export default function ActiveWorkout() {
                 className="w-full py-4 rounded-xl font-black text-base tracking-widest uppercase active:scale-95 transition-all text-error"
                 style={{ background: 'rgba(255, 110, 132, 0.1)', border: '1px solid rgba(255, 110, 132, 0.3)', fontFamily: 'Space Grotesk, sans-serif' }}
               >
-                Ja, abbrechen
+                {t.workout.yesCancel}
               </button>
               <button
                 onClick={() => setShowCancelConfirm(false)}
                 className="w-full py-4 rounded-xl text-on-surface font-bold text-sm tracking-widest uppercase bg-surface-container"
               >
-                Zurück
+                {t.common.back}
               </button>
             </div>
           </div>

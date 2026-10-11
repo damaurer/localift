@@ -20,7 +20,7 @@ export const WorkoutContext = createContext<WorkoutContextValue | null>(null);
 export function useWorkoutContext() {
     const context = useContext(WorkoutContext);
     if (!context) {
-        throw new Error('useWorkoutContext must be used within an WorkoutProvider');
+        throw new Error('useWorkoutContext must be used within a WorkoutProvider');
     }
     return context;
 }

@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { useSettingsContext } from '../contexts/settings/SettingsContext.tsx';
+import { useAiContext } from '../contexts/ai/AiContext.tsx';
 
 interface HeaderProps {
   /** If neither title nor showBack: shows logo mark */
@@ -28,18 +30,44 @@ export function LogoMark() {
   );
 }
 
+function AiHeaderShadow() {
+  const { modelStatus, modelError, isGenerating } = useAiContext();
+  const hasError = modelStatus === 'error' || !!modelError;
+  const isActive = isGenerating;
+
+  let shadow: string | undefined;
+  if (hasError) shadow = '0 2px 16px 25px rgba(255, 110, 132, 0.45)';
+  else if (isActive) shadow = '0 2px 16px 25px rgba(149, 170, 255, 0.45)';
+
+  if (!shadow) return null;
+
+  return (
+    <div
+      className="ai-header-shimmer"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        boxShadow: shadow,
+        zIndex: -1,
+      }}
+    />
+  );
+}
+
 export default function Header({ title, subtitle, showBack = false, rightContent }: HeaderProps) {
   const navigate = useNavigate();
   const isMainScreen = !showBack && !title;
+  const { settings } = useSettingsContext();
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-5 py-3"
+      className="sticky top-0 left-0 right-0 z-50 flex justify-between items-center w-full px-5 py-3 relative"
       style={{
-        background: 'rgba(19, 19, 19, 0.95)',
+        background: 'var(--header-bg, rgba(19, 19, 19, 0.95))',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(72, 72, 71, 0.15)',
+        borderBottom: '1px solid var(--header-border, rgba(72, 72, 71, 0.15))',
       }}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -72,6 +100,7 @@ export default function Header({ title, subtitle, showBack = false, rightContent
       {rightContent && (
         <div className="flex items-center gap-2 shrink-0 ml-3">{rightContent}</div>
       )}
+      {settings.aiTrainer.enabled && <AiHeaderShadow />}
     </header>
   );
 }

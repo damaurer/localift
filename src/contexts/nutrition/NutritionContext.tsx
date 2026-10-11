@@ -18,7 +18,7 @@ export const NutritionContext = createContext<NutritionContextValue | null>(null
 export function useNutritionContext() {
     const context = useContext(NutritionContext);
     if (!context) {
-        throw new Error('useNutritionContext must be used within an NutritionProvider');
+        throw new Error('useNutritionContext must be used within a NutritionProvider');
     }
     return context;
 }

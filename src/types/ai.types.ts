@@ -5,6 +5,18 @@ export interface AiMessage {
   timestamp: string;
   /** True while the AI is still streaming tokens for this message */
   isStreaming?: boolean;
+  /** Debug-only agent trace. Must not be sent back to the model as history. */
+  isDebug?: boolean;
+  /** Tools the agent executed while producing this message (shown as chips) */
+  toolInvocations?: AiToolInvocation[];
+}
+
+/** Record of a single tool the agent ran during an assistant turn */
+export interface AiToolInvocation {
+  /** Tool name, e.g. "get_exercise_library" */
+  name: string;
+  /** False when the tool returned an error result */
+  success: boolean;
 }
 
 /**

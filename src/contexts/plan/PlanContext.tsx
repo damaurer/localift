@@ -20,7 +20,7 @@ export const PlanContext = createContext<PlanContextValue | null>(null);
 export function usePlanContext() {
     const context = useContext(PlanContext);
     if (!context) {
-        throw new Error('usePlanContext must be used within an PlanProvider');
+        throw new Error('usePlanContext must be used within a PlanProvider');
     }
     return context;
 }

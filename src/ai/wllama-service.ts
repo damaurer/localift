@@ -10,14 +10,15 @@ import { WLLAMA_CONFIG_PATHS } from './wllama-config.ts';
 
 let instance: Wllama | null = null;
 let _modelLoaded = false;
+let _loadingPromise: Promise<void> | null = null;
 
 function getInstance(): Wllama {
   if (!instance) {
     instance = new Wllama(WLLAMA_CONFIG_PATHS, {
       suppressNativeLog: true,
       logger: {
-        debug: () => {},
         log: () => {},
+        debug: () => {},
         warn: console.warn,
         error: console.error,
       },
@@ -30,18 +31,31 @@ export async function loadModel(
   modelUrl: string,
   onProgress: (progress: number) => void,
 ): Promise<void> {
-  const wllama = getInstance();
-  _modelLoaded = false;
+  // Prevent concurrent loads which cause "Entry already exists" Cache API errors
+  if (_loadingPromise) {
+    return _loadingPromise;
+  }
 
-  await wllama.loadModelFromUrl(modelUrl, {
-    n_ctx: 4096,
-    useCache: true,
-    progressCallback: ({ loaded, total }: { loaded: number; total: number }) => {
-      onProgress(total > 0 ? loaded / total : 0);
-    },
+  const doLoad = async () => {
+    const wllama = getInstance();
+    _modelLoaded = false;
+
+    await wllama.loadModelFromUrl(modelUrl, {
+      n_ctx: 4096,
+      useCache: true,
+      progressCallback: ({ loaded, total }: { loaded: number; total: number }) => {
+        onProgress(total > 0 ? loaded / total : 0);
+      },
+    });
+
+    _modelLoaded = true;
+  };
+
+  _loadingPromise = doLoad().finally(() => {
+    _loadingPromise = null;
   });
 
-  _modelLoaded = true;
+  return _loadingPromise;
 }
 
 export function isModelLoaded(): boolean {

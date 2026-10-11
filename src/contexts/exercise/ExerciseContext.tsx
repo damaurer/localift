@@ -5,6 +5,7 @@ export interface ExerciseContextValue {
     exercises: Exercise[];
     setExercises:  Dispatch<SetStateAction<Exercise[]>>
     addExercise: (ex: Omit<Exercise, 'id'>) => void;
+    updateExercise: (exercise: Exercise) => void;
     deleteExercise: (id: string) => void;
     getExerciseById: (id: string) => Exercise | undefined;
     syncExercisesWithRepo: () => Promise<Exercise[]>;

@@ -1,7 +1,8 @@
 import { VitePWA } from 'vite-plugin-pwa';
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import mkcert from "vite-plugin-mkcert";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,7 +14,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@wllama/wllama'],
   },
-  plugins: [tailwindcss(), react(), VitePWA({
+  plugins: [tailwindcss(), mkcert(), react(), VitePWA({
     strategies: 'injectManifest',
     srcDir: 'src',
     filename: 'sw.ts',
@@ -30,6 +31,15 @@ export default defineConfig({
       short_name: 'localift',
       description: 'This training app is a local-first Progressive Web App (PWA) built for people who want full control over their workout data.',
       theme_color: '#212121',
+      background_color: '#0e0e0e',
+      display: 'standalone',
+      display_override: ['window-controls-overlay', 'standalone'],
+      protocol_handlers: [
+        {
+          protocol: 'web+localift',
+          url: '/?protocol=%s',
+        },
+      ],
       share_target: {
         action: '/share-target',
         method: 'POST',
@@ -38,6 +48,20 @@ export default defineConfig({
           files: [{ name: 'file', accept: ['application/json', '.localift'] }],
         },
       },
+
+      screenshots: [
+        {
+          src: 'pwa-screenshot-desktop.png',
+          sizes: '1280x720',
+          type: 'image/png',
+          form_factor: 'wide',
+        },
+        {
+          src: 'pwa-screenshot-mobile.png',
+          sizes: '540x720',
+          type: 'image/png',
+        },
+      ],
 
       icons: [
         {
@@ -75,14 +99,18 @@ export default defineConfig({
     },
 
     devOptions: {
-      enabled: false,
+      enabled: true,
       navigateFallback: 'index.html',
-      suppressWarnings: true,
+      suppressWarnings: false,
       type: 'module',
     },
 
     includeAssets: ['favicon.ico'],
   })],
+
+  test: {
+    setupFiles: ['./src/test-setup.ts'],
+  },
 
   server: {
     headers: {
