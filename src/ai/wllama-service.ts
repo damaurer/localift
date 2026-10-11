@@ -101,6 +101,15 @@ export async function runCompletion(
   return result;
 }
 
+/** Remove a previously downloaded model from the browser cache (best effort). */
+export async function deleteCachedModel(modelUrl: string): Promise<void> {
+  try {
+    await getInstance().cacheManager.delete(modelUrl);
+  } catch (err) {
+    console.warn('[wllama] could not delete cached model:', err);
+  }
+}
+
 export async function unloadModel(): Promise<void> {
   if (instance) {
     try { await instance.exit(); } catch { /* ignore */ }
