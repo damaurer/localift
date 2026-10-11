@@ -42,14 +42,22 @@ beforeEach(() => {
 });
 
 describe('selectCatalog', () => {
-  it('keeps only requested equipment (plus bodyweight) and target muscles', () => {
-    const catalog = selectCatalog(library, {
-      goal: 'Push',
-      equipment: ['barbell', 'dumbbell'],
-      muscleGroups: ['chest', 'shoulders', 'triceps'],
-      exerciseCount: 3,
-    });
-    expect(catalog.map(e => e.id).sort()).toEqual(['bench', 'db-press', 'dips', 'ohp', 'pushdown']);
+  it('prefers exactly the requested equipment', () => {
+    const ids = selectCatalog(library, { goal: 'Push', equipment: ['barbell', 'dumbbell'], exerciseCount: 3 }).map(e => e.id);
+    expect(ids).not.toContain('dips');
+    expect(ids).not.toContain('cable-fly');
+    expect(ids).toContain('bench');
+  });
+
+  it('fills in bodyweight exercises when the requested equipment is too scarce', () => {
+    const ids = selectCatalog(library, { goal: 'x', equipment: ['cable'], exerciseCount: 3 }).map(e => e.id);
+    expect(ids).toEqual(expect.arrayContaining(['cable-fly', 'dips']));
+  });
+
+  it('narrows to target muscles when enough exercises remain', () => {
+    const ids = selectCatalog(library, { goal: 'Push', muscleGroups: ['chest', 'shoulders', 'triceps'], exerciseCount: 3 }).map(e => e.id);
+    expect(ids).not.toContain('squat');
+    expect(ids).not.toContain('curl');
   });
 
   it('leaves out stretches and cardio unless the goal asks for them', () => {
@@ -118,6 +126,17 @@ describe('resolveRequest', () => {
   it('completes the model selection with muscles the user named', () => {
     expect(resolveRequest({ goal: 'Muskelaufbau', muscleGroups: ['legs'], userRequest: 'auch etwas Brust' }).muscleGroups)
       .toEqual(['legs', 'chest']);
+  });
+
+  it('reads the exercise count from the request text', () => {
+    expect(resolveRequest({ goal: 'Push-Tag mit 6 Übungen' }).exerciseCount).toBe(6);
+    expect(resolveRequest({ goal: 'Push-Tag mit 6 Übungen', exerciseCount: 4 }).exerciseCount).toBe(4);
+  });
+
+  it('reads equipment from the request text', () => {
+    expect(resolveRequest({ goal: 'Beintag', userRequest: 'Ich trainiere zu Hause nur mit Kurzhanteln.' }).equipment).toEqual(['dumbbell']);
+    expect(resolveRequest({ goal: 'Push mit Langhantel und Kurzhanteln' }).equipment).toEqual(['dumbbell', 'barbell']);
+    expect(resolveRequest({ goal: 'Beintag', userRequest: 'Ich trainiere zu Hause.' }).equipment).toEqual(['bodyweight']);
   });
 
   it('switches to bodyweight for training without equipment', () => {

@@ -1,5 +1,5 @@
 {
-  "version": "2025-03-30",
+  "version": "2026-10-11",
   "exercises": [
     {
       "id": "ex-bench",
@@ -929,6 +929,406 @@
       "muscleGroups": ["Gesäß", "Hüfte", "Piriformis"],
       "tags": ["Mobilität", "Dehnen", "Yoga"],
       "description": "Aus dem Vierfüßerstand das vordere Knie nach vorne und außen bringen, das hintere Bein gestreckt nach hinten. Lehne dich nach vorne auf die Unterarme oder lege den Oberkörper ganz ab. Dehnt intensiv das Gesäß und den Piriformis – wichtig für Läufer und Kraftsportler.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-bw-squat",
+      "name": "Kniebeuge (Körpergewicht)",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Anfänger", "Calisthenics", "Grundübung", "Unterkörper", "Functional"],
+      "description": "Stelle die Füße etwa schulterbreit, Fußspitzen leicht nach außen. Schiebe die Hüfte nach hinten und beuge die Knie, bis die Oberschenkel mindestens parallel zum Boden sind. Rücken gerade, Fersen am Boden, Knie folgen den Fußspitzen. Drücke dich über die ganze Fußsohle zurück nach oben.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-bw-lunge",
+      "name": "Ausfallschritt (Körpergewicht)",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Anfänger", "Calisthenics", "Unterkörper", "Functional"],
+      "description": "Mache aus dem aufrechten Stand einen großen Schritt nach vorne und senke das hintere Knie kontrolliert Richtung Boden. Das vordere Knie bleibt über dem Fußgelenk, der Oberkörper aufrecht. Drücke dich über die vordere Ferse zurück in den Stand und wechsle das Bein.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-reverse-lunge",
+      "name": "Rückwärts-Ausfallschritt",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Hamstrings"],
+      "tags": ["Anfänger", "Calisthenics", "Unterkörper", "Functional", "Rehabilitation"],
+      "description": "Trete aus dem Stand mit einem Bein großzügig nach hinten und senke das hintere Knie kurz über den Boden. Das Gewicht bleibt auf der vorderen Ferse. Die Variante ist kniefreundlicher als der klassische Ausfallschritt und eignet sich gut für Einsteiger.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-lateral-lunge",
+      "name": "Seitlicher Ausfallschritt",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Innenoberschenkel", "Gesäß"],
+      "tags": ["Anfänger", "Unterkörper", "Functional"],
+      "description": "Mache einen weiten Schritt zur Seite, schiebe die Hüfte nach hinten und beuge das Schrittbein, während das andere Bein gestreckt bleibt. Brust aufrecht, beide Füße zeigen nach vorne. Drücke dich kraftvoll zurück in die Mitte – trainiert Beine und Adduktoren in der Seitwärtsbewegung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-wallsit",
+      "name": "Wandsitzen",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß"],
+      "tags": ["Anfänger", "Kraft", "Unterkörper", "Rehabilitation"],
+      "description": "Lehne dich mit dem Rücken an eine Wand und rutsche nach unten, bis Knie und Hüfte etwa 90° gebeugt sind. Knie über den Fußgelenken, Rücken flach an der Wand. Halte die Position für die vorgegebene Zeit – zähle Wiederholungen als Sekunden.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-jumpsquat",
+      "name": "Sprungkniebeuge",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Waden"],
+      "tags": ["Plyometrie", "HIIT", "Fortgeschritten", "Unterkörper", "Functional"],
+      "description": "Gehe in eine Kniebeuge und springe explosiv nach oben, Arme schwingen mit. Lande weich auf den Fußballen, rolle über die ganze Sohle ab und gehe direkt in die nächste Kniebeuge. Achte auf stabile Knie, die bei der Landung nicht nach innen fallen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-bw-calfraise",
+      "name": "Wadenheben (Körpergewicht)",
+      "category": "Beine",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Waden"],
+      "tags": ["Anfänger", "Isolationsübung", "Unterkörper"],
+      "description": "Stelle dich mit den Fußballen auf eine Stufe, die Fersen hängen frei. Drücke dich so hoch wie möglich auf die Zehenspitzen, halte kurz und senke die Fersen langsam unter Stufenniveau ab. Für mehr Intensität einbeinig ausführen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-single-glutebridge",
+      "name": "Einbeinige Glute Bridge",
+      "category": "Hinge",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Gesäß", "Hamstrings", "Core"],
+      "tags": ["Unterkörper", "Functional", "Rehabilitation"],
+      "description": "Rückenlage, ein Fuß aufgestellt, das andere Bein gestreckt in der Luft. Drücke die Hüfte über die Ferse des Standbeins nach oben, bis Schulter, Hüfte und Knie eine Linie bilden. Becken bleibt waagerecht – nicht zur Seite kippen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-knee-pushup",
+      "name": "Knie-Liegestütz",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Anfänger", "Calisthenics", "Oberkörper", "Push"],
+      "description": "Liegestützposition mit den Knien am Boden, Hände etwas breiter als schulterbreit. Knie, Hüfte und Schultern bilden eine Linie. Senke die Brust kontrolliert zum Boden, Ellbogen etwa 45° vom Körper, und drücke dich zurück – ideale Vorstufe zum klassischen Liegestütz.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-incline-pushup",
+      "name": "Erhöhter Liegestütz",
+      "category": "Drücken",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Anfänger", "Calisthenics", "Oberkörper", "Push"],
+      "description": "Stütze die Hände auf einer erhöhten Fläche wie Bank, Tisch oder Fensterbank ab, Körper in einer geraden Linie. Senke die Brust zur Kante und drücke dich zurück. Je höher die Auflage, desto leichter – so lässt sich die Übung stufenlos anpassen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-diamond-pushup",
+      "name": "Diamant-Liegestütz",
+      "category": "Arme",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Trizeps", "Brust", "Schultern"],
+      "tags": ["Fortgeschritten", "Calisthenics", "Oberkörper", "Push"],
+      "description": "Liegestütz mit eng zusammengeführten Händen, Daumen und Zeigefinger bilden eine Raute unter der Brust. Ellbogen bleiben nah am Körper. Die enge Handposition verlagert die Belastung stark auf den Trizeps.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-bench-dips",
+      "name": "Bank-Dips",
+      "category": "Arme",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Trizeps", "Schultern", "Brust"],
+      "tags": ["Anfänger", "Calisthenics", "Oberkörper", "Push"],
+      "description": "Stütze dich rücklings mit den Händen auf einer Bank oder einem Stuhl ab, Finger zeigen nach vorne, Beine angewinkelt oder gestreckt. Beuge die Ellbogen bis etwa 90° und drücke dich wieder hoch. Schultern bleiben tief und der Po nah an der Bank.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-shoulder-taps",
+      "name": "Schulter-Taps im Stütz",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Schultern", "Trizeps"],
+      "tags": ["Anfänger", "Functional", "Core", "Oberkörper"],
+      "description": "Hoher Liegestütz mit etwas breiter gestellten Füßen. Tippe abwechselnd mit einer Hand auf die gegenüberliegende Schulter, ohne dass die Hüfte schaukelt. Bauch und Gesäß fest anspannen – trainiert Rumpfstabilität und Schultern.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-superman",
+      "name": "Superman",
+      "category": "Hinge",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Unterer Rücken", "Gesäß", "Hintere Schultern"],
+      "tags": ["Anfänger", "Rehabilitation", "Unterkörper"],
+      "description": "Bauchlage, Arme nach vorne gestreckt. Hebe Arme, Brust und Beine gleichzeitig wenige Zentimeter vom Boden ab, Blick bleibt zum Boden. Kurz halten und kontrolliert ablegen – kräftigt die gesamte hintere Muskelkette ohne Geräte.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-ytw",
+      "name": "Y-T-W Heben",
+      "category": "Schultern",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Hintere Schultern", "Trapez", "Rotatorenmanschette"],
+      "tags": ["Anfänger", "Rehabilitation", "Oberkörper", "Pull"],
+      "description": "Bauchlage oder vorgebeugter Stand. Hebe die gestreckten Arme nacheinander in Y-, T- und W-Form an und ziehe dabei die Schulterblätter zusammen und nach unten. Langsam und ohne Schwung ausführen – stärkt die Haltungsmuskulatur des oberen Rückens.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-crunch",
+      "name": "Crunch",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Bauchmuskulatur"],
+      "tags": ["Anfänger", "Isolationsübung", "Core"],
+      "description": "Rückenlage, Beine aufgestellt, Hände an den Schläfen. Rolle den Oberkörper ein, bis die Schulterblätter vom Boden abheben, und senke ihn langsam wieder ab. Nicht am Nacken ziehen – die Bewegung kommt aus dem Bauch.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-lying-legraise",
+      "name": "Beinheben liegend",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Untere Bauchmuskulatur", "Hüftbeuger"],
+      "tags": ["Anfänger", "Core"],
+      "description": "Rückenlage, Hände unter dem Gesäß, unterer Rücken bleibt am Boden. Hebe die gestreckten oder leicht gebeugten Beine bis senkrecht an und senke sie langsam ab, ohne sie abzulegen. Hohlkreuz vermeiden.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-birddog",
+      "name": "Bird Dog",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Unterer Rücken", "Gesäß"],
+      "tags": ["Anfänger", "Rehabilitation", "Functional", "Core"],
+      "description": "Vierfüßlerstand, Hände unter den Schultern, Knie unter der Hüfte. Strecke gleichzeitig einen Arm nach vorne und das gegenüberliegende Bein nach hinten, ohne dass Becken oder Rücken kippen. Kurz halten, zurückführen, Seite wechseln.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-mountainclimber",
+      "name": "Mountain Climber",
+      "category": "Cardio",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Hüftbeuger", "Schultern"],
+      "tags": ["Cardio", "HIIT", "Anfänger", "Core"],
+      "description": "Hoher Liegestütz, Hände unter den Schultern. Ziehe abwechselnd die Knie zügig Richtung Brust, während Hüfte und Schultern ruhig bleiben. Zähle jede Beinbewegung als Wiederholung oder trainiere auf Zeit.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-hollowhold",
+      "name": "Hollow Hold",
+      "category": "Core",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Core", "Bauchmuskulatur"],
+      "tags": ["Calisthenics", "Kraft", "Core"],
+      "description": "Rückenlage, unterer Rücken fest in den Boden gedrückt. Hebe Schultern und gestreckte Beine leicht an, Arme über den Kopf – der Körper bildet eine flache Banane. Position halten; zum Erleichtern die Knie anwinkeln.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-jumpingjack",
+      "name": "Hampelmann",
+      "category": "Cardio",
+      "equipment": "bodyweight",
+      "muscleGroups": ["Ganzkörper", "Waden", "Schultern"],
+      "tags": ["Cardio", "HIIT", "Anfänger", "Ganzkörper"],
+      "description": "Springe aus dem geschlossenen Stand in eine Grätsche und führe gleichzeitig die Arme seitlich über den Kopf. Springe zurück in die Ausgangsposition. Locker auf den Fußballen landen – gut zum Aufwärmen oder als Intervall.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-rdl",
+      "name": "Rumänisches Kreuzheben mit Kurzhanteln",
+      "category": "Hinge",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Hamstrings", "Gesäß", "Unterer Rücken"],
+      "tags": ["Anfänger", "Hypertrophie", "Unterkörper"],
+      "description": "Stand mit Kurzhanteln vor den Oberschenkeln, Knie leicht gebeugt. Schiebe die Hüfte nach hinten und führe die Hanteln nah an den Beinen bis knapp unter die Knie, Rücken gerade. Spüre die Dehnung in den Oberschenkelrückseiten und strecke die Hüfte wieder.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-squat",
+      "name": "Kurzhantel-Kniebeuge",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Oberschenkel", "Gesäß", "Core"],
+      "tags": ["Anfänger", "Hypertrophie", "Unterkörper"],
+      "description": "Halte je eine Kurzhantel seitlich neben dem Körper, Füße schulterbreit. Gehe mit geradem Rücken tief in die Kniebeuge, die Hanteln hängen senkrecht. Über die ganze Fußsohle zurück nach oben drücken.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-calfraise",
+      "name": "Wadenheben mit Kurzhanteln",
+      "category": "Beine",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Waden"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Stand auf einer Stufe, Kurzhanteln seitlich in den Händen, Fersen frei. Hebe dich maximal auf die Zehenspitzen, halte oben kurz und senke die Fersen langsam unter Stufenniveau ab.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-concentration-curl",
+      "name": "Konzentrationscurl",
+      "category": "Arme",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Bizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Sitze auf einer Bank, der Ellbogen des Arbeitsarms stützt sich an der Innenseite des Oberschenkels ab. Curle die Kurzhantel langsam zur Schulter und senke sie vollständig ab. Der Oberarm bleibt dabei völlig ruhig.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-kickback",
+      "name": "Kurzhantel-Kickback",
+      "category": "Arme",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Trizeps"],
+      "tags": ["Anfänger", "Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Oberkörper nach vorne geneigt, eine Hand und ein Knie auf der Bank. Der Oberarm des Arbeitsarms liegt parallel zum Körper. Strecke den Unterarm nach hinten, bis der Arm gestreckt ist, halte kurz und beuge langsam zurück.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-renegade-row",
+      "name": "Renegade Row",
+      "category": "Ziehen",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Rücken", "Core", "Bizeps"],
+      "tags": ["Fortgeschritten", "Functional", "Oberkörper", "Pull"],
+      "description": "Hoher Liegestütz auf zwei Kurzhanteln, Füße breit. Ziehe abwechselnd eine Hantel zur Hüfte, während der andere Arm stützt und die Hüfte nicht rotiert. Kombiniert Rudern mit intensiver Rumpfstabilisation.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-db-shrug",
+      "name": "Kurzhantel-Schulterzucken",
+      "category": "Schultern",
+      "equipment": "dumbbell",
+      "muscleGroups": ["Trapez"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stand mit Kurzhanteln seitlich, Arme gestreckt. Ziehe die Schultern gerade nach oben Richtung Ohren, halte kurz und senke sie langsam ab. Nicht mit den Schultern kreisen.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-chestpress",
+      "name": "Brustpresse",
+      "category": "Drücken",
+      "equipment": "machine",
+      "muscleGroups": ["Brust", "Trizeps", "Schultern"],
+      "tags": ["Anfänger", "Hypertrophie", "Oberkörper", "Push"],
+      "description": "Stelle den Sitz so ein, dass die Griffe auf Brusthöhe liegen. Rücken an die Lehne, Schulterblätter zurück. Drücke die Griffe nach vorne, ohne die Ellbogen ganz durchzustrecken, und führe sie kontrolliert zurück – sicherer Einstieg ins Brusttraining.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pecdeck",
+      "name": "Butterfly (Maschine)",
+      "category": "Drücken",
+      "equipment": "machine",
+      "muscleGroups": ["Brust", "Vordere Schultern"],
+      "tags": ["Anfänger", "Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Setze dich aufrecht in die Maschine, Arme leicht gebeugt an den Polstern oder Griffen. Führe die Arme in einem Bogen vor der Brust zusammen, halte kurz die Spannung und öffne sie langsam wieder, bis eine leichte Dehnung in der Brust spürbar ist.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-machine-ohp",
+      "name": "Schulterpresse (Maschine)",
+      "category": "Drücken",
+      "equipment": "machine",
+      "muscleGroups": ["Schultern", "Trizeps"],
+      "tags": ["Anfänger", "Hypertrophie", "Oberkörper", "Push"],
+      "description": "Sitz so einstellen, dass die Griffe etwa auf Schulterhöhe sind. Rücken an der Lehne, Bauch fest. Drücke die Griffe nach oben, ohne die Ellbogen zu blockieren, und senke sie kontrolliert bis Schulterhöhe ab.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-machine-row",
+      "name": "Rudermaschine sitzend",
+      "category": "Ziehen",
+      "equipment": "machine",
+      "muscleGroups": ["Rücken", "Bizeps", "Hintere Schultern"],
+      "tags": ["Anfänger", "Hypertrophie", "Oberkörper", "Pull"],
+      "description": "Brust an das Polster, Griffe mit gestreckten Armen fassen. Ziehe die Griffe zum Körper, führe die Ellbogen nah am Körper nach hinten und drücke die Schulterblätter zusammen. Langsam zurück in die Streckung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-abductor",
+      "name": "Abduktoren-Maschine",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Gesäß", "Hüfte"],
+      "tags": ["Anfänger", "Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Setze dich in die Maschine, die Polster liegen außen an den Knien. Drücke die Beine gegen den Widerstand nach außen, halte kurz und führe sie langsam zurück. Trainiert den seitlichen Gesäßmuskel, wichtig für stabile Knie.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-adductor",
+      "name": "Adduktoren-Maschine",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Innenoberschenkel"],
+      "tags": ["Anfänger", "Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Setze dich in die Maschine, die Polster liegen innen an den Knien. Drücke die Beine gegen den Widerstand zusammen und öffne sie kontrolliert wieder bis zu einer angenehmen Dehnung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-seated-calf",
+      "name": "Wadenheben sitzend",
+      "category": "Beine",
+      "equipment": "machine",
+      "muscleGroups": ["Waden"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Unterkörper"],
+      "description": "Setze dich in die Maschine, Polster auf den Oberschenkeln knapp über den Knien, Fußballen auf der Trittfläche. Hebe die Fersen so hoch wie möglich und senke sie langsam tief ab. Betont den tieferliegenden Schollenmuskel.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cable-lateral",
+      "name": "Seitheben am Kabelzug",
+      "category": "Schultern",
+      "equipment": "cable",
+      "muscleGroups": ["Seitliche Schultern"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stehe seitlich zum unteren Kabelzug und greife den Griff mit der entfernten Hand. Hebe den leicht gebeugten Arm seitlich bis Schulterhöhe und senke ihn langsam ab. Der Kabelzug hält die Spannung über die gesamte Bewegung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cable-curl",
+      "name": "Bizepscurl am Kabelzug",
+      "category": "Arme",
+      "equipment": "cable",
+      "muscleGroups": ["Bizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Stand vor dem unteren Kabelzug, Stange oder Seil im Untergriff. Curle die Hände zur Schulter, Ellbogen bleiben am Körper, und strecke die Arme langsam wieder. Konstante Spannung auch im gestreckten Bereich.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cable-overhead-tri",
+      "name": "Trizeps-Überkopfstrecken am Kabelzug",
+      "category": "Arme",
+      "equipment": "cable",
+      "muscleGroups": ["Trizeps"],
+      "tags": ["Hypertrophie", "Isolationsübung", "Oberkörper"],
+      "description": "Wende dem Kabelzug den Rücken zu und halte das Seil hinter dem Kopf, Ellbogen zeigen nach vorne oben. Strecke die Arme nach vorne oben, bis sie gestreckt sind, und führe sie langsam zurück. Trainiert den langen Trizepskopf in Dehnung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-cable-pullthrough",
+      "name": "Cable Pull-Through",
+      "category": "Hinge",
+      "equipment": "cable",
+      "muscleGroups": ["Gesäß", "Hamstrings"],
+      "tags": ["Anfänger", "Hypertrophie", "Unterkörper"],
+      "description": "Stehe mit dem Rücken zum unteren Kabelzug, das Seil zwischen den Beinen. Schiebe die Hüfte nach hinten, bis die Hände zwischen den Beinen durchgehen, und strecke die Hüfte dann kraftvoll nach vorne. Ideal zum Erlernen der Hüftbeuge-Bewegung.",
+      "imageUrl": null
+    },
+    {
+      "id": "ex-pallof",
+      "name": "Pallof Press",
+      "category": "Core",
+      "equipment": "cable",
+      "muscleGroups": ["Seitenrumpf", "Core"],
+      "tags": ["Anfänger", "Functional", "Rehabilitation", "Core"],
+      "description": "Stehe seitlich zum Kabelzug, Griff auf Brusthöhe mit beiden Händen. Drücke die Hände gerade nach vorne und widerstehe dem seitlichen Zug, ohne den Oberkörper zu drehen. Kurz halten und zur Brust zurückführen.",
       "imageUrl": null
     }
   ]

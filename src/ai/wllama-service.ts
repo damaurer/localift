@@ -149,14 +149,37 @@ export async function runChatCompletion(
     throw new Error('Kein Modell geladen. Bitte zuerst ein Modell installieren.');
   }
 
+  try {
+    return await chatCompletionAttempt(instance, messages, options, true);
+  } catch (err) {
+    // The server-side prompt cache occasionally ends up in a state where the
+    // next prompt reports "Context size has been exceeded" although it fits.
+    // Reprocessing without the cache recovers reliably.
+    if (err instanceof ContextExceededError) {
+      return chatCompletionAttempt(instance, messages, options, false);
+    }
+    throw err;
+  }
+}
+
+/** Raised (internally) when the server rejects a prompt as too long before any output. */
+class ContextExceededError extends Error {}
+
+async function chatCompletionAttempt(
+  wllama: Wllama,
+  messages: ChatMessage[],
+  options: ChatCompletionOptions,
+  cachePrompt: boolean,
+): Promise<ChatCompletionResult> {
   const controller = new AbortController();
   let text = '';
   const pendingCalls: { name: string; arguments: string }[] = [];
 
   try {
-    await instance.createChatCompletion({
+    await wllama.createChatCompletion({
       messages,
       stream: true,
+      cache_prompt: cachePrompt,
       abortSignal: controller.signal,
       max_tokens: options.maxTokens ?? 1024,
       temperature: options.temperature ?? 0.7,
@@ -194,6 +217,10 @@ export async function runChatCompletion(
         _nativeToolsSupported = false;
         throw new NativeToolsUnsupportedError();
       }
+    }
+    const noOutput = !text && !pendingCalls.length;
+    if (cachePrompt && noOutput && err instanceof Error && /context size has been exceeded/i.test(err.message)) {
+      throw new ContextExceededError(err.message);
     }
     if (!(err instanceof WllamaAbortError) && !controller.signal.aborted) throw err;
   }
