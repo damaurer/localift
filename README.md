@@ -174,18 +174,23 @@ src/
 
 ## Installation & Entwicklung
 
+Das Projekt nutzt ausschließlich [pnpm](https://pnpm.io) (Version siehe `packageManager` in `package.json`; mit `corepack enable` wird sie automatisch verwendet).
+
 ```bash
 # Abhängigkeiten installieren
-npm install
+pnpm install
 
 # Entwicklungsserver starten
-npm run dev
+pnpm dev
 
 # Produktions-Build erstellen
-npm run build
+pnpm build
 
 # Build-Vorschau
-npm run preview
+pnpm preview
+
+# Tests ausführen
+pnpm test
 ```
 
 Die App ist unter `http://localhost:5173` erreichbar. Für PWA-Features (Service Worker, Installierbarkeit) wird ein Produktions-Build und HTTPS empfohlen.
