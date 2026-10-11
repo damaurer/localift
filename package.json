@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
-    "@wllama/wllama": "^2.3.7",
+    "@wllama/wllama": "^3.8.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",

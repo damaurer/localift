@@ -2,10 +2,9 @@ import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 
 import type { AiMessage, AiModelStatus } from '../../types/ai.types.ts';
 import { AiContext } from './AiContext.tsx';
-import { loadModel, isModelLoaded, runCompletion, unloadModel, deleteCachedModel } from '../../ai/wllama-service.ts';
+import { loadModel, isModelLoaded, runChatCompletion, unloadModel, deleteCachedModel } from '../../ai/wllama-service.ts';
 import { fetchRemoteModelUrl } from '../../ai/model-manifest.ts';
 import { runAgent } from '../../ai/agent.ts';
-import { PLAN_GENERATOR_PROMPT } from '../../ai/prompts.ts';
 import type { ToolContext } from '../../ai/tools.ts';
 import { generateId } from '../../data/storage.ts';
 
@@ -276,7 +275,9 @@ export function AiProvider({ children }: { children: ReactNode }) {
   // ── generatePlan ───────────────────────────────────────────────────────────
   const generatePlan = useCallback(
     async (userGoal: string): Promise<string | undefined> => {
-      const goalPrompt = PLAN_GENERATOR_PROMPT(userGoal);
+      // The agent picks generate_workout_plan, which builds the whole plan in
+      // one grammar-constrained completion.
+      const goalPrompt = `Erstelle mir einen Trainingsplan: ${userGoal}`;
       const userMsg: AiMessage = {
         id: generateId(),
         role: 'user',
@@ -320,13 +321,12 @@ export function AiProvider({ children }: { children: ReactNode }) {
       `Tags: ${input.tags.join(', ') || '-'}`,
     ].join('\n');
 
-    const completion = await runCompletion(prompt, {
+    const completion = await runChatCompletion([{ role: 'user', content: prompt }], {
       maxTokens: 120,
       temperature: 0.45,
     });
 
-    return completion
-      .replace(/<\|endoftext\|>/g, '')
+    return completion.text
       .replace(/^["'`\s]+|["'`\s]+$/g, '')
       .trim();
   }, [modelStatus, settings.language]);
