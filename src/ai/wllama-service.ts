@@ -20,6 +20,24 @@ let instance: Wllama | null = null;
 let _modelLoaded = false;
 let _loadingPromise: Promise<void> | null = null;
 let _nativeToolsSupported = true;
+let _toolHistoryStyle: ToolHistoryStyle = 'template';
+
+/**
+ * How earlier tool calls have to be written into the chat history so the model
+ * can see them on the next turn:
+ * - 'template': the chat template renders `tool_calls` and `tool` messages itself.
+ * - 'lfm': LFM2/LFM2.5 templates ignore `tool_calls`; the call has to be part of
+ *   the assistant content in the model's own `<|tool_call_start|>[…]` syntax.
+ * - 'inline': templates without any tool support — use the text protocol.
+ */
+export type ToolHistoryStyle = 'template' | 'lfm' | 'inline';
+
+export function detectToolHistoryStyle(template: string | null | undefined): ToolHistoryStyle {
+  if (!template) return 'inline';
+  if (template.includes('tool_calls')) return 'template';
+  if (template.includes('<|tool_list_start|>') || template.includes('List of tools')) return 'lfm';
+  return 'inline';
+}
 
 /**
  * Thrown when llama.cpp cannot build the tool-call grammar for the loaded
@@ -78,6 +96,7 @@ export async function loadModel(
       },
     });
 
+    _toolHistoryStyle = detectToolHistoryStyle(readChatTemplate(wllama));
     _modelLoaded = true;
   };
 
@@ -88,8 +107,21 @@ export async function loadModel(
   return _loadingPromise;
 }
 
+function readChatTemplate(wllama: Wllama): string | null {
+  try {
+    return wllama.getChatTemplate();
+  } catch {
+    return null;
+  }
+}
+
 export function isModelLoaded(): boolean {
   return _modelLoaded;
+}
+
+/** How past tool calls must be written into the history for the loaded model. */
+export function getToolHistoryStyle(): ToolHistoryStyle {
+  return _toolHistoryStyle;
 }
 
 /** False once native tool calling failed for the currently loaded model. */

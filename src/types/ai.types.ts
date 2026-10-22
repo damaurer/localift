@@ -7,6 +7,8 @@ export interface AiMessage {
   isStreaming?: boolean;
   /** Debug-only agent trace. Must not be sent back to the model as history. */
   isDebug?: boolean;
+  /** Error shown in place of an answer. Not sent back to the model as history. */
+  isError?: boolean;
   /** Tools the agent executed while producing this message (shown as chips) */
   toolInvocations?: AiToolInvocation[];
 }
