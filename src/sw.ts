@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { CacheFirst } from 'workbox-strategies'
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -26,3 +27,10 @@ registerRoute(new NavigationRoute(
     createHandlerBoundToURL('index.html'),
     { allowlist },
 ))
+
+// Safari has no JSPI / MEMORY64, so wllama loads its compat engine from
+// jsDelivr. The URLs are pinned to a version, so a cached copy never goes stale.
+registerRoute(
+    ({ url }) => url.hostname === 'cdn.jsdelivr.net' && url.pathname.startsWith('/npm/@wllama/wllama-compat@'),
+    new CacheFirst({ cacheName: 'wllama-compat' }),
+)
