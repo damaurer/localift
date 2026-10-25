@@ -14,7 +14,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@wllama/wllama'],
   },
-  plugins: [tailwindcss(), mkcert(), react(), VitePWA({
+  plugins: [tailwindcss(), ...(process.env.VITEST ? [] : [mkcert()]), react(), VitePWA({
     strategies: 'injectManifest',
     srcDir: 'src',
     filename: 'sw.ts',

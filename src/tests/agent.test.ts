@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { extractToolCall } from '../ai/tool-parsing.ts';
+import { extractPythonicToolCall, extractToolCall } from '../ai/tool-parsing.ts';
 import { isPlanRequest, runAgent } from '../ai/agent.ts';
 import type { ToolContext } from '../ai/tools.ts';
 
@@ -8,11 +8,13 @@ const completionQueue = vi.hoisted(() => ({
   messages: [] as unknown[][],
   toolsPassed: [] as boolean[],
   failNativeOnce: false,
+  historyStyle: 'template' as 'template' | 'lfm' | 'inline',
 }));
 
 vi.mock('../ai/wllama-service.ts', () => ({
   NativeToolsUnsupportedError: class NativeToolsUnsupportedError extends Error {},
   supportsNativeTools: () => true,
+  getToolHistoryStyle: () => completionQueue.historyStyle,
   runChatCompletion: vi.fn(async (messages: unknown[], options?: {
     tools?: unknown[];
     onToken?: (piece: string, fullText: string) => boolean | void;
@@ -40,6 +42,7 @@ beforeEach(() => {
   completionQueue.messages = [];
   completionQueue.toolsPassed = [];
   completionQueue.failNativeOnce = false;
+  completionQueue.historyStyle = 'template';
   vi.clearAllMocks();
 });
 
@@ -89,6 +92,37 @@ describe('extractToolCall', () => {
 
   it('returns null for a truncated (unbalanced) JSON object', () => {
     expect(extractToolCall('{"name":"create_workout_plan","arguments":{"name":"Pu')).toBeNull();
+  });
+});
+
+describe('extractPythonicToolCall', () => {
+  const tools = ['get_workout_history', 'get_exercise_library', 'generate_workout_plan'];
+
+  it('parses an LFM call written as plain text', () => {
+    expect(extractPythonicToolCall('[get_workout_history(limit=5)]', tools)).toEqual({
+      name: 'get_workout_history',
+      arguments: { limit: 5 },
+    });
+  });
+
+  it('parses strings, lists and Python literals', () => {
+    const r = extractPythonicToolCall(
+      `<|tool_call_start|>[generate_workout_plan(goal='Push, schwer', muscleGroups=["chest", "triceps"], strict=True, note=None)]<|tool_call_end|>`,
+      tools,
+    );
+    expect(r).toEqual({
+      name: 'generate_workout_plan',
+      arguments: { goal: 'Push, schwer', muscleGroups: ['chest', 'triceps'], strict: true, note: null },
+    });
+  });
+
+  it('parses calls without arguments', () => {
+    expect(extractPythonicToolCall('get_workout_history()', tools)).toEqual({ name: 'get_workout_history', arguments: {} });
+  });
+
+  it('ignores unknown names and prose', () => {
+    expect(extractPythonicToolCall('[print(x=1)]', tools)).toBeNull();
+    expect(extractPythonicToolCall('Ruf get_workout_history(limit=5) auf, dann sehen wir weiter.', tools)).toBeNull();
   });
 });
 
@@ -200,6 +234,79 @@ describe('runAgent', () => {
     const followUp = completionQueue.messages[2] as { role: string; content: string }[];
     expect(followUp.map(m => m.role)).toEqual(['system', 'user', 'assistant', 'user']);
     expect(followUp[3].content).toContain('<tool_result>');
+  });
+
+  it('writes the tool call into the assistant content for LFM templates', async () => {
+    completionQueue.historyStyle = 'lfm';
+    completionQueue.values = [
+      { toolCalls: [{ name: 'get_workout_history', arguments: { limit: 5 } }] },
+      'Du hast noch nicht trainiert.',
+    ];
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    const result = await runAgent('Was habe ich trainiert?', [], ctx, callbacks);
+
+    expect(result.message.content).toBe('Du hast noch nicht trainiert.');
+    const followUp = completionQueue.messages[1] as { role: string; content: string }[];
+    expect(followUp.map(m => m.role)).toEqual(['system', 'user', 'assistant', 'tool']);
+    expect(followUp[2].content).toBe('<|tool_call_start|>[get_workout_history(limit=5)]<|tool_call_end|>');
+  });
+
+  it('runs a Python-style call the model wrote as visible text', async () => {
+    completionQueue.values = ['[get_existing_plans()]', 'Du hast noch keine Pläne.'];
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    const result = await runAgent('Welche Pläne habe ich?', [], ctx, callbacks);
+
+    expect(result.message.toolInvocations).toEqual([{ name: 'get_existing_plans', success: true }]);
+    expect(result.message.content).toBe('Du hast noch keine Pläne.');
+  });
+
+  it('stops a model that keeps repeating the same tool call', async () => {
+    const call = { toolCalls: [{ name: 'get_workout_history', arguments: {} }] };
+    completionQueue.values = [call, call, call, call];
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+
+    const result = await runAgent('Was habe ich trainiert?', [], ctx, callbacks);
+
+    expect(completionQueue.messages).toHaveLength(3);
+    expect(callbacks.onToolStart).toHaveBeenCalledTimes(1);
+    expect(result.message.content).toBe('Erledigt.');
+  });
+
+  it('drops the oldest chat history when it would overflow the context', async () => {
+    completionQueue.values = ['Antwort.'];
+    const ctx = {
+      exercises: [], sessions: [], plans: [],
+      savePlan: vi.fn(), saveExercise: vi.fn(), addExerciseToPlan: vi.fn(), updatePlanExerciseSets: vi.fn(), getPlanById: vi.fn(),
+    } as unknown as ToolContext;
+    const callbacks = { onVisibleToken: vi.fn(), onToolStart: vi.fn(), onToolDone: vi.fn() };
+    const history = Array.from({ length: 20 }, (_, i) => ({
+      id: `m${i}`,
+      role: (i % 2 ? 'assistant' : 'user') as 'user' | 'assistant',
+      content: `${i} ${'x'.repeat(400)}`,
+      timestamp: '',
+    }));
+
+    await runAgent('Und jetzt?', history, ctx, callbacks);
+
+    const sent = completionQueue.messages[0] as { role: string; content: string }[];
+    expect(sent.length).toBeLessThan(history.length + 2);
+    expect(sent[1].role).toBe('user');
+    expect(sent[sent.length - 2].content).toBe(history[19].content);
+    expect(sent[sent.length - 1].content).toBe('Und jetzt?');
   });
 
   it('passes the original user message to generate_workout_plan', async () => {
