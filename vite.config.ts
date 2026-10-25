@@ -95,7 +95,11 @@ export default defineConfig({
     },
 
     injectManifest: {
-      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      // The wllama engine (~9 MB) is precached so the cached app code and the
+      // engine always come from the same build. Otherwise an outdated app keeps
+      // requesting a hashed wasm file that the next deploy has removed.
+      globPatterns: ['**/*.{js,css,html,svg,png,ico,wasm}'],
+      maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
     },
 
     devOptions: {
