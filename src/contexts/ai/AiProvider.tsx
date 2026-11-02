@@ -183,7 +183,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
       try {
         const result = await runAgent(
           userContent,
-          messagesRef.current.filter(m => !m.isStreaming && !m.isDebug),
+          messagesRef.current.filter(m => !m.isStreaming && !m.isDebug && !m.isError && m.content.trim()),
           buildToolContext(),
           {
             onVisibleToken: (_piece) => {
@@ -235,14 +235,19 @@ export function AiProvider({ children }: { children: ReactNode }) {
 
         createdPlanName = result.createdPlanName;
       } catch (err) {
+        console.error('[AiProvider] agent error:', err);
         const errContent =
           err instanceof Error
             ? `Fehler: ${err.message}`
             : 'Ein unbekannter Fehler ist aufgetreten.';
+        appendDebugMessage(
+          'Error',
+          err instanceof Error ? `${err.name}: ${err.message}\n\n${err.stack ?? ''}`.trim() : String(err),
+        );
         setMessages(prev =>
           prev.map(m =>
             m.id === streamingId
-              ? { ...m, content: errContent, isStreaming: false }
+              ? { ...m, content: errContent, isStreaming: false, isError: true }
               : m,
           ),
         );

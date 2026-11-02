@@ -57,3 +57,19 @@ describe('runChatCompletion', () => {
       .rejects.toBeInstanceOf(service.GrammarUnsupportedError);
   });
 });
+
+describe('detectToolHistoryStyle', () => {
+  it('lets templates that render tool_calls handle the history', () => {
+    expect(service.detectToolHistoryStyle('{% for tc in message.tool_calls %}{% endfor %}')).toBe('template');
+  });
+
+  it('detects LFM templates that ignore tool_calls', () => {
+    expect(service.detectToolHistoryStyle('{{ "List of tools: [" }}')).toBe('lfm');
+    expect(service.detectToolHistoryStyle('<|tool_list_start|>')).toBe('lfm');
+  });
+
+  it('falls back to the text protocol without tool support', () => {
+    expect(service.detectToolHistoryStyle('{{ message.content }}')).toBe('inline');
+    expect(service.detectToolHistoryStyle(null)).toBe('inline');
+  });
+});

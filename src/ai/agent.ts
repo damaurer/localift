@@ -9,7 +9,8 @@
  *
  * Tool calls are parsed natively by llama.cpp (model-specific format). As a
  * fallback for small models that write the call as plain text, the visible
- * output is also scanned for <tool_call> tags, ```json fences and bare JSON.
+ * output is also scanned for <tool_call> tags, ```json fences, bare JSON and
+ * LFM's Python-style `[name(arg=…)]` calls.
  * The "visible" text (shown to the user) excludes all tool-call markup.
  */
 
@@ -17,12 +18,21 @@ import type { AiMessage, AiToolCall, AiToolInvocation } from '../types/ai.types.
 import type { ToolContext } from './tools.ts';
 import { executeTool, FITNESS_TOOLS } from './tools.ts';
 import { buildSystemPrompt, type ToolPromptMode } from './prompts.ts';
-import { extractFirstJsonObject, extractToolCall } from './tool-parsing.ts';
 import {
+  extractFirstJsonObject,
+  extractPythonicToolCall,
+  extractToolCall,
+  formatPythonicCall,
+  LFM_CALL_END,
+  LFM_CALL_START,
+} from './tool-parsing.ts';
+import {
+  getToolHistoryStyle,
   NativeToolsUnsupportedError,
   runChatCompletion,
   supportsNativeTools,
   type ChatMessage,
+  type ToolHistoryStyle,
 } from './wllama-service.ts';
 import { generateId } from '../data/storage.ts';
 
@@ -39,8 +49,19 @@ const IM_END = '<|im_end|>';
  * plan, then add an exercise) — keep the ceiling generous.
  */
 const MAX_ITERATIONS = 12;
-/** Rough char budget to stay within the model's context window (n_ctx 4096). */
-const MAX_PROMPT_CHARS = 14000;
+/** Tokens reserved for one agent answer; the rest of n_ctx is prompt. */
+const MAX_ANSWER_TOKENS = 512;
+/**
+ * Rough char budget for the whole prompt — system prompt, tool schemas, history
+ * and tool results — so that prompt + answer fit n_ctx 4096. German text and
+ * JSON average roughly 3 chars per token.
+ */
+const MAX_PROMPT_CHARS = 10000;
+/** Room kept free for tool results when older chat history is dropped. */
+const TOOL_RESULT_RESERVE_CHARS = 2500;
+/** Longer tool results are cut so a single result cannot fill the context. */
+const MAX_TOOL_RESULT_CHARS = 2500;
+const TOOL_NAMES = FITNESS_TOOLS.map(t => t.name);
 
 /**
  * True when the user asks for ONE new plan/workout. Small models often answer
@@ -65,7 +86,7 @@ type AgentStep =
   | { kind: 'invalid_tool_call' };
 
 export interface AgentDebugOutput {
-  kind: 'completion' | 'tool_call' | 'tool_result' | 'invalid_tool_call' | 'prompt_limit' | 'tool_mode';
+  kind: 'start' | 'completion' | 'tool_call' | 'tool_result' | 'invalid_tool_call' | 'prompt_limit' | 'tool_mode';
   label: string;
   content: string;
 }
@@ -104,16 +125,31 @@ export async function runAgent(
   toolCtx: ToolContext,
   callbacks: AgentCallbacks,
 ): Promise<AgentResult> {
-  let toolMode: ToolPromptMode = supportsNativeTools() ? 'native' : 'text';
+  const historyStyle = getToolHistoryStyle();
+  // Templates without any tool support cannot show native calls to the model.
+  let toolMode: ToolPromptMode = supportsNativeTools() && historyStyle !== 'inline' ? 'native' : 'text';
   const planRequest = isPlanRequest(userMessage);
   const systemPrompt = buildSystemPrompt(FITNESS_TOOLS, toolMode);
+  // Older turns are dropped first when the conversation outgrows the context.
+  const fixedChars = promptOverheadChars(toolMode) + systemPrompt.length + userMessage.length;
+  const history = fitHistory(chatHistory, MAX_PROMPT_CHARS - TOOL_RESULT_RESERVE_CHARS - fixedChars);
   // messages accumulates context across tool-call iterations; the model's own
   // chat template renders it into the final prompt.
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
-    ...chatHistory.map(m => ({ role: m.role, content: m.content })),
+    ...history.map(m => ({ role: m.role, content: m.content })),
     { role: 'user', content: userMessage },
   ];
+  callbacks.onDebugOutput?.({
+    kind: 'start',
+    label: 'Agent start',
+    content: [
+      `Tool mode: ${toolMode}, tool history: ${historyStyle}`,
+      `History: ${history.length} of ${chatHistory.length} messages`,
+      `Prompt estimate: ${estimatePromptChars(messages, toolMode)} of ${MAX_PROMPT_CHARS} chars`,
+      planRequest ? 'Plan request: generate_workout_plan runs directly' : '',
+    ].filter(Boolean).join('\n'),
+  });
 
   // visibleText is what we show in the UI (tool XML stripped out).
   let visibleText = '';
@@ -126,7 +162,7 @@ export async function runAgent(
     // Stop before we overflow the context window. Tool results are already
     // applied, so an early stop still leaves a usable result. The first
     // iteration always runs so a turn never produces an empty response.
-    const promptChars = countMessageChars(messages);
+    const promptChars = estimatePromptChars(messages, toolMode);
     if (iteration > 0 && promptChars > MAX_PROMPT_CHARS) {
       callbacks.onDebugOutput?.({
         kind: 'prompt_limit',
@@ -188,25 +224,32 @@ export async function runAgent(
     const callSignature = getToolCallSignature(toolCall);
     const previousCallCount = toolCallCounts.get(callSignature) ?? 0;
 
-    if (toolCall.name === 'get_exercise_library' && previousCallCount > 0) {
+    // Small models tend to repeat a call instead of answering. Repeating it
+    // never helps (and would duplicate plans), so answer with a hint instead.
+    if (previousCallCount > 0) {
       toolCallCounts.set(callSignature, previousCallCount + 1);
 
       if (previousCallCount >= 2) {
-        const note =
-          '\n\nIch habe die Übungsbibliothek bereits mit denselben Parametern gelesen. ' +
-          'Nutze bitte spezifischere Suchparameter oder fahre mit den vorhandenen Treffern fort.';
-        callbacks.onVisibleToken(note);
-        visibleText += note;
+        callbacks.onDebugOutput?.({
+          kind: 'invalid_tool_call',
+          label: `Repeated tool call in iteration ${iteration + 1}`,
+          content: `${toolCall.name} was requested ${previousCallCount + 1} times with the same arguments, stopping.`,
+        });
         break;
       }
 
-      const guardResult = JSON.stringify({
-        error: 'get_exercise_library wurde in diesem Agent-Durchlauf bereits mit denselben Parametern ausgeführt.',
-        hint:
-          'Wiederhole denselben Library-Aufruf nicht. Nutze die vorhandenen exercise IDs aus dem vorherigen tool_result. ' +
-          'Falls andere Übungen benötigt werden, rufe get_exercise_library mit query, muscleGroup oder equipment spezifischer auf. ' +
-          'Für einen neuen Plan rufe generate_workout_plan auf.',
-      });
+      const guardResult = JSON.stringify(toolCall.name === 'get_exercise_library'
+        ? {
+          error: 'get_exercise_library wurde in diesem Agent-Durchlauf bereits mit denselben Parametern ausgeführt.',
+          hint:
+            'Wiederhole denselben Library-Aufruf nicht. Nutze die vorhandenen exercise IDs aus dem vorherigen tool_result. ' +
+            'Falls andere Übungen benötigt werden, rufe get_exercise_library mit query, muscleGroup oder equipment spezifischer auf. ' +
+            'Für einen neuen Plan rufe generate_workout_plan auf.',
+        }
+        : {
+          error: `${toolCall.name} wurde bereits mit denselben Parametern ausgeführt.`,
+          hint: 'Rufe das Tool nicht erneut auf. Nutze das vorherige Ergebnis und antworte dem Nutzer jetzt direkt.',
+        });
       toolInvocations.push({ name: toolCall.name, success: false });
       callbacks.onToolDone(toolCall.name, false);
       callbacks.onDebugOutput?.({
@@ -214,7 +257,7 @@ export async function runAgent(
         label: `Guard result for ${toolCall.name}`,
         content: guardResult,
       });
-      appendToolExchange(messages, toolCall, guardResult, iteration, toolMode);
+      appendToolExchange(messages, toolCall, guardResult, iteration, toolMode, historyStyle);
       continue;
     }
 
@@ -245,7 +288,18 @@ export async function runAgent(
 
     // Continue the agent loop with a normalized assistant tool-call turn and
     // a tool-result turn, mirroring LEAP's FunctionCalls -> tool messages flow.
-    appendToolExchange(messages, toolCall, toolResult, iteration, toolMode);
+    appendToolExchange(messages, toolCall, truncateToolResult(toolResult), iteration, toolMode, historyStyle);
+  }
+
+  // Never leave an empty bubble (e.g. the loop stopped at the prompt limit).
+  if (!visibleText.trim()) {
+    const fallback = toolInvocations.some(t => t.success)
+      ? createdPlanName
+        ? `Dein Plan „${createdPlanName}“ ist gespeichert.`
+        : 'Erledigt.'
+      : 'Darauf konnte ich gerade keine Antwort erzeugen. Formuliere die Frage bitte noch einmal anders.';
+    callbacks.onVisibleToken(fallback);
+    visibleText = fallback;
   }
 
   return {
@@ -271,7 +325,7 @@ async function generateAgentStep(
   let stopRequested = false;
 
   const completion = await runChatCompletion(messages, {
-    maxTokens: 1024,
+    maxTokens: MAX_ANSWER_TOKENS,
     temperature: 0.4,
     tools: toolMode === 'native' ? FITNESS_TOOLS : undefined,
     onToken: (_piece, fullText) => {
@@ -296,6 +350,7 @@ async function generateAgentStep(
       if (
         toolCallDetected &&
         (fullText.includes(TOOL_CLOSE) ||
+          fullText.includes(LFM_CALL_END) ||
           fullText.includes(IM_END) ||
           extractFirstJsonObject(fullText) !== null)
       ) {
@@ -320,10 +375,14 @@ async function generateAgentStep(
   }
 
   if (!toolCallDetected) {
-    return { kind: 'final', text: stripAfterEndOfTurn(generated) };
+    const text = stripAfterEndOfTurn(generated);
+    // LFM models sometimes write their Python-style call without the special
+    // tokens, so llama.cpp hands it over as visible text.
+    const pythonic = extractPythonicToolCall(text, TOOL_NAMES);
+    return pythonic ? { kind: 'tool', call: pythonic } : { kind: 'final', text };
   }
 
-  const call = extractToolCall(generated);
+  const call = extractToolCall(generated) ?? extractPythonicToolCall(stripAfterEndOfTurn(generated), TOOL_NAMES);
   return call ? { kind: 'tool', call } : { kind: 'invalid_tool_call' };
 }
 
@@ -336,9 +395,10 @@ function findToolStart(text: string): number {
   // A tool call may arrive in several shapes (the local model is not reliable
   // about the <tool_call> wrapper): a proper tag, a ```json fence, or bare JSON.
   const tcOpen = text.indexOf(TOOL_OPEN);
+  const lfmOpen = text.indexOf(LFM_CALL_START);
   const fenceAt = text.indexOf(FENCE);
   const leadBrace = text.trimStart().startsWith('{') ? text.indexOf('{') : -1;
-  const indicators = [tcOpen, fenceAt, leadBrace].filter(i => i !== -1);
+  const indicators = [tcOpen, lfmOpen, fenceAt, leadBrace].filter(i => i !== -1);
   return indicators.length ? Math.min(...indicators) : -1;
 }
 
@@ -362,6 +422,7 @@ function appendToolExchange(
   toolResult: string,
   iteration: number,
   toolMode: ToolPromptMode,
+  historyStyle: ToolHistoryStyle,
 ): void {
   if (toolMode === 'text') {
     messages.push(
@@ -375,7 +436,9 @@ function appendToolExchange(
   messages.push(
     {
       role: 'assistant',
-      content: '',
+      // LFM templates ignore `tool_calls` — without the call in the content the
+      // model sees an empty turn followed by an unexplained tool result.
+      content: historyStyle === 'lfm' ? `${LFM_CALL_START}[${formatPythonicCall(toolCall)}]${LFM_CALL_END}` : '',
       tool_calls: [{
         id: toolCallId,
         type: 'function',
@@ -392,6 +455,35 @@ function countMessageChars(messages: ChatMessage[]): number {
     const calls = m.role === 'assistant' && m.tool_calls ? JSON.stringify(m.tool_calls).length : 0;
     return sum + content + calls;
   }, 0);
+}
+
+/** Native tool schemas are rendered into the prompt by the chat template. */
+function promptOverheadChars(toolMode: ToolPromptMode): number {
+  return toolMode === 'native' ? JSON.stringify(FITNESS_TOOLS).length : 0;
+}
+
+function estimatePromptChars(messages: ChatMessage[], toolMode: ToolPromptMode): number {
+  return countMessageChars(messages) + promptOverheadChars(toolMode);
+}
+
+/** Keeps the most recent chat messages that fit into `budget` characters. */
+function fitHistory(history: AiMessage[], budget: number): AiMessage[] {
+  const kept: AiMessage[] = [];
+  let used = 0;
+  for (let i = history.length - 1; i >= 0; i--) {
+    used += history[i].content.length;
+    if (used > budget) break;
+    kept.unshift(history[i]);
+  }
+  // A chat template may require the history to start with a user turn.
+  while (kept.length && kept[0].role !== 'user') kept.shift();
+  return kept;
+}
+
+function truncateToolResult(result: string): string {
+  return result.length > MAX_TOOL_RESULT_CHARS
+    ? `${result.slice(0, MAX_TOOL_RESULT_CHARS)}… (gekürzt)`
+    : result;
 }
 
 function getToolCallSignature(toolCall: AiToolCall): string {
