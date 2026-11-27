@@ -13,6 +13,8 @@ import {usePlanContext} from "../contexts/plan/PlanContext.tsx";
 import {useAiContext} from "../contexts/ai/AiContext.tsx";
 import {requestPermission} from '../notifications';
 import {useTranslation} from "../i18n/I18nContext.tsx";
+import {useNutritionContext} from "../contexts/nutrition/NutritionContext.tsx";
+import {backupFileName, buildBackup} from "../data/backup.ts";
 
 // New sub-components
 import StatsSummary from '../components/settings/StatsSummary';
@@ -34,6 +36,7 @@ export default function Settings() {
     const {sessions} = useWorkoutContext();
     const {exercises} = useExerciseContext();
     const {plans} = usePlanContext();
+    const {nutritionDays, nutritionGoals} = useNutritionContext();
     const {modelStatus, downloadProgress, modelError, loadedModelUrl} = useAiContext();
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showExportSuccess, setShowExportSuccess] = useState(false);
@@ -82,17 +85,13 @@ export default function Settings() {
     };
 
     const handleExport = () => {
-        const data = {
-            exportDate: new Date().toISOString(),
-            plans,
-            sessions,
-            exercises,
-        };
+        const now = new Date();
+        const data = buildBackup({plans, sessions, exercises, settings, nutritionDays, nutritionGoals}, now);
         const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `localift-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = backupFileName(now);
         a.click();
         URL.revokeObjectURL(url);
         setShowExportSuccess(true);
